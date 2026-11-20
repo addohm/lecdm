@@ -82,7 +82,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 3. **The display of what only the Cooldown Manager can show** (the player's effects on the
    target, its timers; an addon can't time them in combat): settled 2026-11-20 in the host
    test. Blizzard's own buff icons and bars live in Lecdm's bars, re-placed after each of
-   Blizzard's layouts, and follow each target. Confirmed in the open world; a dungeon to go.
+   Blizzard's layouts, and follow each target. Confirmed in the open world and in a dungeon.
 4. **Buffs:** the Cooldown Manager's tracked buffs and procs, buffs from others (aura
    containers), missing state.
 5. **Effects on the target:** the player's DoTs and HoTs.

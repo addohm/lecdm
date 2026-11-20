@@ -133,8 +133,12 @@ Dungeon, 34d86ec, 2026-11-20 (about 15 kills):
   same-second pairs kept "target exists true" a frame later (most likely already on the next
   mob). So: a target debuff's "removed" waits a frame and is a kill if the target is gone.
 
-Still to check: the host test in a dungeon (14) and a trinket on cooldown (13); both had
-scrolled out of the 500-line log.
+- **The host test holds in a dungeon too** (step 14): the owner reports Blizzard's bars stayed
+  in Lecdm's row the whole run.
+- **A trinket on cooldown** (step 13) wasn't tried; assumed to read like a spell (numbers
+  SECRET, the item's cooldown state usable). To confirm once the bars show trinkets.
+
+Test build 1 is finished (2026-11-20).
 
 ## Problems
 
