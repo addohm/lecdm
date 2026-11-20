@@ -114,8 +114,18 @@ Second dungeon run (870f69d, 2026-11-20):
 - **`/lecdm check` covers every spell:** 26 lines, "no power" readable; Eureka! read "on
   cooldown true", so racials behave like spells.
 
-Still to check (the open world will do): the frame-later look after a kill (step 12, needs
-34d86ec), a trinket on cooldown (13), and the host test (14).
+Open world, 34d86ec, 2026-11-20:
+
+- **Blizzard's icons live in a Lecdm row** (step 14): with `/lecdm host on` for 7 minutes of
+  fights, Blizzard's buff icons and bars stayed in Lecdm's row the whole time, and the bars
+  followed each target, showing that target's own debuff time left. No blocked, refused or Lua
+  errors.
+- **An expiry on a live target reads "dead false"**, at the moment and a frame later (Thunder
+  Clap, Sunder Armor). Kills in that log logged no "removed" at all (in the first dungeon they
+  did, all of a target's debuffs in the same second), so what a kill reads is still open.
+
+Still to check: a kill's "removed" lines and the frame-later look (step 12, in a dungeon), and
+a trinket on cooldown (13).
 
 ## Problems
 
