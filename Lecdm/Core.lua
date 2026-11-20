@@ -12,7 +12,10 @@ local DEFAULTS = {
 	classColour = false,                -- the options window in your class colour
 	window = {},                        -- the options window: pos, size, tab
 	minimap = { angle = 350, hide = false }, -- clear of the owner's other addons (200-325)
-	test = { sound = true, icons = true }, -- test build 1: the raid warning, the test icons (and pos)
+	test = { sound = true },            -- test build 1: the raid warning when a tracked buff drops
+	-- the cooldown bars (Bars.lua): list = { bar ... } (B.NewBar has a bar's fields), seeded once
+	-- from Blizzard's list, and whether Blizzard's Essential and Utility viewers are made invisible
+	bars = { list = {}, seeded = false, nextID = 1, hideBlizzard = true },
 }
 ns.DEFAULTS = DEFAULTS
 
@@ -76,7 +79,7 @@ end
 
 -- After any setting changes, and when the profile changes: everything shown follows ns.db.
 function ns.Refresh()
-	if ns.Icons then ns.Icons.Build() end
+	if ns.Bars then ns.Bars.Build() end
 	if ns.Theme then ns.Theme.Apply() end
 	if ns.Minimap then ns.Minimap.Apply() end
 	if ns.Window then ns.Window.Apply() end
@@ -109,9 +112,9 @@ local function Greet()
 	if not LecdmDB.welcomed then
 		LecdmDB.welcomed = true
 		ns.Print("thanks for installing! Type |cffffd100/lecdm|r or click the minimap button for the options. "
-			.. "This is test build 1: the Test build tab has what to try.")
+			.. "Your cooldowns are in two bars under your character: /lecdm move to drag them.")
 	elseif ns.db.loginMessage then
-		ns.Print(ns.Version(true) .. " (test build 1) loaded. Type |cffffd100/lecdm|r to open the options.")
+		ns.Print(ns.Version(true) .. " loaded. Type |cffffd100/lecdm|r to open the options.")
 	end
 end
 
@@ -154,11 +157,11 @@ local function Help()
 	ns.Print("/lecdm general | bars | buffs | alerts | test | profiles - open that tab")
 	ns.Print("/lecdm profile - the profile in use, and the Profiles tab (where they're managed)")
 	ns.Print("/lecdm minimap - show or hide the minimap button; /lecdm on | off - turn Lecdm on or off")
+	ns.Print("/lecdm move - unlock the bars to drag them; again to lock them")
 	ns.Print("Test build: /lecdm status - Blizzard's Cooldown Manager, its list, what's listened to")
 	ns.Print("/lecdm list - every spell Blizzard's Cooldown Manager lists for you, by section")
 	ns.Print("/lecdm check - what an addon can read about your spells right now (try it in combat)")
 	ns.Print("/lecdm sound - the raid warning when a tracked buff drops, on or off")
-	ns.Print("/lecdm icons - the test icons on or off; /lecdm move - drag them (out of combat)")
 	ns.Print("/lecdm blizz hide | show - make Blizzard's cooldown viewers invisible, or bring them back")
 	ns.Print("/lecdm host on | off - Blizzard's buff icons and bars in a row Lecdm places (off: then /reload)")
 	ns.Print("/lecdm log - the log, ready to copy; /lecdm log clear empties it")
@@ -193,10 +196,8 @@ SlashCmdList.LECDM = function(msg)
 		ns.db.test.sound = not ns.db.test.sound
 		ns.Print("raid warning when a tracked buff drops: " .. (ns.db.test.sound and "on" or "off"))
 		if ns.Window then ns.Window.Refresh() end
-	elseif cmd == "icons" then
-		ns.Icons.SetShown(not ns.db.test.icons)
 	elseif cmd == "move" then
-		ns.Icons.Move()
+		ns.Bars.SetUnlocked(not ns.Bars.IsUnlocked())
 	elseif cmd == "blizz" then
 		ns.Blizz.Set(rest)
 	elseif cmd == "host" then

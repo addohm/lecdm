@@ -73,11 +73,17 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
   Last", shared, switched by talents or group role), the minimap button and addon compartment,
   an Options > AddOns entry, `/lecdm`. The icon is a stand-in (a pocket watch) until the release
   kit's art. Not tried in game yet.
+- Cooldown bars, first build (0.1.0-dev, 2026-11-20): any number of bars (two filled from
+  Blizzard's list at first), Lecdm's own icons (swipe and countdown, grey on cooldown, GCD sweep
+  on or off, dark when unusable, red out of range), per spell "only when ready" or "only on
+  cooldown" with the gap closing, a checklist of Blizzard's list and the spellbook, order with
+  up and down, size, spacing, grow from, vertical, icons per row, unlock to drag; Blizzard's
+  Essential and Utility viewers made invisible. Not tried in game yet.
 
 ## Next
 
-1. **Cooldown bars:** any number, own icons, per-spell look and behaviour, a spell picker
-   (Blizzard's list, spellbook), drag to order and place.
+1. **Cooldown bars in game** (TESTING.md), then their next pieces: drag to order in the
+   window, more per-spell looks (borders, zoom, text), charges.
 2. **Items:** trinkets and other on-use slots, racials, potions, healthstones.
 3. **The display of what only the Cooldown Manager can show** (the player's effects on the
    target, its timers; an addon can't time them in combat): settled 2026-11-20 in the host

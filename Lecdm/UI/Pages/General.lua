@@ -14,8 +14,8 @@ ns.Window.Page({
 		stack:Add(UI.OptionText(stack.inner,
 			"Lecdm makes Blizzard's Cooldown Manager better and simpler to manage: bars of your cooldowns, "
 			.. "buffs and procs, laid out and styled your way from this window, with sounds and glows that work in combat.\n"
-			.. "|cffff8040This is test build 1:|r no bars yet. It checks in game what Lecdm will rely on. "
-			.. GOLD .. "Test build|r has what to try.\n"
+			.. GOLD .. "Bars|r: start here. Your cooldowns in bars you lay out; two are made for you from Blizzard's list.\n"
+			.. "|cffff8040A development build:|r buffs and alerts come next. " .. GOLD .. "Test build|r keeps the checks.\n"
 			.. GOLD .. "Profiles|r: separate setups, switched by hand or by your talents or group role.", 84))
 
 		stack:Add(UI.OptionHeading(stack.inner, "General"))

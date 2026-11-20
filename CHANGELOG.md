@@ -26,7 +26,21 @@ All notable changes to lecdm. The format follows
   with a summary in chat); blocked actions (any addon's) and the first swings of each fight are
   logged; `/lecdm host on|off` places Blizzard's buff icons and bars in a row Lecdm controls.
 
+- Cooldown bars (0.1.0-dev, 2026-11-20): your cooldowns in bars of Lecdm's own icons, set up on
+  the Bars tab. The first time, two bars (Cooldowns, Utility) are filled from Blizzard's
+  Essential and Utility lists. Each icon: the swipe and countdown (the GCD sweep can be turned
+  off per bar), grey on cooldown, dark when you can't cast it, red when your target is out of
+  range. Per spell: always, only when ready, or only on cooldown; hidden icons close the gap.
+  Per bar: icon size, spacing, grow from, vertical, icons per row. Spells are added from a
+  checklist of Blizzard's list and your spellbook, ordered with up and down, and not-learned
+  ones appear once learned. `/lecdm move` (or Unlock on the Bars tab) lets you drag the bars.
+  Blizzard's Essential and Utility icons are made invisible while Lecdm's bars are on (they
+  keep running); a setting gives them back.
+
 ### Changed
+
+- The test icons are gone: the bars replace them, and `/lecdm move` now moves the bars
+  (`/lecdm icons` is gone).
 
 - `/lecdm` opens the options window; the status is `/lecdm status`. The test build's settings
   (raid warning, test icons and their place) live in the profile; 0.0.1's move there once.

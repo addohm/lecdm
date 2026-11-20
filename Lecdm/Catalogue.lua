@@ -8,6 +8,7 @@ local Cat = {}
 ns.Catalogue = Cat
 
 Cat.byID = {}     -- cooldownID -> { cooldownID, spellID, name, category, known, aura, charges }
+Cat.bySpell = {}  -- spellID -> the same entry
 Cat.sections = {} -- { value, name, ids }, by section value
 
 local function Plain(v)
@@ -27,6 +28,7 @@ end
 
 function Cat.Build()
 	wipe(Cat.byID)
+	wipe(Cat.bySpell)
 	wipe(Cat.sections)
 	if not (C_CooldownViewer and C_CooldownViewer.GetCooldownViewerCategorySet) then return end
 	for sectionName, value in pairs(Enum.CooldownViewerCategory or {}) do
@@ -42,6 +44,7 @@ function Cat.Build()
 						category = value, known = Plain(info.isKnown),
 						aura = Plain(info.hasAura) or Plain(info.selfAura), charges = Plain(info.charges),
 					}
+					if spellID then Cat.bySpell[spellID] = Cat.byID[id] end
 					table.insert(section.ids, id)
 				end
 			end
@@ -62,14 +65,14 @@ function Cat.Name(cooldownID)
 	return "cooldown " .. tostring(cooldownID)
 end
 
--- Known spell entries of the given sections, in Blizzard's order.
-function Cat.Spells(values)
+-- Spell entries of the given sections, in Blizzard's order: learned ones only, or all with all.
+function Cat.Spells(values, all)
 	local list = {}
 	for _, section in ipairs(Cat.sections) do
 		if values[section.value] then
 			for _, id in ipairs(section.ids) do
 				local entry = Cat.byID[id]
-				if entry.known and entry.spellID then table.insert(list, entry) end
+				if entry.spellID and (all or entry.known) then table.insert(list, entry) end
 			end
 		end
 	end

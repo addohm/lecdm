@@ -62,6 +62,8 @@ local function NewRegion(kind, name, parent)
 	function f:EnableMouse(v) self.mouse = v end
 	function f:CreateTexture() return NewRegion("Texture", nil, self) end
 	function f:CreateFontString() return NewRegion("FontString", nil, self) end
+	function f:SetupMenu(generator) self.generator = generator end
+	function f:EnableMouse(v) self.mouse = v end
 	function f:SetCooldownFromDurationObject(dur)
 		if dur == SECRET then error("secret duration refused") end
 		self.duration = dur
@@ -162,10 +164,31 @@ C_Secrets = {
 C_SpellActivationOverlay = { IsSpellOverlayed = function() return false end }
 
 Enum = {
+	SpellBookSpellBank = { Player = 0 },
+	SpellBookItemType = { None = 0, Spell = 1 },
 	CooldownViewerCategory = { Essential = 0, Utility = 1, TrackedBuff = 2, TrackedBar = 3, GroupBuff = 4 },
 	CooldownViewerAlertEventType = { Available = 1, PandemicTime = 2, OnCooldown = 3, ChargeGained = 4,
 		OnAuraApplied = 5, OnAuraRemoved = 6 },
 }
+
+M.range, M.rangeChecked = {}, {}
+
+-- Learned: Blizzard's list's isKnown, and the spellbook (M.book: one Protection line).
+C_SpellBook = {
+	IsSpellKnown = function(id)
+		for _, info in pairs(M.info) do
+			if info.spellID == id then return info.isKnown end
+		end
+		return id == 2565
+	end,
+	GetNumSpellBookSkillLines = function() return 1 end,
+	GetSpellBookSkillLineInfo = function() return { name = "Protection", itemIndexOffset = 0, numSpellBookItems = 3, shouldHide = false } end,
+	GetSpellBookItemInfo = function(slot)
+		return ({ { spellID = 2565, itemType = 1, isPassive = false }, { spellID = 12345, itemType = 1, isPassive = true },
+			{ spellID = 100, itemType = 1, isPassive = false } })[slot]
+	end,
+}
+function GetSpellBaseCooldown(id) return id == 2565 and 5000 or 0 end
 
 -- Spells by ID, and Blizzard's list: section value -> cooldown IDs, cooldown ID -> info.
 M.spells = {
@@ -173,6 +196,7 @@ M.spells = {
 	[100] = { name = "Charge", texture = 2, active = true },
 	[6572] = { name = "Revenge", texture = 3, usable = false },
 	[12292] = { name = "Death Wish", texture = 4 },
+	[2565] = { name = "Shield Block", texture = 5 },
 }
 M.sections = { [0] = { 11, 12 }, [1] = { 13 }, [2] = { 14, 15 }, [3] = {} }
 M.info = {
@@ -197,7 +221,7 @@ C_Spell = {
 	GetSpellTexture = function(id) return M.spells[id] and M.spells[id].texture end,
 	GetSpellCooldown = function(id)
 		local s = M.spells[id]
-		return { isActive = s.active or false, isOnGCD = false, isEnabled = true,
+		return { isActive = s.active or s.gcd or false, isOnGCD = s.gcd or false, isEnabled = true,
 			startTime = M.secretCooldowns and SECRET or 0, duration = M.secretCooldowns and SECRET or 0 }
 	end,
 	GetSpellCooldownDuration = function(id)
@@ -209,7 +233,12 @@ C_Spell = {
 		if M.combat then return SECRET end
 		return M.spells[id].usable ~= false
 	end,
-	IsSpellInRange = function() return M.combat and SECRET or true end,
+	IsSpellInRange = function(id)
+		if M.combat then return SECRET end
+		if M.range[id] ~= nil then return M.range[id] end
+		return true
+	end,
+	EnableSpellRangeCheck = function(id, on) M.rangeChecked[id] = on end,
 }
 
 C_UnitAuras = {
@@ -257,6 +286,28 @@ function M.Fire(event, ...)
 end
 
 function M.Slash(msg) SlashCmdList.LECDM(msg) end
+
+-- A menu as Blizzard's MenuUtil hands a generator: buttons (submenus) and checkboxes.
+function M.Menu()
+	local function Node(text)
+		local n = { text = text, children = {} }
+		function n:CreateButton(t)
+			local c = Node(t)
+			table.insert(self.children, c)
+			return c
+		end
+		function n:CreateCheckbox(t, isSelected, setSelected)
+			local c = Node(t)
+			c.isSelected, c.setSelected = isSelected, setSelected
+			function c:SetTooltip(fn) self.tooltip = fn end
+			table.insert(self.children, c)
+			return c
+		end
+		function n:CreateTitle() end
+		return n
+	end
+	return Node("root")
+end
 
 function M.Printed(pattern)
 	for _, line in ipairs(M.printed) do

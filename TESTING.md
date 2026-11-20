@@ -3,7 +3,37 @@
 What to check in game, and what's been confirmed. Results go under Confirmed or Problems, with
 the build and date.
 
-## To check (test build 1, 0.0.1-dev)
+## To check (cooldown bars, 0.1.0-dev)
+
+New files: run `tools\install_forever.cmd`, then fully restart the game. `/lecdm help` shows the
+build.
+
+1. **First look.** Two bars under your character: Cooldowns (your Essential spells) and Utility.
+   Spells you haven't learned don't show. Blizzard's own Essential and Utility icons are gone
+   (its buff icons and bars are still there).
+2. **In combat** (a dungeon too): each icon's swipe and countdown, grey while on cooldown and
+   back to colour when ready, a short GCD sweep, dark when you can't cast it (no rage), red
+   when your target is out of range (Charge, Intercept). No Lua errors.
+3. **Bars tab** (`/lecdm bars`):
+   - "Add or remove spells": the checklist opens with Blizzard's Essential, Blizzard's
+     Utility and Spellbook sections; ticking adds a spell to the bar shown (moving it from
+     another bar), unticking takes it off; the list stays open while you tick.
+   - The arrows move a spell up and down; the X takes it off.
+   - "Only when ready" on Charge: it vanishes while cooling down and the others close up;
+     "Only on cooldown": the other way round.
+   - Icon size, spacing, grow from, vertical, icons per row, GCD sweep: each changes the bar
+     at once.
+   - New bar, rename, delete; Start over brings back the two bars.
+4. **Move.** `/lecdm move`: each bar shows its name on a blue shade; drag them; `/lecdm move`
+   again. After `/reload` they're where you left them.
+5. **Blizzard's icons.** Untick "Hide Blizzard's Essential and Utility icons": they come back.
+   Tick it: gone again. Do they stay gone after Edit Mode and a loading screen? Does the
+   listener (raid warning on a drop) still work with them gone?
+6. **A trinket on cooldown.** Put the Satchel (or an on-use trinket) on a bar? It isn't in the
+   checklist yet (items come next): just note whether `/lecdm check` in combat, with it cooling
+   down, shows SECRET.
+
+## Checked (test build 1, 0.0.1-dev)
 
 Install with `tools\install_forever.cmd`, fully restart the game (first install), then
 `/lecdm help` should show the build you installed.

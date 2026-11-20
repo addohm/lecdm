@@ -17,7 +17,8 @@ something similar. EllesmereUI's Cooldown Manager is the feature reference: it's
 reserved", so ideas only, never its code, and it's never named in the addon or its docs for
 players.
 
-Now: test build 1 (0.0.1-dev), which checks in game what the plan relies on (TESTING.md).
+Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relies on
+(TESTING.md); the cooldown bars are the first real feature.
 
 ## Layout
 
@@ -26,9 +27,8 @@ Now: test build 1 (0.0.1-dev), which checks in game what the plan relies on (TES
   - `Build.lua`: build stamp, empty in the repo; the install script writes the commit into it.
   - `Core.lua`: the defaults (`ns.DEFAULTS`: enabled, loginMessage, classColour, window, minimap,
     test), `ns.Print`, `ns.IsSecret` / `ns.Show` (secret-safe text), `ns.Where`,
-    `ns.Version(withBuild)`, `ns.Enabled` / `ns.SetEnabled`, `ns.Refresh()` (the test icons,
-    theme, minimap button and window follow `ns.db`), `ns.ResetAll()`, the login message,
-    `/lecdm`.
+    `ns.Version(withBuild)`, `ns.Enabled` / `ns.SetEnabled`, `ns.Refresh()` (the bars, theme,
+    minimap button and window follow `ns.db`), `ns.ResetAll()`, the login message, `/lecdm`.
   - `Profiles.lua`: profiles, in the owner's house style. `LecdmDB.profiles[name]` holds every
     setting; `LecdmDB.chars["First Last"]` is the profile each character uses (`P.CharKey`:
     UnitName's second value is the surname on Forever; no realm); `ns.db` is the one in use.
@@ -37,14 +37,22 @@ Now: test build 1 (0.0.1-dev), which checks in game what the plan relies on (TES
   - `Log.lua`: `ns.Log(text, toChat)` into `LecdmDB.log` (account-wide, last 500), and the copy
     window (`LecdmLog`).
   - `Catalogue.lua`: Blizzard's list through `C_CooldownViewer` (`ns.Catalogue.byID` by cooldown
-    ID, `.sections`, `.Spells(sections)`, `.Name(cooldownID)`), `/lecdm list`.
+    ID, `.bySpell`, `.sections`, `.Spells(sections, all)`, `.Name(cooldownID)`), `/lecdm list`.
+    It gives Blizzard's default sections, not where the player put things in `/cdm`.
+  - `Bars.lua`: the cooldown bars (`ns.db.bars`: `list` of bars, each `{ id, name, spells =
+    { spellID ... }, show = { [spellID] = "ready" | "cooldown" }, size, gap, grow, vertical,
+    perRow, gcd, pos }`; `seeded`, `nextID`, `hideBlizzard`). `B.Build()` (frames, buttons,
+    seeding from Blizzard's list once per profile), `Update` (one icon: swipe from the duration
+    object, grey, dark, red; returns whether it shows), `Layout` (closes gaps), `B.UpdateAll` /
+    `B.UpdateSpell` on events, `B.SetOnBar`, `B.MoveSpell`, `B.NewBar`, `B.Delete`,
+    `B.StartOver`, `B.SetUnlocked`, `B.ApplyBlizzard`, `B.Spellbook()` (spells with a cooldown,
+    by skill line, for the checklist), `B.Known`.
   - `Listen.lua`: hooks `OnAcquireItemFrame` on the four viewers and `TriggerAlertEvent` on each
     icon (weak table of hooked icons), logs what the Cooldown Manager announces (with the
     target's state on "removed"), the raid warning on "removed"; proc glow events, blocked
     actions and the first swings of each fight. `L.ActiveItems(viewer)`.
   - `Check.lua`: `/lecdm check` (what's readable about the Essential/Utility spells and trinket
     slots now, into the log) and `/lecdm status`.
-  - `Icons.lua`: the test icons (own frames, swipe from `GetSpellCooldownDuration`).
   - `Blizz.lua`: `/lecdm blizz hide|show`, the invisible-viewers test, and `/lecdm host on|off`,
     the hosting test (Blizzard's Buffs/Bars viewer icons re-placed into a Lecdm row after each
     `RefreshLayout`/`Layout`, counted). Both are tests only: they move or fade Blizzard frames.
@@ -52,8 +60,10 @@ Now: test build 1 (0.0.1-dev), which checks in game what the plan relies on (TES
     window `LecdmFrame`: tabs, Defaults, resize grip; pages register with `ns.Window.Page`; the
     Options > AddOns entry), `UI/Minimap.lua` (`LecdmMinimapButton`, angle 350, the addon
     compartment): the owner's house code, from leproc.
-  - `UI/Pages/`: `General.lua`, `Soon.lua` (Bars, Buffs, Alerts: what's coming), `Test.lua`
-    (test build 1's settings and tools), `Profiles.lua`.
+  - `UI/Pages/`: `General.lua`, `Bars.lua` (the bar picker, look, the spell checklist on
+    Blizzard's `DropdownButton` / MenuUtil, a row per spell rebuilt each refresh with
+    `UI.Stack` Reset/Add/Done), `Soon.lua` (Buffs, Alerts: what's coming), `Test.lua` (test
+    build 1's settings and tools), `Profiles.lua`.
 - `tools/install_forever.cmd`: pulls (and explains a rewritten history), copies the addon into
   the Windows client, stamps the build, packs `Lecdm-<version>.zip` on the desktop. Keep it CRLF
   (`.gitattributes`).
@@ -95,8 +105,12 @@ Now: test build 1 (0.0.1-dev), which checks in game what the plan relies on (TES
 - **Blizzard's Cooldown Manager is read-only.** Never write its data, its frames' fields, Edit
   Mode layouts or its CVars; never call its refresh methods; no forced reloads. Listen with
   `hooksecurefunc`; keep per-frame state in weak tables. Identify an icon by its cooldown ID read
-  when needed: icons are pooled and reused. (`/lecdm blizz hide` setting viewer alpha is a test
-  only.)
+  when needed: icons are pooled and reused. Two exceptions, both confirmed harmless in game:
+  while Lecdm's bars are on, the Essential and Utility viewers get alpha 0 (never `Hide()`,
+  which stops their events; set again after Edit Mode and loading screens, not fought), and
+  the host test re-places Buffs/Bars viewer icons into a Lecdm row.
+- **A two-value call only passes both values when it's last** in an argument list: give
+  getter/setter pairs their own locals (UI/Pages/Bars.lua).
 - Events, not timers or retry ladders.
 - The version alone in any UI; the build only in chat (login line, `/lecdm help`).
 - New settings go in `ns.DEFAULTS` (so in every profile); only the log and `welcomed` are

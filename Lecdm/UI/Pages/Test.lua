@@ -17,15 +17,6 @@ ns.Window.Page({
 			function(v) ns.db.test.sound = v end,
 			{ "Raid warning", "Played the moment Blizzard's Cooldown Manager says a buff it tracks was removed. Does it match the icon, in combat too?" }))
 
-		stack:Add(UI.OptionHeading(stack.inner, "Test icons"))
-		stack:Add(UI.OptionCheck(stack.inner, "Show the test icons",
-			function() return ns.db.test.icons end,
-			function(v) ns.Icons.SetShown(v) end,
-			{ "Test icons", "Lecdm's own icons for your learned Essential and Utility spells: a swipe and countdown, grey on cooldown, dark when you can't cast." }))
-		stack:Add(UI.OptionButton(stack.inner, "Move the test icons", function()
-			return ns.Icons.IsMoving() and "Lock" or "Unlock"
-		end, function() ns.Icons.Move() end))
-
 		stack:Add(UI.OptionHeading(stack.inner, "Tools"))
 		stack:Add(UI.OptionButton(stack.inner, "Blizzard's cooldown viewers", function()
 			return ns.Blizz.IsHidden() and "Bring them back" or "Make invisible"
@@ -34,7 +25,7 @@ ns.Window.Page({
 		stack:Add(UI.OptionButton(stack.inner, "Blizzard's buff icons in a Lecdm row", function()
 			return ns.Blizz.IsHosting() and "Stop (then /reload)" or "Start"
 		end, function() ns.Blizz.Host(ns.Blizz.IsHosting() and "off" or "on") end,
-			{ "Host test", "Places Blizzard's own buff icons and bars (buffs on you, your debuffs on the target) in a row above the test icons, and keeps them there after each of Blizzard's layouts. Do they stay put, in combat too?" }))
+			{ "Host test", "Places Blizzard's own buff icons and bars (buffs on you, your debuffs on the target) in a row under the middle of the screen, and keeps them there after each of Blizzard's layouts. Do they stay put, in combat too?" }))
 		stack:Add(UI.OptionButton(stack.inner, "Status, in chat", "Show", function() ns.Check.Status() end))
 		stack:Add(UI.OptionButton(stack.inner, "Blizzard's list, in chat", "Show", function() ns.Catalogue.PrintAll() end))
 		stack:Add(UI.OptionButton(stack.inner, "What's readable now, in chat", "Check", function() ns.Check.Run() end,
@@ -43,8 +34,6 @@ ns.Window.Page({
 		stack:Add(UI.OptionButton(stack.inner, "", "Clear the log", function() ns.LogWindow.Clear() end))
 	end,
 	defaults = function()
-		local d = ns.DEFAULTS.test
-		ns.db.test.sound = d.sound
-		ns.Icons.SetShown(d.icons)
+		ns.db.test.sound = ns.DEFAULTS.test.sound
 	end,
 })

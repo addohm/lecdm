@@ -71,8 +71,8 @@ function B.Set(what)
 end
 
 -- /lecdm host on | off. A test of placing Blizzard's own buff icons and bars (the Buffs and Bars
--- viewers: buffs on you, your debuffs on the target) in a row Lecdm controls, above the test
--- icons. Only Blizzard can time those auras in combat, so the question is whether its icons can
+-- viewers: buffs on you, your debuffs on the target) in a row Lecdm controls, under the middle
+-- of the screen. Only Blizzard can time those auras in combat, so the question is whether its icons can
 -- live in Lecdm's bars: they're re-placed after each of Blizzard's layouts (RefreshLayout, Layout),
 -- counted, and any refusal or blocked action is logged. Those two viewers get their own alpha
 -- back (they must be seen); Essential and Utility stay as they are. Off: /reload puts Blizzard's
@@ -147,7 +147,7 @@ function B.Host(what)
 				Place(viewer, name)
 			end
 		end
-		ns.Log("host test on: Blizzard's buff icons and bars should now sit in the row above the test icons", true)
+		ns.Log("host test on: Blizzard's buff icons and bars should now sit in the faint blue row", true)
 	elseif what == "off" then
 		hosting = false
 		if host then host:Hide() end

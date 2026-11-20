@@ -89,30 +89,117 @@ M.Slash("sound")
 M.Fire("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW", 6572)
 check(Logged("proc glow on: Revenge %(6572%)"), "proc not logged")
 
--- Test icons: learned Essential/Utility spells only, grey on cooldown, swipe from the duration,
--- at the position the profile has.
-local function Icons()
-	local icons = {}
+-- The bars: two, filled from Blizzard's list once; learned spells shown, grey on cooldown, dark
+-- when unusable, red out of range, the swipe from the duration object; Blizzard's Essential and
+-- Utility viewers invisible.
+local function BarFrame(name)
 	for _, f in ipairs(M.frames) do
-		if f.spellID and f.icon and f.shown then icons[f.spellID] = f end
+		if f.barID and f.label and f.label.text == name and f.shown then return f end
 	end
-	return icons
 end
-local icons = Icons()
-check(icons[100] and icons[6572], "test icons missing")
-check(not icons[12292], "an unlearned spell got a test icon")
-check(icons[100].icon.desaturated == true, "spell on cooldown not grey")
-check(icons[6572].icon.vertex == 0.4, "unusable spell not dark")
-check(icons[100].cd.duration and icons[100].cd.duration.spell == 100, "swipe not given the duration")
-local anchor = icons[100].parent
-check(anchor.points[1][4] == 10, "test icons not where the profile has them")
+local function Button(frame, spellID)
+	for _, b in ipairs(frame.buttons) do
+		if b.spellID == spellID then return b end
+	end
+end
+local list = ns.db.bars.list
+check(ns.db.bars.seeded and #list == 2, "bars not seeded: " .. #list)
+check(list[1].name == "Cooldowns" and list[1].spells[1] == 100 and list[1].spells[2] == 6572, "Cooldowns bar wrong")
+check(list[2].name == "Utility" and list[2].spells[1] == 12292, "Utility bar wrong")
+local cooldowns, utility = BarFrame("Cooldowns"), BarFrame("Utility")
+check(cooldowns and cooldowns.shown and utility, "bar frames missing")
+local charge, revenge = Button(cooldowns, 100), Button(cooldowns, 6572)
+check(charge.shown and revenge.shown, "learned spells not shown")
+check(not Button(utility, 12292).shown, "an unlearned spell is shown")
+check(charge.icon.desaturated == true and revenge.icon.desaturated == false, "grey on cooldown wrong")
+check(revenge.icon.vertex == 0.4, "unusable spell not dark")
+check(charge.cd.duration and charge.cd.duration.spell == 100, "swipe not given the duration")
+check(M.viewers.EssentialCooldownViewer.alpha == 0 and M.viewers.UtilityCooldownViewer.alpha == 0, "Blizzard's Essential/Utility not invisible")
+check(M.viewers.BuffIconCooldownViewer.alpha == 1, "Blizzard's buff viewer touched")
+M.range[100] = false
+M.Fire("SPELL_RANGE_CHECK_UPDATE", 100, false, true)
+check(charge.icon.vertex == 1, "out of range not red")
+M.range[100] = nil
+
+-- Learning a spell shows it.
+M.info[13].isKnown = true
+M.Fire("SPELLS_CHANGED")
+check(Button(utility, 12292).shown, "a newly learned spell not shown")
+M.info[13].isKnown = false
+M.Fire("SPELLS_CHANGED")
+check(not Button(utility, 12292).shown, "an unlearned spell still shown")
+
+-- Only when ready: Charge (on cooldown) hides and Revenge takes its place; only on cooldown: the
+-- other way round.
+list[1].show[100] = "ready"
+ns.Refresh()
+check(not charge.shown and revenge.shown, "only-when-ready didn't hide a spell on cooldown")
+check(revenge.points[1][4] == 0, "the gap didn't close: " .. tostring(revenge.points[1][4]))
+M.spells[100].active = false
+M.Fire("SPELL_UPDATE_COOLDOWN")
+check(charge.shown, "only-when-ready didn't show a ready spell")
+list[1].show[6572] = "cooldown"
+ns.Refresh()
+check(not revenge.shown, "only-on-cooldown showed a ready spell")
+M.spells[6572].active = true
+M.Fire("SPELL_UPDATE_COOLDOWN")
+check(revenge.shown and revenge.icon.desaturated, "only-on-cooldown didn't show a spell on cooldown")
+list[1].show[100], list[1].show[6572] = nil, nil
+M.spells[100].active, M.spells[6572].active = true, false
+
+-- The GCD: swept unless the bar turns it off; never grey.
+M.spells[6572].gcd = true
+list[1].gcd = false
+ns.Refresh()
+check(revenge.cd.duration == nil and not revenge.icon.desaturated, "GCD swept or grey with the sweep off")
+list[1].gcd = true
+ns.Refresh()
+check(revenge.cd.duration ~= nil, "no GCD sweep with it on")
+M.spells[6572].gcd = nil
+
+-- A refused duration object clears the swipe instead of erroring.
 M.secretDuration = true
 M.Fire("SPELL_UPDATE_COOLDOWN")
-check(Logged("refused the duration object"), "a refused duration not reported")
+check(charge.cd.duration == nil, "a refused duration left a swipe")
 M.secretDuration = false
 M.combat = true
 M.Fire("SPELL_UPDATE_USABLE")
 M.combat = false
+
+-- Moving spells between bars, ordering, a new bar, deleting it, starting over.
+ns.Bars.SetOnBar(list[1], 12292, true)
+check(#list[2].spells == 0 and list[1].spells[3] == 12292, "a spell didn't move bars")
+ns.Bars.MoveSpell(list[1], 3, -1)
+check(list[1].spells[2] == 12292 and list[1].spells[3] == 6572, "move up didn't")
+local extra = ns.Bars.NewBar("Defensives")
+ns.Refresh()
+check(BarFrame("Defensives") and #list == 3, "new bar missing")
+ns.Bars.Delete(extra.id)
+check(#list == 2 and not BarFrame("Defensives"), "deleted bar still shown")
+ns.Bars.StartOver()
+list = ns.db.bars.list
+check(#list == 2 and list[2].spells[1] == 12292 and list[1].spells[3] == nil, "start over didn't refill the bars")
+cooldowns, utility = BarFrame("Cooldowns"), BarFrame("Utility")
+charge, revenge = Button(cooldowns, 100), Button(cooldowns, 6572)
+
+-- Unlock to drag: the bars catch the mouse and show their names only while unlocked.
+check(not cooldowns.mouse and not cooldowns.shade.shown, "bars catch the mouse while locked")
+M.Slash("move")
+check(ns.Bars.IsUnlocked() and cooldowns.mouse and cooldowns.shade.shown and cooldowns.label.shown, "move didn't unlock")
+M.Slash("move")
+check(not ns.Bars.IsUnlocked() and not cooldowns.mouse, "move didn't lock")
+
+-- Blizzard's icons back when the setting is off.
+ns.db.bars.hideBlizzard = false
+ns.Refresh()
+check(M.viewers.EssentialCooldownViewer.alpha == 1, "Blizzard's Essential not given back")
+ns.db.bars.hideBlizzard = true
+ns.Refresh()
+check(M.viewers.EssentialCooldownViewer.alpha == 0, "Blizzard's Essential not invisible again")
+
+-- The spellbook in the checklist: spells with a cooldown, not passives, not Blizzard's.
+local lines = ns.Bars.Spellbook()
+check(#lines == 1 and lines[1].name == "Protection" and #lines[1].spells == 1 and lines[1].spells[1] == 2565, "spellbook wrong")
 
 -- /lecdm check, in combat with secret cooldown times: SECRET shown, nothing compared.
 M.combat, M.secretCooldowns = true, true
@@ -129,9 +216,10 @@ M.Slash("off")
 before = #LecdmDB.log
 shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
 check(#LecdmDB.log == before, "heard while off")
-check(not anchor.shown, "test icons shown while off")
+check(not cooldowns.shown, "bars shown while off")
+check(M.viewers.EssentialCooldownViewer.alpha == 1, "Blizzard's icons still invisible while off")
 M.Slash("on")
-check(anchor.shown, "test icons not back")
+check(cooldowns.shown and M.viewers.EssentialCooldownViewer.alpha == 0, "bars not back")
 
 -- The chat commands.
 M.Slash("status")
@@ -142,12 +230,6 @@ check(M.Printed("/lecdm general | bars"), "help missing the tabs")
 M.Slash("list")
 check(Logged("TrackedBuff %(2%): Battle Shout, equipment slot 13"), "list wrong")
 check(Logged("Utility %(1%): %*Death Wish"), "unlearned entry not marked")
-M.Slash("move")
-check(ns.Icons.IsMoving(), "move didn't unlock")
-M.Slash("move")
-M.Slash("icons")
-check(ns.db.test.icons == false and not anchor.shown, "icons didn't turn off")
-M.Slash("icons")
 M.Slash("nonsense")
 check(M.Printed("unknown command"), "unknown command not reported")
 
@@ -209,6 +291,26 @@ M.Slash("")
 check(not ns.Window.IsShown(), "/lecdm didn't close the window")
 Lecdm_OnAddonCompartmentClick()
 check(ns.Window.IsShown(), "the addon compartment didn't open the window")
+
+-- The Bars tab: a row per spell of the bar shown; the checklist ticks spells on and off it, from
+-- Blizzard's sections and the spellbook.
+M.Slash("bars")
+local panel = ns.Window.CurrentPanel()
+local first = ns.db.bars.list[1]
+check(panel.parts.spellRows[#first.spells] and panel.parts.spellRows[1].spellID == first.spells[1], "spell rows missing")
+local root = M.Menu()
+panel.parts.top[#panel.parts.top].dropdown.generator(nil, root)
+check(root.children[1].text == "Blizzard's Essential" and root.children[2].text == "Blizzard's Utility", "checklist sections wrong")
+local book = root.children[3]
+check(book and book.text == "Spellbook: Protection" and #book.children == 1, "spellbook section wrong")
+local chargeItem = root.children[1].children[1]
+check(chargeItem.isSelected() == true, "Charge not ticked")
+chargeItem.setSelected()
+check(not ns.Bars.BarOf(100), "unticking didn't take Charge off")
+chargeItem.setSelected()
+check(ns.Bars.BarOf(100) == first, "ticking didn't put Charge back")
+book.children[1].setSelected()
+check(ns.Bars.BarOf(2565) == first and #panel.parts.spellRows >= #first.spells, "spellbook spell not added")
 ns.Window.Hide()
 
 -- Profiles: a new one starts at the defaults; switching back brings the old settings back.
