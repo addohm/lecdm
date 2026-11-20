@@ -19,15 +19,17 @@ Install with `tools\install_forever.cmd`, fully restart the game (first install)
    - The viewers: shown or hidden, and how many icons each. Then the number of Blizzard icons
      being listened to.
 2. **Blizzard's list.** `/lecdm list`. Does it match what `/cdm` shows? Any spells missing?
-3. **The listener, out of combat.** Track a buff in Blizzard's Cooldown Manager (Battle Shout,
-   say, in Tracked Buffs). Cast it and let it run out. Chat should say "applied: Battle Shout
+3. **The listener, out of combat.** Track a buff in Blizzard's Cooldown Manager (`/cdm`, the
+   Buffs tab, which holds every aura you cast: buffs on you and your debuffs on the target. Put
+   Battle Shout, say, in Tracked Buffs; anything left in "Not in bar" has no icon to hear). Cast it and let it run out. Chat should say "applied: Battle Shout
    (Buffs)" and "removed: ...", with a raid warning on removal.
 4. **The listener, in combat, in the open world.** Same, but let it drop mid-fight. Do the
    lines (marked [combat]) and the sound come at the moment the icon changes?
 5. **The listener, in combat, inside a dungeon.** The one that matters most. Lines marked
    [combat] [instance].
-6. **Your effects on the target.** Track a DoT or HoT of yours in the Cooldown Manager (if it
-   lists one). Apply it, let it fall off. Is it heard?
+6. **Your effects on the target.** Track a debuff, DoT or HoT of yours in the Buffs tab (a
+   warrior: Thunder Clap, Sunder Armor, Hamstring, if Blizzard lists them). Apply it, keep the
+   target, let it fall off. Is it heard?
 7. **Invisible viewers.** `/lecdm blizz hide`. The viewers vanish. Repeat 3 and 4: still heard?
    Does the log say "Blizzard set the ... viewer's alpha" (Blizzard putting them back)? Then
    `/lecdm blizz show`. It isn't kept after /reload.
@@ -49,7 +51,10 @@ at /reload or logout (`WTF\Account\<account>\SavedVariables\Lecdm.lua`).
 
 ## Confirmed
 
-Nothing yet.
+- **The listener hears a target debuff dropping, in combat, in the open world** (test build 1,
+  e865554, 2026-11-20, warrior): Thunder Clap's "removed" and its raid warning came at
+  virtually the same moment its icon went. Steps 4 and 6. Still to check: inside a dungeon
+  (step 5).
 
 ## Problems
 
