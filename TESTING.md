@@ -107,7 +107,7 @@ Second dungeon run (870f69d, 2026-11-20):
   2.261, type 0".
 - **At the moment of a removal, a dying target isn't dead yet** (step 12): Sunder Armor and
   Thunder Clap went together 5 s after Thunder Clap was applied (a kill, by the look of it),
-  with "target exists true, dead false". The frame-later look (a1) is to check next.
+  with "target exists true, dead false". The frame-later look (f115a4e) is to check next.
 - Not in that log yet: the trinket check (13) and the host test (14).
 
 ## Problems
