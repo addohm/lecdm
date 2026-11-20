@@ -46,6 +46,22 @@ Install with `tools\install_forever.cmd`, fully restart the game (first install)
     Clearcasting)? Is the spell named or SECRET?
 11. **Errors.** Any Lua errors (`/console scriptErrors 1`) or "blocked" messages?
 
+Added 2026-11-20, for a second dungeon run (`/reload` after the install script is enough):
+
+12. **Expired, or the target died?** Each "removed" line now ends with "target exists ...,
+    dead ...". Let a debuff run out on a live mob, and kill a debuffed mob: do the two read
+    differently, in combat, in the dungeon?
+13. **Trinkets.** `/lecdm check` now also logs trinket slots 13 and 14 (and every spell, and
+    "no power"). Press it in combat, ideally with an on-use trinket on cooldown: SECRET or not?
+14. **Blizzard's icons in a Lecdm row.** `/lecdm host on` (or the Test build tab) places
+    Blizzard's own buff icons and bars (Battle Shout, Sunder Armor, Thunder Clap ...) in a faint
+    blue row above the test icons. Fight: do they stay in that row the whole time, in combat,
+    as buffs come and go and targets change? Any "blocked" or "refused" line? `/lecdm status`
+    shows how often Blizzard laid them out again. `/lecdm host off`, then `/reload`, puts them
+    back. (It needs the buff viewers visible; it makes them visible if `/lecdm blizz hide` was on.)
+15. **Swings.** The log notes the first three swings of each fight (PLAYER_SWING): is the
+    duration a number or SECRET?
+
 Then `/lecdm log`, Ctrl+C, and paste it here. The log keeps the last 500 lines and is saved
 at /reload or logout (`WTF\Account\<account>\SavedVariables\Lecdm.lua`).
 

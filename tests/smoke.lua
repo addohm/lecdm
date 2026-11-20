@@ -44,6 +44,12 @@ shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraApplied)
 local line = Logged("%[combat%] %[instance%] applied: Battle Shout")
 check(line and line:find("aura ID secret") and line:find("is refused"), "secret aura not handled: " .. tostring(line))
 
+-- Removed: whether the target is dead at that moment is in the line.
+M.target = { dead = true }
+shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
+check(Logged("removed: Battle Shout %(Buffs%).-target exists true, dead true"), "target state missing: " .. tostring(Logged("removed: Battle Shout")))
+M.target = nil
+
 -- A reused icon is named by the entry it has now, not the one it had.
 shout.cooldownID = 11
 shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnCooldown)
@@ -107,7 +113,10 @@ M.combat = false
 M.combat, M.secretCooldowns = true, true
 M.Slash("check")
 check(Logged("Charge: on cooldown true, GCD false, start SECRET"), "check line wrong: " .. tostring(Logged("Charge:")))
-check(Logged("usable SECRET, in range SECRET"), "secret usable/range not shown")
+check(Logged("usable SECRET %(no power nil%), in range SECRET"), "secret usable/range not shown: " .. tostring(Logged("Charge:")))
+check(Logged("trinket slot 13 Satchel of Potions: slot cooldown start SECRET, duration SECRET, enabled 1"), "trinket line wrong: " .. tostring(Logged("trinket slot 13")))
+check(Logged("trinket slot 14: empty"), "empty trinket slot not reported")
+check(M.Printed("check: 2 spells and the trinket slots logged"), "check summary missing")
 M.combat, M.secretCooldowns = false, false
 
 -- Off: nothing heard, no icons; on again: back.
@@ -146,6 +155,35 @@ essential:SetAlpha(1)
 check(Logged("Blizzard set the Essential viewer's alpha to 1"), "Blizzard's alpha change not logged")
 M.Slash("blizz show")
 check(essential.alpha == 0.8, "viewer alpha not restored: " .. tostring(essential.alpha))
+
+-- Blocked actions are logged (in chat when they're Lecdm's), and the first swings of a fight.
+M.Fire("ADDON_ACTION_BLOCKED", "SomeAddon", "CastSpellByName()")
+check(Logged("blocked: SomeAddon tried CastSpellByName%(%)"), "blocked action not logged")
+M.Fire("PLAYER_REGEN_DISABLED")
+for _ = 1, 5 do M.Fire("PLAYER_SWING", 2.6, 0) end
+local swingLines = 0
+for _, l in ipairs(LecdmDB.log) do if l:find("swing %d of this fight: duration 2.6") then swingLines = swingLines + 1 end end
+check(swingLines == 3, "logged " .. swingLines .. " swings, not 3")
+
+-- The host test: Blizzard's buff icons placed in Lecdm's row, and again after Blizzard's layout.
+M.Slash("blizz hide")
+local buffs = M.viewers.BuffIconCooldownViewer
+shout.cooldownID = 14
+M.Slash("host on")
+check(ns.Blizz.IsHosting(), "host test not on")
+check(buffs.alpha == 1, "the buff viewer wasn't made visible for the host test")
+check(M.viewers.EssentialCooldownViewer.alpha == 0, "Essential lost its invisibility")
+local hostFrame = shout.points[1][2]
+check(hostFrame and hostFrame ~= buffs, "buff icon not placed in Lecdm's row")
+M.combat = true
+buffs:RefreshLayout()
+check(shout.points[1][2] == hostFrame, "Blizzard's layout took the icon back")
+M.combat = false
+M.Slash("status")
+check(M.Printed("host test on: Buffs placed %d+ times %(1 in combat%)"), "host counts missing")
+M.Slash("host off")
+check(not ns.Blizz.IsHosting(), "host test not off")
+M.Slash("blizz show")
 
 -- The options window: /lecdm opens it; every tab builds; the Test build tab's Defaults.
 M.Slash("")

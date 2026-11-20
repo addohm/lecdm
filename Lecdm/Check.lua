@@ -6,7 +6,7 @@ local _, ns = ...
 local C = {}
 ns.Check = C
 
-local MAX = 12
+local MAX = 40
 
 local function Field(t, key)
 	if type(t) ~= "table" then return "none" end
@@ -28,6 +28,27 @@ local function Duration(spellID)
 	return ns.IsSecret(dur) and "SECRET object" or "object"
 end
 
+local function Usable(spellID)
+	local ok, usable, noPower = pcall(C_Spell.IsSpellUsable, spellID)
+	if not ok then return "error" end
+	return ns.Show(usable) .. " (no power " .. ns.Show(noPower) .. ")"
+end
+
+-- A trinket slot: the item, its cooldown (start, duration, enabled) both ways the game offers.
+local function Trinket(slot)
+	local okID, itemID = pcall(GetInventoryItemID, "player", slot)
+	if not okID then return "slot " .. slot .. ": error" end
+	if ns.IsSecret(itemID) then return "slot " .. slot .. ": SECRET item" end
+	if not itemID then return "slot " .. slot .. ": empty" end
+	local okName, name = pcall(C_Item.GetItemNameByID, itemID)
+	local okCD, start, duration, enabled = pcall(GetInventoryItemCooldown, "player", slot)
+	local okItem, iStart, iDuration = pcall(C_Item.GetItemCooldown, itemID)
+	return string.format("slot %d %s: slot cooldown start %s, duration %s, enabled %s; item cooldown start %s, duration %s",
+		slot, okName and ns.Show(name) or tostring(itemID),
+		okCD and ns.Show(start) or "error", okCD and ns.Show(duration) or "error", okCD and ns.Show(enabled) or "error",
+		okItem and ns.Show(iStart) or "error", okItem and ns.Show(iDuration) or "error")
+end
+
 function C.Run()
 	ns.Log(string.format("check: cooldowns secret now %s, auras secret now %s",
 		Call(C_Secrets and C_Secrets.ShouldCooldownsBeSecret), Call(C_Secrets and C_Secrets.ShouldAurasBeSecret)), true)
@@ -45,9 +66,11 @@ function C.Run()
 		if not okCh then charges = nil end
 		ns.Log(string.format("%s: on cooldown %s, GCD %s, start %s, duration object %s, usable %s, in range %s, charges %s, proc %s",
 			e.name, Field(cd, "isActive"), Field(cd, "isOnGCD"), Field(cd, "startTime"), Duration(id),
-			Call(C_Spell.IsSpellUsable, id), Call(C_Spell.IsSpellInRange, id), Field(charges, "currentCharges"),
-			Call(C_SpellActivationOverlay and C_SpellActivationOverlay.IsSpellOverlayed, id)), true)
+			Usable(id), Call(C_Spell.IsSpellInRange, id), Field(charges, "currentCharges"),
+			Call(C_SpellActivationOverlay and C_SpellActivationOverlay.IsSpellOverlayed, id)))
 	end
+	for _, slot in ipairs({ 13, 14 }) do ns.Log("trinket " .. Trinket(slot)) end
+	ns.Print("check: " .. math.min(#spells, MAX) .. " spells and the trinket slots logged (/lecdm log to see them).")
 	if #spells > MAX then ns.Print("(first " .. MAX .. " of " .. #spells .. " spells)") end
 	if #spells == 0 then ns.Print("no learned spells in Blizzard's Essential or Utility sections.") end
 end
@@ -70,5 +93,6 @@ function C.Status()
 		.. ", profile " .. ns.Profiles.Current())
 	ns.Catalogue.PrintCounts()
 	ns.Listen.PrintStatus()
+	ns.Blizz.PrintStatus()
 	ns.Print(#LecdmDB.log .. " lines in the log (/lecdm log to copy it)")
 end

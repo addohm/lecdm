@@ -39,11 +39,15 @@ Now: test build 1 (0.0.1-dev), which checks in game what the plan relies on (TES
   - `Catalogue.lua`: Blizzard's list through `C_CooldownViewer` (`ns.Catalogue.byID` by cooldown
     ID, `.sections`, `.Spells(sections)`, `.Name(cooldownID)`), `/lecdm list`.
   - `Listen.lua`: hooks `OnAcquireItemFrame` on the four viewers and `TriggerAlertEvent` on each
-    icon (weak table of hooked icons), logs what the Cooldown Manager announces, the raid
-    warning on "removed"; proc glow events.
-  - `Check.lua`: `/lecdm check`, what's readable about the Essential/Utility spells now.
+    icon (weak table of hooked icons), logs what the Cooldown Manager announces (with the
+    target's state on "removed"), the raid warning on "removed"; proc glow events, blocked
+    actions and the first swings of each fight. `L.ActiveItems(viewer)`.
+  - `Check.lua`: `/lecdm check` (what's readable about the Essential/Utility spells and trinket
+    slots now, into the log) and `/lecdm status`.
   - `Icons.lua`: the test icons (own frames, swipe from `GetSpellCooldownDuration`).
-  - `Blizz.lua`: `/lecdm blizz hide|show`, the invisible-viewers test.
+  - `Blizz.lua`: `/lecdm blizz hide|show`, the invisible-viewers test, and `/lecdm host on|off`,
+    the hosting test (Blizzard's Buffs/Bars viewer icons re-placed into a Lecdm row after each
+    `RefreshLayout`/`Layout`, counted). Both are tests only: they move or fade Blizzard frames.
   - `UI/Theme.lua`, `UI/Widgets.lua` (option rows and `UI.Stack`), `UI/Window.lua` (the options
     window `LecdmFrame`: tabs, Defaults, resize grip; pages register with `ns.Window.Page`; the
     Options > AddOns entry), `UI/Minimap.lua` (`LecdmMinimapButton`, angle 350, the addon

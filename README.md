@@ -54,6 +54,7 @@ Chat commands:
 | `/lecdm icons` | Test icons on/off (on by default) |
 | `/lecdm move` | Drag the test icons; again to lock them |
 | `/lecdm blizz hide` / `show` | Make Blizzard's cooldown viewers invisible, or bring them back (a test) |
+| `/lecdm host on` / `off` | Place Blizzard's buff icons and bars in a row Lecdm controls (a test; `/reload` after off) |
 | `/lecdm log` | The log in a window, ready to copy; `/lecdm log clear` empties it |
 
 What it does on its own:

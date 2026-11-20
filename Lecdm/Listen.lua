@@ -6,7 +6,8 @@
 -- nothing. The icon's cooldown ID, read when the hook fires, names the entry; icons are reused
 -- for other entries, so it's never cached per icon. Hooked icons are kept in a weak table: no
 -- field is ever written on a Blizzard frame.
--- Proc events (SPELL_ACTIVATION_OVERLAY_GLOW_SHOW / HIDE) are logged too.
+-- Proc events (SPELL_ACTIVATION_OVERLAY_GLOW_SHOW / HIDE), blocked actions (ADDON_ACTION_BLOCKED /
+-- FORBIDDEN, any addon's) and the first swings of each fight (PLAYER_SWING) are logged too.
 local _, ns = ...
 
 local L = {}
@@ -58,6 +59,13 @@ local function Describe(item, event)
 			local ok = pcall(C_UnitAuras.GetAuraDuration, unit, aura)
 			text = text .. ", timing it ourselves " .. (ok and "works" or "is refused")
 		end
+		if name == "OnAuraRemoved" then
+			-- Expired, or the target died? Can an addon tell at this moment?
+			local okE, exists = pcall(UnitExists, "target")
+			local okD, dead = pcall(UnitIsDead, "target")
+			text = text .. ", target exists " .. (okE and ns.Show(exists) or "error")
+				.. ", dead " .. (okD and ns.Show(dead) or "error")
+		end
 	end
 	return text, name, isAura
 end
@@ -84,7 +92,7 @@ local function HookItem(item)
 	hooksecurefunc(item, "TriggerAlertEvent", OnAlertEvent)
 end
 
-local function ActiveItems(viewer)
+function L.ActiveItems(viewer)
 	local items = {}
 	local pool = viewer.itemFramePool
 	if pool and pool.EnumerateActive then
@@ -104,7 +112,7 @@ function L.Setup()
 			hooksecurefunc(viewer, "OnAcquireItemFrame", function(_, item) HookItem(item) end)
 		end
 		if viewer then
-			for _, item in ipairs(ActiveItems(viewer)) do HookItem(item) end
+			for _, item in ipairs(L.ActiveItems(viewer)) do HookItem(item) end
 		end
 	end
 end
@@ -115,7 +123,7 @@ function L.PrintStatus()
 		local viewer = _G[v.global]
 		if viewer then
 			table.insert(parts, string.format("%s %s, alpha %s, %d icons", v.name,
-				viewer:IsShown() and "shown" or "hidden", ns.Show(viewer:GetAlpha()), #ActiveItems(viewer)))
+				viewer:IsShown() and "shown" or "hidden", ns.Show(viewer:GetAlpha()), #L.ActiveItems(viewer)))
 		else
 			table.insert(parts, v.name .. " missing")
 		end
@@ -130,11 +138,31 @@ local function SpellText(spellID)
 	return (ok and not ns.IsSecret(name) and name or "?") .. " (" .. tostring(spellID) .. ")"
 end
 
+local SWINGS = 3 -- swings logged per fight
+local swings = 0
+
 local events = CreateFrame("Frame")
-events:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW")
-events:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE")
-events:SetScript("OnEvent", function(_, event, spellID)
+for _, e in ipairs({ "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW", "SPELL_ACTIVATION_OVERLAY_GLOW_HIDE",
+	"ADDON_ACTION_BLOCKED", "ADDON_ACTION_FORBIDDEN", "PLAYER_SWING", "PLAYER_REGEN_DISABLED" }) do
+	pcall(events.RegisterEvent, events, e) -- some may not exist on every client
+end
+events:SetScript("OnEvent", function(_, event, a, b)
+	if event == "ADDON_ACTION_BLOCKED" or event == "ADDON_ACTION_FORBIDDEN" then
+		-- Logged even while Lecdm is off: any addon's, in chat when it's Lecdm's.
+		local who = ns.Show(a)
+		ns.Log((event == "ADDON_ACTION_BLOCKED" and "blocked: " or "forbidden: ") .. who .. " tried " .. ns.Show(b), who == "Lecdm")
+		return
+	end
 	if not ns.Enabled() then return end
-	local on = event == "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW"
-	ns.Log("proc glow " .. (on and "on" or "off") .. ": " .. SpellText(spellID), on)
+	if event == "PLAYER_REGEN_DISABLED" then
+		swings = 0
+	elseif event == "PLAYER_SWING" then
+		swings = swings + 1
+		if swings <= SWINGS then
+			ns.Log("swing " .. swings .. " of this fight: duration " .. ns.Show(a) .. ", type " .. ns.Show(b))
+		end
+	else
+		local on = event == "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW"
+		ns.Log("proc glow " .. (on and "on" or "off") .. ": " .. SpellText(a), on)
+	end
 end)

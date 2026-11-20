@@ -160,6 +160,7 @@ local function Help()
 	ns.Print("/lecdm sound - the raid warning when a tracked buff drops, on or off")
 	ns.Print("/lecdm icons - the test icons on or off; /lecdm move - drag them (out of combat)")
 	ns.Print("/lecdm blizz hide | show - make Blizzard's cooldown viewers invisible, or bring them back")
+	ns.Print("/lecdm host on | off - Blizzard's buff icons and bars in a row Lecdm places (off: then /reload)")
 	ns.Print("/lecdm log - the log, ready to copy; /lecdm log clear empties it")
 end
 
@@ -198,6 +199,8 @@ SlashCmdList.LECDM = function(msg)
 		ns.Icons.Move()
 	elseif cmd == "blizz" then
 		ns.Blizz.Set(rest)
+	elseif cmd == "host" then
+		ns.Blizz.Host(rest)
 	elseif cmd == "log" then
 		if rest == "clear" then ns.LogWindow.Clear() else ns.LogWindow.Show() end
 	else

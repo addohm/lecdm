@@ -113,6 +113,16 @@ function UnitClass() return "Warrior", "WARRIOR" end
 M.name, M.surname = "Brenna", "Ashford"
 function UnitName() return M.name, M.surname end
 function IsInGroup() return false end
+M.target = nil -- nil: no target; { dead = true/false }
+function UnitExists(unit) return unit == "target" and M.target ~= nil end
+function UnitIsDead(unit) return unit == "target" and M.target ~= nil and M.target.dead == true end
+M.trinkets = { [13] = 12345 }
+function GetInventoryItemID(_, slot) return M.trinkets[slot] end
+function GetInventoryItemCooldown() return M.combat and SECRET or 0, M.combat and SECRET or 0, 1 end
+C_Item = {
+	GetItemNameByID = function() return "Satchel of Potions" end,
+	GetItemCooldown = function() return 0, 0, true end,
+}
 function UnitGroupRolesAssigned() return "NONE" end
 function strtrim(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
 function GetCursorPosition() return 0, 0 end
@@ -216,6 +226,14 @@ for _, global in ipairs({ "EssentialCooldownViewer", "UtilityCooldownViewer", "B
 	v.itemFramePool = { active = {} }
 	function v.itemFramePool:EnumerateActive() return pairs(self.active) end
 	function v:OnAcquireItemFrame(item) item.viewerFrame = self end
+	-- Blizzard's layout: every icon back where the viewer wants it.
+	function v:RefreshLayout()
+		for item in pairs(self.itemFramePool.active) do
+			item:ClearAllPoints()
+			item:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+		end
+	end
+	function v:Layout() end
 	M.viewers[global] = v
 end
 
@@ -223,6 +241,7 @@ end
 function M.AddItem(global, cooldownID)
 	local v = M.viewers[global]
 	local item = CreateFrame("Frame")
+	item:SetSize(40, 40)
 	item.alerts = 0
 	function item:TriggerAlertEvent() self.alerts = self.alerts + 1 end
 	v:OnAcquireItemFrame(item)
