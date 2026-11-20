@@ -20,14 +20,31 @@ local function Permissive(t)
 	end })
 end
 
-local function NewRegion(kind, name)
-	local f = Permissive({ kind = kind, name = name, shown = true, points = {}, scripts = {}, events = {}, alpha = 1 })
-	function f:Show() self.shown = true end
+local function NewRegion(kind, name, parent)
+	local f = Permissive({ kind = kind, name = name, parent = parent, shown = true, points = {}, scripts = {},
+		events = {}, alpha = 1, w = 0, h = 0 })
+	function f:Show()
+		local was = self.shown
+		self.shown = true
+		if not was and self.scripts.OnShow then self.scripts.OnShow(self) end
+	end
 	function f:Hide() self.shown = false end
-	function f:SetShown(v) self.shown = v and true or false end
+	function f:SetShown(v) if v then self:Show() else self:Hide() end end
 	function f:IsShown() return self.shown end
+	function f:SetParent(p) self.parent = p end
+	function f:GetName() return self.name end
 	function f:SetAlpha(a) self.alpha = a end
 	function f:GetAlpha() return self.alpha end
+	function f:SetSize(w, h) self.w, self.h = w, h end
+	function f:GetSize() return self.w, self.h end
+	function f:SetWidth(w) self.w = w end
+	function f:SetHeight(h) self.h = h end
+	function f:GetWidth() return self.w end
+	function f:GetHeight() return self.h end
+	function f:GetCenter() return 0, 0 end
+	function f:GetEffectiveScale() return 1 end
+	function f:GetStringWidth() return 60 end
+	function f:HasFocus() return false end
 	function f:SetPoint(...) table.insert(self.points, { ... }) end
 	function f:ClearAllPoints() self.points = {} end
 	function f:GetPoint() local p = self.points[1] or {} return p[1], p[2], p[3], p[4], p[5] end
@@ -36,12 +53,15 @@ local function NewRegion(kind, name)
 	function f:RegisterEvent(e) self.events[e] = true end
 	function f:SetText(t) self.text = t end
 	function f:GetText() return self.text end
+	function f:SetChecked(v) self.checked = v end
+	function f:GetChecked() return self.checked end
 	function f:SetDesaturated(v) self.desaturated = v end
 	function f:SetVertexColor(r) self.vertex = r end
 	function f:SetTexture(t) self.texture = t end
+	function f:SetBackdropBorderColor(r, g, b) self.border = { r, g, b } end
 	function f:EnableMouse(v) self.mouse = v end
-	function f:CreateTexture() return NewRegion("Texture") end
-	function f:CreateFontString() return NewRegion("FontString") end
+	function f:CreateTexture() return NewRegion("Texture", nil, self) end
+	function f:CreateFontString() return NewRegion("FontString", nil, self) end
 	function f:SetCooldownFromDurationObject(dur)
 		if dur == SECRET then error("secret duration refused") end
 		self.duration = dur
@@ -50,8 +70,8 @@ local function NewRegion(kind, name)
 	return f
 end
 
-function CreateFrame(kind, name, _parent, _template)
-	local f = NewRegion(kind, name)
+function CreateFrame(kind, name, parent, _template)
+	local f = NewRegion(kind, name, parent)
 	table.insert(M.frames, f)
 	if name then _G[name] = f end
 	return f
@@ -70,6 +90,10 @@ function hooksecurefunc(a, b, c)
 end
 
 UIParent = CreateFrame("Frame", "UIParent")
+Minimap = CreateFrame("Frame", "Minimap")
+Minimap:SetSize(140, 140)
+GameTooltip = CreateFrame("GameTooltip", "GameTooltip")
+SettingsPanel = CreateFrame("Frame", "SettingsPanel")
 ChatFontNormal = {}
 UISpecialFrames = {}
 SlashCmdList = {}
@@ -86,6 +110,37 @@ function PlaySound(kit) table.insert(M.sounds, kit) end
 function InCombatLockdown() return M.combat end
 function IsInInstance() return M.instance, M.instance and "party" or "none" end
 function UnitClass() return "Warrior", "WARRIOR" end
+M.name, M.surname = "Brenna", "Ashford"
+function UnitName() return M.name, M.surname end
+function IsInGroup() return false end
+function UnitGroupRolesAssigned() return "NONE" end
+function strtrim(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
+function GetCursorPosition() return 0, 0 end
+function GetMinimapShape() return "ROUND" end
+function ReloadUI() M.reloaded = true end
+function HideUIPanel(f) f:Hide() end
+function GameTooltip_Hide() end
+YES, NO = "Yes", "No"
+RAID_CLASS_COLORS = { WARRIOR = { r = 0.78, g = 0.61, b = 0.43 } }
+C_ClassColor = { GetClassColor = function(class) return RAID_CLASS_COLORS[class] end }
+StaticPopupDialogs = {}
+function StaticPopup_Show(which, text, _, data) M.popup = { which = which, text = text, data = data } end
+function M.Accept()
+	local p = M.popup
+	M.popup = nil
+	StaticPopupDialogs[p.which].OnAccept(nil, p.data)
+end
+M.timers = {}
+C_Timer = { After = function(_, fn) table.insert(M.timers, fn) end }
+function M.RunTimers()
+	local list = M.timers
+	M.timers = {}
+	for _, fn in ipairs(list) do fn() end
+end
+Settings = {
+	RegisterCanvasLayoutCategory = function(panel, name) M.settingsPanel = panel return { name = name } end,
+	RegisterAddOnCategory = function(category) M.settingsCategory = category end,
+}
 
 C_AddOns = { GetAddOnMetadata = function() return "0.0.1-dev" end, IsAddOnLoaded = function() return true end }
 C_CVar = { GetCVar = function() return "1" end }

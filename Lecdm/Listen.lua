@@ -63,6 +63,7 @@ local function Describe(item, event)
 end
 
 local function OnAlertEvent(item, event)
+	if not ns.Enabled() then return end
 	local ok, text, name, isAura = pcall(Describe, item, event)
 	if not ok then
 		if not errorShown then
@@ -73,7 +74,7 @@ local function OnAlertEvent(item, event)
 	end
 	eventCount = eventCount + 1
 	ns.Log(text, isAura)
-	if name == "OnAuraRemoved" and LecdmDB.sound then PlaySound(SOUNDKIT.RAID_WARNING, "Master") end
+	if name == "OnAuraRemoved" and ns.db.test.sound then PlaySound(SOUNDKIT.RAID_WARNING, "Master") end
 end
 
 local function HookItem(item)
@@ -133,6 +134,7 @@ local events = CreateFrame("Frame")
 events:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW")
 events:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE")
 events:SetScript("OnEvent", function(_, event, spellID)
+	if not ns.Enabled() then return end
 	local on = event == "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW"
 	ns.Log("proc glow " .. (on and "on" or "off") .. ": " .. SpellText(spellID), on)
 end)

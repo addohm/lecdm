@@ -38,6 +38,10 @@ local function SetAlpha(viewer, alpha)
 	setting = false
 end
 
+function B.IsHidden()
+	return hidden
+end
+
 function B.Set(what)
 	local list = Viewers()
 	if #list == 0 then
@@ -61,5 +65,7 @@ function B.Set(what)
 		ns.Log("Blizzard's viewers back to their own alpha", true)
 	else
 		ns.Print("/lecdm blizz hide, or /lecdm blizz show")
+		return
 	end
+	if ns.Window then ns.Window.Refresh() end
 end

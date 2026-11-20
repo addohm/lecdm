@@ -1,15 +1,27 @@
 ## Interface: 16001
 ## Title: Lecdm
-## Notes: Test build: checks what Blizzard's Cooldown Manager tells addons, in and out of combat.
+## Notes: Makes Blizzard's Cooldown Manager better and simpler to manage. Test build: checks what the Cooldown Manager tells addons, in and out of combat.
 ## Author: addohm
 ## Version: 0.0.1-dev
+## IconTexture: Interface\Icons\INV_Misc_PocketWatch_01
 ## SavedVariables: LecdmDB
+## AddonCompartmentFunc: Lecdm_OnAddonCompartmentClick
 
 Build.lua
 Core.lua
+Profiles.lua
 Log.lua
 Catalogue.lua
 Listen.lua
 Check.lua
 Icons.lua
 Blizz.lua
+
+UI\Theme.lua
+UI\Widgets.lua
+UI\Window.lua
+UI\Minimap.lua
+UI\Pages\General.lua
+UI\Pages\Soon.lua
+UI\Pages\Test.lua
+UI\Pages\Profiles.lua

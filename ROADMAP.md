@@ -65,6 +65,11 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - The plan above (2026-11-20).
 - Test build 1 (0.0.1-dev, 2026-11-20): listens to the Cooldown Manager, reads its list, checks
   what's readable in combat, test icons, an invisible-viewers test. Not tried in game yet.
+- Core (2026-11-20, in the owner's house style): the options window (General, Bars, Buffs,
+  Alerts, Test build, Profiles tabs; Bars, Buffs and Alerts say what's coming), profiles ("First
+  Last", shared, switched by talents or group role), the minimap button and addon compartment,
+  an Options > AddOns entry, `/lecdm`. The icon is a stand-in (a pocket watch) until the release
+  kit's art. Not tried in game yet.
 
 ## Next
 
@@ -73,21 +78,19 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 2. **Settle the display of what only the Cooldown Manager can show** (the player's effects on
    the target, its timers), depending on the results: Blizzard's icons restyled where they sit,
    or placed inside Lecdm's bars without fighting their layout (test build 2 if needed).
-3. **Core:** options window, profiles ("First Last", shared), minimap button and addon
-   compartment, Options > AddOns entry, `/lecdm`.
-4. **Cooldown bars:** any number, own icons, per-spell look and behaviour, a spell picker
+3. **Cooldown bars:** any number, own icons, per-spell look and behaviour, a spell picker
    (Blizzard's list, spellbook), drag to order and place.
-5. **Items:** trinkets and other on-use slots, racials, potions, healthstones.
-6. **Buffs:** the Cooldown Manager's tracked buffs and procs, buffs from others (aura
+4. **Items:** trinkets and other on-use slots, racials, potions, healthstones.
+5. **Buffs:** the Cooldown Manager's tracked buffs and procs, buffs from others (aura
    containers), missing state.
-7. **Effects on the target:** the player's DoTs and HoTs.
-8. **Alerts and effects:** sounds and glows on ready, applied, removed, charges; per-spell
+6. **Effects on the target:** the player's DoTs and HoTs.
+7. **Alerts and effects:** sounds and glows on ready, applied, removed, charges; per-spell
    glow styles; keybind text; visibility rules (combat, group, instance, target, mounted ...).
-9. **Status bars** (EllesmereUI's Tracking Bars): groups, thresholds, ticks.
-10. **The rest of EllesmereUI's list:** action-bar button glows on buff state, focus interrupt
-    bar, swing-timer sweep for on-next-swing attacks, queued-attack highlight, key-press mirror,
-    import/export.
-11. **Release kit:** icon and banner, LISTING.md, packaging, CurseForge and Wago.
+8. **Status bars** (EllesmereUI's Tracking Bars): groups, thresholds, ticks.
+9. **The rest of EllesmereUI's list:** action-bar button glows on buff state, focus interrupt
+   bar, swing-timer sweep for on-next-swing attacks, queued-attack highlight, key-press mirror,
+   import/export.
+10. **Release kit:** icon and banner, LISTING.md, packaging, CurseForge and Wago.
 
 ## Ideas
 

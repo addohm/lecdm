@@ -5,7 +5,8 @@ manage: bars of your cooldowns, buffs and procs, laid out and styled your way fr
 with sounds and glows that work in combat. The plan is in [ROADMAP.md](ROADMAP.md).
 
 **Status:** test build 1 (0.0.1-dev). It doesn't show bars yet: it checks, in game, what the
-plan relies on. [TESTING.md](TESTING.md) has what to try.
+plan relies on. [TESTING.md](TESTING.md) has what to try. The options window and profiles are
+in; the Bars, Buffs and Alerts tabs say what's coming.
 
 ## Getting started
 
@@ -26,12 +27,27 @@ You need git and the WoW: Forever client on Windows.
 
 ## Usage (test build 1)
 
-Everything is a chat command; `/lcdm` works too.
+`/lecdm` (or `/lcdm`), the minimap button, the addon menu by the minimap, or Options > AddOns >
+Lecdm opens the options window:
+
+- **General:** Enable Lecdm, the minimap button, the login reminder, a class-coloured window,
+  Reset all settings, the chat commands.
+- **Bars, Buffs, Alerts:** not built yet; each says what's coming.
+- **Test build:** test build 1's settings and tools (the same as its chat commands below).
+- **Profiles:** each character starts with its own ("First Last"); pick another to share it,
+  copy, rename, delete, reset, or switch automatically by your talents or group role.
+
+Chat commands:
 
 | Command | What it does |
 |---|---|
-| `/lecdm` | Status: is Blizzard's Cooldown Manager available, what it lists, what's listened to |
+| `/lecdm` | Open or close the options window |
+| `/lecdm general` ... `profiles` | Open that tab (`bars`, `buffs`, `alerts`, `test` too) |
+| `/lecdm profile` | The profile in use, and the Profiles tab |
+| `/lecdm minimap` | Show or hide the minimap button |
+| `/lecdm on` / `off` | Turn Lecdm on or off |
 | `/lecdm help` | The commands, and the build |
+| `/lecdm status` | Is Blizzard's Cooldown Manager available, what it lists, what's listened to |
 | `/lecdm list` | Every entry Blizzard's Cooldown Manager lists for you, by section |
 | `/lecdm check` | What an addon can read about your spells right now (try it in combat) |
 | `/lecdm sound` | Sound on/off when a tracked buff drops (on by default: raid warning) |

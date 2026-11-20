@@ -8,7 +8,11 @@ the build and date.
 Install with `tools\install_forever.cmd`, fully restart the game (first install), then
 `/lecdm help` should show the build you installed.
 
-1. **Status.** `/lecdm`. Note what it says:
+0. **The window.** `/lecdm` opens it (so do the minimap button, the addon menu by the minimap
+   and Options > AddOns > Lecdm). Every tab opens; the window moves, resizes and closes with
+   Escape; the title shows the version without the build. Profiles tab: your profile is named
+   "First Last"; make a new one, switch back, delete it.
+1. **Status.** `/lecdm status`. Note what it says:
    - "Blizzard's Cooldown Manager: available" or not, and the reason.
    - The spec (Forever may answer nil).
    - Blizzard's list: how many entries per section.

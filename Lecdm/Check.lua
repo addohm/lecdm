@@ -1,4 +1,4 @@
--- Lecdm: /lecdm check. For the spells in Blizzard's Essential and Utility sections, what an addon
+-- Lecdm: /lecdm check and /lecdm status. For the spells in Blizzard's Essential and Utility sections, what an addon
 -- can read right now. Run it in combat (a macro works) to see what goes SECRET there. It prints
 -- and logs one line per spell; nothing is compared unless it isn't secret.
 local _, ns = ...
@@ -50,4 +50,25 @@ function C.Run()
 	end
 	if #spells > MAX then ns.Print("(first " .. MAX .. " of " .. #spells .. " spells)") end
 	if #spells == 0 then ns.Print("no learned spells in Blizzard's Essential or Utility sections.") end
+end
+
+-- /lecdm status: Blizzard's Cooldown Manager, its list, its viewers, what's being listened to.
+function C.Status()
+	ns.Print(ns.Version(true) .. ", test build 1")
+	local okAvail, available, reason = pcall(C_CooldownViewer.IsCooldownViewerAvailable)
+	if okAvail then
+		local text = available and "available" or "not available"
+		if reason and reason ~= "" then text = text .. " (" .. ns.Show(reason) .. ")" end
+		ns.Print("Blizzard's Cooldown Manager: " .. text .. ", setting cooldownViewerEnabled = "
+			.. ns.Show(C_CVar.GetCVar("cooldownViewerEnabled")))
+	else
+		ns.Print("Blizzard's Cooldown Manager: couldn't ask (" .. tostring(available) .. ")")
+	end
+	local _, class = UnitClass("player")
+	local okSpec, spec = pcall(C_SpecializationInfo.GetSpecialization)
+	ns.Print("class " .. tostring(class) .. ", spec " .. (okSpec and ns.Show(spec) or "error")
+		.. ", profile " .. ns.Profiles.Current())
+	ns.Catalogue.PrintCounts()
+	ns.Listen.PrintStatus()
+	ns.Print(#LecdmDB.log .. " lines in the log (/lecdm log to copy it)")
 end

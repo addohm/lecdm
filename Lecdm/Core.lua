@@ -1,21 +1,51 @@
--- Lecdm test build 1: checks, in game, what Lecdm's plan relies on (ROADMAP.md):
---  * Blizzard's Cooldown Manager announces what it notices (a buff applied or removed, a spell
---    going on cooldown), in combat too, and an addon can listen without changing anything.
---  * What Blizzard's Cooldown Manager lists for the class on Forever.
---  * Which spell facts an addon can read in combat, and whether the game draws an addon's own
---    cooldown swipe from a duration object.
--- It only reads and logs. Nothing here writes Blizzard's Cooldown Manager data or Edit Mode.
-local addonName, ns = ...
+-- Lecdm: the defaults, shared helpers, events, the login message and /lecdm. Every setting lives
+-- in a profile (Profiles.lua); ns.db is the profile the character uses. LecdmDB.log (the log) and
+-- LecdmDB.welcomed are account-wide.
+local ADDON, ns = ...
 
-ns.version = C_AddOns.GetAddOnMetadata(addonName, "Version") or "?"
+-- A stand-in until Lecdm has its own icon (with the release kit).
+ns.ICON = "Interface\\Icons\\INV_Misc_PocketWatch_01"
 
-local DEFAULTS = { sound = true, icons = true, log = {} }
+local DEFAULTS = {
+	enabled = true,                     -- off: nothing shows or plays, the addon stays loaded
+	loginMessage = true,                -- a one-line reminder of /lecdm in chat at login
+	classColour = false,                -- the options window in your class colour
+	window = {},                        -- the options window: pos, size, tab
+	minimap = { angle = 350, hide = false }, -- clear of the owner's other addons (200-325)
+	test = { sound = true, icons = true }, -- test build 1: the raid warning, the test icons (and pos)
+}
+ns.DEFAULTS = DEFAULTS
 
-function ns.Print(msg)
-	print("|cff4fc3f7Lecdm|r " .. msg)
+function ns.CopyDefaults(dst, src)
+	for k, v in pairs(src) do
+		if dst[k] == nil then
+			dst[k] = type(v) == "table" and ns.CopyDefaults({}, v) or v
+		elseif type(v) == "table" and type(dst[k]) == "table" then
+			ns.CopyDefaults(dst[k], v)
+		end
+	end
+	return dst
 end
 
--- A value may be secret in combat. Never compare, concatenate or index with one: ask first.
+function ns.DeepCopy(t)
+	local copy = {}
+	for k, v in pairs(t) do copy[k] = type(v) == "table" and ns.DeepCopy(v) or v end
+	return copy
+end
+
+function ns.Print(msg)
+	print("|cff4fc3f7Lecdm|r: " .. msg)
+end
+
+-- "v0.1.0"; with withBuild, the build too ("v0.1.0 build abc1234"). The build is for chat only,
+-- never the window.
+function ns.Version(withBuild)
+	local v = C_AddOns.GetAddOnMetadata(ADDON, "Version") or "?"
+	return "v" .. v .. (withBuild and ns.build and (" build " .. ns.build) or "")
+end
+
+-- A value may be secret in combat. Never compare, concatenate, index or even test one for nil:
+-- ask first.
 function ns.IsSecret(v)
 	return issecretvalue ~= nil and issecretvalue(v) == true
 end
@@ -35,57 +65,135 @@ function ns.Where()
 	return text
 end
 
--- Version alone in the UI; the build only in chat (login line, /lecdm help).
-function ns.Version(withBuild)
-	if withBuild and ns.build then return "v" .. ns.version .. " build " .. ns.build end
-	return "v" .. ns.version
+function ns.Enabled()
+	return ns.db ~= nil and ns.db.enabled ~= false
 end
 
-local function Status()
-	ns.Print(ns.Version(true) .. ", test build 1")
-	local okAvail, available, reason = pcall(C_CooldownViewer.IsCooldownViewerAvailable)
-	if okAvail then
-		local text = available and "available" or "not available"
-		if reason and reason ~= "" then text = text .. " (" .. ns.Show(reason) .. ")" end
-		ns.Print("Blizzard's Cooldown Manager: " .. text .. ", setting cooldownViewerEnabled = "
-			.. ns.Show(C_CVar.GetCVar("cooldownViewerEnabled")))
-	else
-		ns.Print("Blizzard's Cooldown Manager: couldn't ask (" .. tostring(available) .. ")")
-	end
-	local _, class = UnitClass("player")
-	local okSpec, spec = pcall(C_SpecializationInfo.GetSpecialization)
-	ns.Print("class " .. tostring(class) .. ", spec " .. (okSpec and ns.Show(spec) or "error"))
-	ns.Catalogue.PrintCounts()
-	ns.Listen.PrintStatus()
-	ns.Print(#LecdmDB.log .. " lines in the log (/lecdm log to copy it)")
+function ns.SetEnabled(on)
+	ns.db.enabled = on and true or false
+	ns.Refresh()
 end
+
+-- After any setting changes, and when the profile changes: everything shown follows ns.db.
+function ns.Refresh()
+	if ns.Icons then ns.Icons.Build() end
+	if ns.Theme then ns.Theme.Apply() end
+	if ns.Minimap then ns.Minimap.Apply() end
+	if ns.Window then ns.Window.Apply() end
+end
+
+-- "Reset all settings": every profile, every character's choices, then a reload.
+StaticPopupDialogs.LECDM_RESET_ALL = {
+	text = "Reset every Lecdm setting, in every profile and for every character, and reload the interface?",
+	button1 = YES,
+	button2 = NO,
+	OnAccept = function()
+		LecdmDB = nil
+		ReloadUI()
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+}
+
+function ns.ResetAll()
+	StaticPopup_Show("LECDM_RESET_ALL")
+end
+
+-- Once per session, at the first PLAYER_ENTERING_WORLD: a welcome the first time, then a short
+-- reminder unless it's turned off.
+local greeted = false
+local function Greet()
+	if greeted then return end
+	greeted = true
+	if not LecdmDB.welcomed then
+		LecdmDB.welcomed = true
+		ns.Print("thanks for installing! Type |cffffd100/lecdm|r or click the minimap button for the options. "
+			.. "This is test build 1: the Test build tab has what to try.")
+	elseif ns.db.loginMessage then
+		ns.Print(ns.Version(true) .. " (test build 1) loaded. Type |cffffd100/lecdm|r to open the options.")
+	end
+end
+
+local events = CreateFrame("Frame")
+events:RegisterEvent("ADDON_LOADED")
+events:RegisterEvent("PLAYER_LOGIN")
+events:RegisterEvent("PLAYER_ENTERING_WORLD")
+events:SetScript("OnEvent", function(_, event, arg)
+	if event == "ADDON_LOADED" and arg == ADDON then
+		ns.Profiles.Init()
+	elseif event == "ADDON_LOADED" and arg == "Blizzard_CooldownViewer" then
+		ns.Listen.Setup()
+	elseif event == "PLAYER_LOGIN" then
+		ns.Profiles.Init() -- again: the surname may only be known now
+		ns.Catalogue.Build()
+		ns.Listen.Setup()
+		ns.Minimap.Init()
+		ns.Window.Register()
+		ns.Refresh()
+	elseif event == "PLAYER_ENTERING_WORLD" then
+		Greet()
+	end
+end)
+
+-- Slash commands ---------------------------------------------------------------------------
+
+-- /lecdm <page> opens that tab.
+local PAGE_WORDS = {
+	general = "general", settings = "general",
+	bars = "bars", cooldowns = "bars",
+	buffs = "buffs", auras = "buffs",
+	alerts = "alerts", sounds = "alerts", glows = "alerts",
+	test = "test",
+	profiles = "profiles",
+}
 
 local function Help()
 	ns.Print(ns.Version(true) .. ", test build 1. TESTING.md has what to try.")
-	ns.Print("/lecdm: status: Cooldown Manager, Blizzard's list, what's being listened to")
-	ns.Print("/lecdm list: every spell Blizzard's Cooldown Manager lists for you, by section")
-	ns.Print("/lecdm check: what an addon can read about your spells right now (try it in combat)")
-	ns.Print("/lecdm sound: sound on/off when a tracked buff drops (on: raid warning)")
-	ns.Print("/lecdm icons: test icons on/off; /lecdm move: drag them (out of combat)")
-	ns.Print("/lecdm blizz hide | show: make Blizzard's cooldown viewers invisible, or back")
-	ns.Print("/lecdm log: the log, ready to copy; /lecdm log clear empties it")
+	ns.Print("/lecdm - open or close the options window (/lcdm for short)")
+	ns.Print("/lecdm general | bars | buffs | alerts | test | profiles - open that tab")
+	ns.Print("/lecdm profile - the profile in use, and the Profiles tab (where they're managed)")
+	ns.Print("/lecdm minimap - show or hide the minimap button; /lecdm on | off - turn Lecdm on or off")
+	ns.Print("Test build: /lecdm status - Blizzard's Cooldown Manager, its list, what's listened to")
+	ns.Print("/lecdm list - every spell Blizzard's Cooldown Manager lists for you, by section")
+	ns.Print("/lecdm check - what an addon can read about your spells right now (try it in combat)")
+	ns.Print("/lecdm sound - the raid warning when a tracked buff drops, on or off")
+	ns.Print("/lecdm icons - the test icons on or off; /lecdm move - drag them (out of combat)")
+	ns.Print("/lecdm blizz hide | show - make Blizzard's cooldown viewers invisible, or bring them back")
+	ns.Print("/lecdm log - the log, ready to copy; /lecdm log clear empties it")
 end
 
-local function Slash(msg)
+SLASH_LECDM1 = "/lecdm"
+SLASH_LECDM2 = "/lcdm"
+SlashCmdList.LECDM = function(msg)
 	local cmd, rest = (msg or ""):lower():match("^%s*(%S*)%s*(.-)%s*$")
-	if cmd == "" or cmd == "status" then
-		Status()
+	if cmd == "" then
+		ns.Window.Toggle()
+	elseif PAGE_WORDS[cmd] then
+		ns.Window.Show(PAGE_WORDS[cmd])
 	elseif cmd == "help" then
 		Help()
+	elseif cmd == "profile" then
+		-- profiles are managed on their tab, nowhere else
+		ns.Print("profile: " .. ns.Profiles.Current() .. ". They're managed on the Profiles tab.")
+		ns.Window.Show("profiles")
+	elseif cmd == "minimap" then
+		ns.Minimap.SetShown(ns.db.minimap.hide)
+	elseif cmd == "on" or cmd == "off" then
+		ns.SetEnabled(cmd == "on")
+		ns.Print(cmd == "on" and "on." or "off: nothing shows or plays until you turn it on again.")
+	elseif cmd == "status" then
+		ns.Check.Status()
 	elseif cmd == "list" then
 		ns.Catalogue.PrintAll()
 	elseif cmd == "check" then
 		ns.Check.Run()
 	elseif cmd == "sound" then
-		LecdmDB.sound = not LecdmDB.sound
-		ns.Print("sound when a tracked buff drops: " .. (LecdmDB.sound and "on" or "off"))
+		ns.db.test.sound = not ns.db.test.sound
+		ns.Print("raid warning when a tracked buff drops: " .. (ns.db.test.sound and "on" or "off"))
+		if ns.Window then ns.Window.Refresh() end
 	elseif cmd == "icons" then
-		ns.Icons.Toggle()
+		ns.Icons.SetShown(not ns.db.test.icons)
 	elseif cmd == "move" then
 		ns.Icons.Move()
 	elseif cmd == "blizz" then
@@ -93,29 +201,6 @@ local function Slash(msg)
 	elseif cmd == "log" then
 		if rest == "clear" then ns.LogWindow.Clear() else ns.LogWindow.Show() end
 	else
-		ns.Print("unknown command. /lecdm help lists them.")
+		ns.Print("unknown command '" .. cmd .. "'. /lecdm help lists the commands.")
 	end
 end
-
-SLASH_LECDM1 = "/lecdm"
-SLASH_LECDM2 = "/lcdm"
-SlashCmdList.LECDM = Slash
-
-local events = CreateFrame("Frame")
-events:RegisterEvent("ADDON_LOADED")
-events:RegisterEvent("PLAYER_LOGIN")
-events:SetScript("OnEvent", function(_, event, name)
-	if event == "ADDON_LOADED" and name == addonName then
-		LecdmDB = LecdmDB or {}
-		for k, v in pairs(DEFAULTS) do
-			if LecdmDB[k] == nil then LecdmDB[k] = type(v) == "table" and {} or v end
-		end
-	elseif event == "ADDON_LOADED" and name == "Blizzard_CooldownViewer" then
-		ns.Listen.Setup()
-	elseif event == "PLAYER_LOGIN" then
-		ns.Catalogue.Build()
-		ns.Listen.Setup()
-		ns.Icons.Build()
-		ns.Print(ns.Version(true) .. " (test build 1) loaded. /lecdm help lists what to try.")
-	end
-end)

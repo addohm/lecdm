@@ -24,10 +24,18 @@ Now: test build 1 (0.0.1-dev), which checks in game what the plan relies on (TES
 - `Lecdm/`: the addon (what players copy into `Interface\AddOns`). `Lecdm.toc` sets the load
   order and holds `## Version`, the only version source.
   - `Build.lua`: build stamp, empty in the repo; the install script writes the commit into it.
-  - `Core.lua`: `ns.Print`, `ns.IsSecret` / `ns.Show` (secret-safe text), `ns.Where`, the
-    version, settings defaults (`LecdmDB`), `/lecdm`, login.
-  - `Log.lua`: `ns.Log(text, toChat)` into `LecdmDB.log` (last 500), and the copy window
-    (`LecdmLog`).
+  - `Core.lua`: the defaults (`ns.DEFAULTS`: enabled, loginMessage, classColour, window, minimap,
+    test), `ns.Print`, `ns.IsSecret` / `ns.Show` (secret-safe text), `ns.Where`,
+    `ns.Version(withBuild)`, `ns.Enabled` / `ns.SetEnabled`, `ns.Refresh()` (the test icons,
+    theme, minimap button and window follow `ns.db`), `ns.ResetAll()`, the login message,
+    `/lecdm`.
+  - `Profiles.lua`: profiles, in the owner's house style. `LecdmDB.profiles[name]` holds every
+    setting; `LecdmDB.chars["First Last"]` is the profile each character uses (`P.CharKey`:
+    UnitName's second value is the surname on Forever; no realm); `ns.db` is the one in use.
+    Switching by talents or role: `LecdmDB.auto["First Last"]`. Init also moves 0.0.1's flat
+    settings (`sound`, `icons`, `pos`) into the profile's `test` table once.
+  - `Log.lua`: `ns.Log(text, toChat)` into `LecdmDB.log` (account-wide, last 500), and the copy
+    window (`LecdmLog`).
   - `Catalogue.lua`: Blizzard's list through `C_CooldownViewer` (`ns.Catalogue.byID` by cooldown
     ID, `.sections`, `.Spells(sections)`, `.Name(cooldownID)`), `/lecdm list`.
   - `Listen.lua`: hooks `OnAcquireItemFrame` on the four viewers and `TriggerAlertEvent` on each
@@ -36,12 +44,18 @@ Now: test build 1 (0.0.1-dev), which checks in game what the plan relies on (TES
   - `Check.lua`: `/lecdm check`, what's readable about the Essential/Utility spells now.
   - `Icons.lua`: the test icons (own frames, swipe from `GetSpellCooldownDuration`).
   - `Blizz.lua`: `/lecdm blizz hide|show`, the invisible-viewers test.
+  - `UI/Theme.lua`, `UI/Widgets.lua` (option rows and `UI.Stack`), `UI/Window.lua` (the options
+    window `LecdmFrame`: tabs, Defaults, resize grip; pages register with `ns.Window.Page`; the
+    Options > AddOns entry), `UI/Minimap.lua` (`LecdmMinimapButton`, angle 350, the addon
+    compartment): the owner's house code, from leproc.
+  - `UI/Pages/`: `General.lua`, `Soon.lua` (Bars, Buffs, Alerts: what's coming), `Test.lua`
+    (test build 1's settings and tools), `Profiles.lua`.
 - `tools/install_forever.cmd`: pulls (and explains a rewritten history), copies the addon into
   the Windows client, stamps the build, packs `Lecdm-<version>.zip` on the desktop. Keep it CRLF
   (`.gitattributes`).
 - `tools/make_release.py`: `release/Lecdm-<version>.zip` from the committed `Lecdm/` folder.
 - `tests/`: `wowmock.lua` (a fake client: viewers with item pools, a secret value that errors
-  when misused), `smoke.lua` (scenarios), `run_tests.py`.
+  when misused, enough UI for the window), `smoke.lua` (scenarios), `run_tests.py`.
 - `TESTING.md`: what to check in game, and what's been confirmed.
 - Reference material, outside the repo:
   - Blizzard's Forever UI source (Gethe/wow-ui-source, `forever` branch, sparse):
@@ -81,6 +95,9 @@ Now: test build 1 (0.0.1-dev), which checks in game what the plan relies on (TES
   only.)
 - Events, not timers or retry ladders.
 - The version alone in any UI; the build only in chat (login line, `/lecdm help`).
+- New settings go in `ns.DEFAULTS` (so in every profile); only the log and `welcomed` are
+  account-wide. A setting change calls `ns.Refresh()`.
+- Example names in docs and tests are made up ("Brenna Ashford").
 - Dates in the docs are absolute (2026-11-20), never "today" or "last week".
 - CHANGELOG entries go under *Unreleased* in Keep a Changelog style.
 - Check APIs against Blizzard's Forever source (path above) and its

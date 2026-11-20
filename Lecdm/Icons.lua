@@ -21,19 +21,13 @@ local function Anchor()
 	if anchor then return anchor end
 	anchor = CreateFrame("Frame", nil, UIParent)
 	anchor:SetSize(SIZE, SIZE)
-	local pos = LecdmDB.pos
-	if pos then
-		anchor:SetPoint(pos[1], UIParent, pos[1], pos[2], pos[3])
-	else
-		anchor:SetPoint("CENTER", UIParent, "CENTER", 0, -220)
-	end
 	anchor:SetMovable(true)
 	anchor:RegisterForDrag("LeftButton")
 	anchor:SetScript("OnDragStart", anchor.StartMoving)
 	anchor:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing()
 		local point, _, _, x, y = self:GetPoint()
-		LecdmDB.pos = { point, x, y }
+		ns.db.test.pos = { point, x, y }
 	end)
 	anchor.shade = anchor:CreateTexture(nil, "BACKGROUND")
 	anchor.shade:SetPoint("TOPLEFT", -4, 4)
@@ -91,14 +85,22 @@ local function UpdateAll()
 	end
 end
 
+-- Builds the row for the profile in use (at login, and whenever settings or the profile change).
 function I.Build()
 	for _, b in ipairs(buttons) do b:Hide() end
-	if not LecdmDB.icons then
+	if not (ns.Enabled() and ns.db.test.icons) then
 		if anchor then anchor:Hide() end
 		return
 	end
 	local spells = ns.Catalogue.Spells({ [0] = true, [1] = true })
 	Anchor():Show()
+	local pos = ns.db.test.pos
+	anchor:ClearAllPoints()
+	if pos then
+		anchor:SetPoint(pos[1], UIParent, pos[1], pos[2], pos[3])
+	else
+		anchor:SetPoint("CENTER", UIParent, "CENTER", 0, -220)
+	end
 	anchor:SetWidth(math.max(1, math.min(#spells, MAX)) * (SIZE + GAP) - GAP)
 	for i = 1, math.min(#spells, MAX) do
 		local b = Button(i)
@@ -110,10 +112,15 @@ function I.Build()
 	end
 end
 
-function I.Toggle()
-	LecdmDB.icons = not LecdmDB.icons
+function I.SetShown(on)
+	ns.db.test.icons = on and true or false
 	I.Build()
-	ns.Print("test icons " .. (LecdmDB.icons and "on" or "off"))
+	ns.Print("test icons " .. (on and "on" or "off"))
+	if ns.Window then ns.Window.Refresh() end
+end
+
+function I.IsMoving()
+	return moving
 end
 
 function I.Move()
@@ -126,6 +133,7 @@ function I.Move()
 	anchor.shade:SetPoint("BOTTOMRIGHT", anchor, "BOTTOMRIGHT", 4, -4)
 	anchor.shade:SetShown(moving)
 	ns.Print(moving and "drag the test icons, then /lecdm move again to lock them." or "test icons locked.")
+	if ns.Window then ns.Window.Refresh() end
 end
 
 local events = CreateFrame("Frame")
@@ -138,7 +146,7 @@ events:RegisterEvent("COOLDOWN_VIEWER_DATA_LOADED")
 events:SetScript("OnEvent", function(_, event)
 	if event == "SPELLS_CHANGED" or event == "COOLDOWN_VIEWER_DATA_LOADED" then
 		ns.Catalogue.Build()
-		if LecdmDB then I.Build() end
+		if ns.db then I.Build() end
 	else
 		UpdateAll()
 	end

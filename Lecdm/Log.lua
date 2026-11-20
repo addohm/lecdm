@@ -1,13 +1,14 @@
 -- Lecdm: the log. Each line has the time and "[combat]" / "[instance]" when they apply. Lines go
--- to LecdmDB.log (saved at /reload or logout), some to chat as well, and /lecdm log shows them
--- in a window, selected, ready for Ctrl+C.
+-- to LecdmDB.log (account-wide, saved at /reload or logout), some to chat as well, and /lecdm log
+-- shows them in a window, selected, ready for Ctrl+C.
 local _, ns = ...
 
 local MAX = 500
 
 function ns.Log(text, toChat)
+	local log = LecdmDB and LecdmDB.log
+	if not log then return end
 	local line = date("%H:%M:%S") .. " " .. ns.Where() .. text
-	local log = LecdmDB.log
 	table.insert(log, line)
 	while #log > MAX do table.remove(log, 1) end
 	if toChat then ns.Print(line) end
@@ -30,7 +31,7 @@ function W.Show()
 			insets = { left = 4, right = 4, top = 4, bottom = 4 },
 		})
 		window:SetBackdropColor(0.05, 0.06, 0.09, 0.96)
-		window:SetBackdropBorderColor(0.3, 0.75, 0.95, 1)
+		window:SetBackdropBorderColor(ns.Theme.Edge())
 		window:EnableMouse(true)
 		window:SetMovable(true)
 		window:RegisterForDrag("LeftButton")
