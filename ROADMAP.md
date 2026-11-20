@@ -73,8 +73,9 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 ## Next
 
-1. **Test build 1 in game** (TESTING.md). Above all: does the listener hear "removed" in combat
-   inside a dungeon, and does it still hear it while Blizzard's viewers are invisible?
+1. **Test build 1 in game** (TESTING.md). Confirmed 2026-11-20: the listener hears applied and
+   removed in combat inside a dungeon, and cooldown state, usable and range are readable there.
+   Left: the test icons in combat, and the invisible-viewers test.
 2. **Settle the display of what only the Cooldown Manager can show** (the player's effects on
    the target, its timers), depending on the results: Blizzard's icons restyled where they sit,
    or placed inside Lecdm's bars without fighting their layout (test build 2 if needed).

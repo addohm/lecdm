@@ -51,10 +51,33 @@ at /reload or logout (`WTF\Account\<account>\SavedVariables\Lecdm.lua`).
 
 ## Confirmed
 
-- **The listener hears a target debuff dropping, in combat, in the open world** (test build 1,
-  e865554, 2026-11-20, warrior): Thunder Clap's "removed" and its raid warning came at
-  virtually the same moment its icon went. Steps 4 and 6. Still to check: inside a dungeon
-  (step 5).
+From the owner's warrior, test build 1 (e865554), 2026-11-20: open world, then a dungeon.
+
+- **The listener works in combat inside a dungeon** (steps 3-6). Lines marked `[combat]
+  [instance]` for applied and removed of Bloodrage, Battle Shout, Sunder Armor, Thunder Clap,
+  Demoralizing Shout and Eureka!, from the Essential, Utility, Buffs and Bars viewers; "on
+  cooldown" for Charge, Bloodrage and Eureka!. In the open world the raid warning for Thunder
+  Clap came at virtually the same moment its icon went. A spell in Essential or Utility also
+  announces its own aura (Bloodrage).
+- **Target debuffs are announced too, also when the target dies:** Sunder Armor, Thunder Clap
+  and Demoralizing Shout were all "removed" in the same second when the mob died.
+- **What an addon can read in combat, inside a dungeon** (step 8): "cooldowns secret" and
+  "auras secret" are true in any combat (open world too). Still readable: on cooldown
+  (isActive), GCD (isOnGCD), usable, in range; a duration object is there for every spell. The
+  start time is SECRET. In combat an aura's ID is secret and timing it ourselves is refused;
+  out of combat it's readable and works.
+- **Blizzard's list** (step 2): Essential 17, Utility 20, TrackedBuff 38 (buffs on you and
+  your debuffs on the target, together), TrackedBar 0, three spec-agnostic entries with no
+  spell (cooldowns 200345-200347), and equipment slots. These are Blizzard's default sections,
+  not where the player put things: Sunder Armor is listed under TrackedBuff while the player's
+  layout shows it in the Bars viewer.
+- **No proc glow events** for a warrior (step 10): none logged while Overpower and Revenge
+  became usable. Usable covers them.
+- **No listener errors** in the log.
+
+Still to check: the test icons in combat (step 9); whether Blizzard's viewers stayed invisible
+from `/lecdm blizz hide` (18:33) through the fights (step 7: no "Blizzard set the alpha" line
+was logged); Lua errors (step 11).
 
 ## Problems
 
