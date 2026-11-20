@@ -108,7 +108,14 @@ Second dungeon run (870f69d, 2026-11-20):
 - **At the moment of a removal, a dying target isn't dead yet** (step 12): Sunder Armor and
   Thunder Clap went together 5 s after Thunder Clap was applied (a kill, by the look of it),
   with "target exists true, dead false". The frame-later look (f115a4e) is to check next.
-- Not in that log yet: the trinket check (13) and the host test (14).
+- **Trinket slots are readable in combat, in an instance** (step 13): "Satchel of Potions: slot
+  cooldown start 0, duration 0, enabled 1". It wasn't on cooldown, so whether a running item
+  cooldown reads as numbers or SECRET is still open.
+- **`/lecdm check` covers every spell:** 26 lines, "no power" readable; Eureka! read "on
+  cooldown true", so racials behave like spells.
+
+Still to check (the open world will do): the frame-later look after a kill (step 12, needs
+34d86ec), a trinket on cooldown (13), and the host test (14).
 
 ## Problems
 
