@@ -124,8 +124,17 @@ Open world, 34d86ec, 2026-11-20:
   Clap, Sunder Armor). Kills in that log logged no "removed" at all (in the first dungeon they
   did, all of a target's debuffs in the same second), so what a kill reads is still open.
 
-Still to check: a kill's "removed" lines and the frame-later look (step 12, in a dungeon), and
-a trinket on cooldown (13).
+Dungeon, 34d86ec, 2026-11-20 (about 15 kills):
+
+- **A kill reads as "target gone a frame later"** (step 12): all of the target's debuffs are
+  "removed" in the same second, "target exists true, dead false" at that moment, then "a
+  frame later: target exists false" (10 kills). An expiry on a live mob: one debuff, and a
+  frame later the target still exists, alive. "Dead" never read true at a kill. Three
+  same-second pairs kept "target exists true" a frame later (most likely already on the next
+  mob). So: a target debuff's "removed" waits a frame and is a kill if the target is gone.
+
+Still to check: the host test in a dungeon (14) and a trinket on cooldown (13); both had
+scrolled out of the 500-line log.
 
 ## Problems
 
