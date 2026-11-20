@@ -5,11 +5,11 @@ change.
 
 ## Done
 
-- Standard docs (2026-11-20).
+- Standard docs (2026-11-20), filled in with what's known so far.
 
 ## Next
 
-TODO: the planned work, most important first.
+TODO: the planned work, most important first. First up: decide what lecdm is.
 
 ## Ideas
 

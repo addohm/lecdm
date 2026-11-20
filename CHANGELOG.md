@@ -8,4 +8,5 @@ All notable changes to lecdm. The format follows
 
 ### Added
 
-- Standard docs: README, CLAUDE, CHANGELOG, DEPLOY, SECURITY and ROADMAP (2026-11-20).
+- Standard docs: README, CLAUDE, CHANGELOG, DEPLOY, SECURITY and ROADMAP (2026-11-20),
+  filled in with what's known so far.

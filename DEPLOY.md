@@ -1,6 +1,10 @@
 # Deploying lecdm
 
-TODO: where it runs (host, service, URL).
+Not deployed: there's no code yet. The source lives at `addohm/lecdm` on
+GitHub, branch `main`.
+
+TODO: will it run somewhere (server, URL), or is it released as a package
+(for a WoW addon: zips on CurseForge and Wago, like leboof)?
 
 ## First-time setup
 

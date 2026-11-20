@@ -1,14 +1,24 @@
 # lecdm
 
-TODO: one or two sentences on what this is and who it's for.
+No code yet: the repository (`addohm/lecdm` on GitHub) holds only the
+standard docs so far.
+
+TODO: what is lecdm, and who is it for? (Is it another WoW Forever addon like
+leboof, leproc and leprofit, and what does "cdm" stand for?)
 
 ## Getting started
 
-TODO: what you need installed, and how to set it up and run it locally.
+Clone it:
+
+```sh
+git clone git@github.com:addohm/lecdm.git
+```
+
+TODO: what else needs installing, and how to run it locally, once there's code.
 
 ## Usage
 
-TODO: how to use it.
+TODO: how to use it, once there's something to use.
 
 ## Docs
 

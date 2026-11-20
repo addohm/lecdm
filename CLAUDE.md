@@ -4,11 +4,17 @@ Orientation for Claude working on lecdm. Read this first.
 
 ## What this is
 
-TODO: what the project does, its main parts, and how they fit together.
+A new, empty project: as of 2026-11-20 the repo (`addohm/lecdm`) holds only
+the standard docs. Nothing is decided yet about what it does; ask the owner
+before writing code, and record the answers here and in README.md.
 
 ## Layout
 
-TODO: the important folders and files, one line each.
+- `README.md`, `CHANGELOG.md`, `DEPLOY.md`, `SECURITY.md`, `ROADMAP.md`:
+  the standard docs
+- `CLAUDE.md`: this file
+
+No code folders yet; list them here as they're added.
 
 ## Workflow
 
@@ -22,11 +28,15 @@ TODO: the important folders and files, one line each.
    - SECURITY.md: when secrets, access or permissions change
    - ROADMAP.md: when something on it is done, or new plans are made
    - this file: when the layout, workflow or conventions change
-4. Run the checks (TODO: the lint and test commands), then commit.
+4. Run the checks (TODO: none yet; add the lint and test commands with the
+   first code), then commit.
 
 ## Conventions
 
-TODO: coding style, naming, anything a newcomer would get wrong.
+- Dates in the docs are absolute (2026-11-20), never "today" or "last week".
+- CHANGELOG entries go under *Unreleased* in Keep a Changelog style.
+
+TODO: coding style and naming, once the language is chosen.
 
 ## Don't
 
