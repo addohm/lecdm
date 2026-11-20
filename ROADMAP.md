@@ -65,6 +65,9 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - The plan above (2026-11-20).
 - Test build 1 (0.0.1-dev, 2026-11-20): listens to the Cooldown Manager, reads its list, checks
   what's readable in combat, test icons, an invisible-viewers test. Not tried in game yet.
+- Test build 1 tried in game (2026-11-20, TESTING.md): the listener hears applied and removed
+  in combat inside a dungeon, with Blizzard's viewers invisible too; cooldown state, GCD,
+  usable and range are readable there; Lecdm's own icons swipe and grey in combat.
 - Core (2026-11-20, in the owner's house style): the options window (General, Bars, Buffs,
   Alerts, Test build, Profiles tabs; Bars, Buffs and Alerts say what's coming), profiles ("First
   Last", shared, switched by talents or group role), the minimap button and addon compartment,
@@ -73,25 +76,22 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 ## Next
 
-1. **Test build 1 in game** (TESTING.md). Confirmed 2026-11-20: the listener hears applied and
-   removed in combat inside a dungeon, and cooldown state, usable and range are readable there.
-   Left: the test icons in combat, and the invisible-viewers test.
-2. **Settle the display of what only the Cooldown Manager can show** (the player's effects on
-   the target, its timers), depending on the results: Blizzard's icons restyled where they sit,
-   or placed inside Lecdm's bars without fighting their layout (test build 2 if needed).
-3. **Cooldown bars:** any number, own icons, per-spell look and behaviour, a spell picker
+1. **Cooldown bars:** any number, own icons, per-spell look and behaviour, a spell picker
    (Blizzard's list, spellbook), drag to order and place.
-4. **Items:** trinkets and other on-use slots, racials, potions, healthstones.
-5. **Buffs:** the Cooldown Manager's tracked buffs and procs, buffs from others (aura
+2. **Items:** trinkets and other on-use slots, racials, potions, healthstones.
+3. **Settle the display of what only the Cooldown Manager can show** (the player's effects on
+   the target, its timers), before the buffs: an addon can't time them in combat, so it's Blizzard's icons restyled where they sit,
+   or placed inside Lecdm's bars without fighting their layout (test build 2 if needed).
+4. **Buffs:** the Cooldown Manager's tracked buffs and procs, buffs from others (aura
    containers), missing state.
-6. **Effects on the target:** the player's DoTs and HoTs.
-7. **Alerts and effects:** sounds and glows on ready, applied, removed, charges; per-spell
+5. **Effects on the target:** the player's DoTs and HoTs.
+6. **Alerts and effects:** sounds and glows on ready, applied, removed, charges; per-spell
    glow styles; keybind text; visibility rules (combat, group, instance, target, mounted ...).
-8. **Status bars** (EllesmereUI's Tracking Bars): groups, thresholds, ticks.
-9. **The rest of EllesmereUI's list:** action-bar button glows on buff state, focus interrupt
+7. **Status bars** (EllesmereUI's Tracking Bars): groups, thresholds, ticks.
+8. **The rest of EllesmereUI's list:** action-bar button glows on buff state, focus interrupt
    bar, swing-timer sweep for on-next-swing attacks, queued-attack highlight, key-press mirror,
    import/export.
-10. **Release kit:** icon and banner, LISTING.md, packaging, CurseForge and Wago.
+9. **Release kit:** icon and banner, LISTING.md, packaging, CurseForge and Wago.
 
 ## Ideas
 

@@ -75,9 +75,15 @@ From the owner's warrior, test build 1 (e865554), 2026-11-20: open world, then a
   became usable. Usable covers them.
 - **No listener errors** in the log.
 
-Still to check: the test icons in combat (step 9); whether Blizzard's viewers stayed invisible
-from `/lecdm blizz hide` (18:33) through the fights (step 7: no "Blizzard set the alpha" line
-was logged); Lua errors (step 11).
+- **Lecdm's own icons work in combat, inside a dungeon too** (step 9): the swipe and countdown
+  from the duration object ran for spells on their own cooldown, the icons went grey while
+  cooling down and back to colour when ready, and the GCD showed as a short sweep.
+- **The listener keeps hearing with Blizzard's viewers invisible** (step 7): after `/lecdm blizz
+  hide` they stayed invisible through every fight, the dungeon included, Blizzard never put
+  their alpha back, and every change above was heard while they were.
+- **No Lua errors** (step 11).
+
+Test build 1 is done: everything the plan relies on works in game.
 
 ## Problems
 
