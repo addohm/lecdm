@@ -70,6 +70,21 @@ local function Describe(item, event)
 	return text, name, isAura
 end
 
+-- At a removal the game may not have marked a dying target dead yet: one more look a frame later
+-- (once per frame, however many auras went at once).
+local lookPending = false
+local function LookAgain()
+	if lookPending or not (C_Timer and C_Timer.After) then return end
+	lookPending = true
+	C_Timer.After(0, function()
+		lookPending = false
+		local okE, exists = pcall(UnitExists, "target")
+		local okD, dead = pcall(UnitIsDead, "target")
+		ns.Log("  a frame later: target exists " .. (okE and ns.Show(exists) or "error")
+			.. ", dead " .. (okD and ns.Show(dead) or "error"))
+	end)
+end
+
 local function OnAlertEvent(item, event)
 	if not ns.Enabled() then return end
 	local ok, text, name, isAura = pcall(Describe, item, event)
@@ -82,7 +97,10 @@ local function OnAlertEvent(item, event)
 	end
 	eventCount = eventCount + 1
 	ns.Log(text, isAura)
-	if name == "OnAuraRemoved" and ns.db.test.sound then PlaySound(SOUNDKIT.RAID_WARNING, "Master") end
+	if name == "OnAuraRemoved" then
+		if ns.db.test.sound then PlaySound(SOUNDKIT.RAID_WARNING, "Master") end
+		LookAgain()
+	end
 end
 
 local function HookItem(item)

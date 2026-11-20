@@ -22,7 +22,7 @@ All notable changes to lecdm. The format follows
   login reminder, a class-coloured window, Reset all settings.
 
 - Test build 1, more checks (2026-11-20): "removed" lines say whether the target exists and is
-  dead; `/lecdm check` covers every spell, "no power" and trinket slots 13 and 14 (into the log,
+  dead, at that moment and again a frame later; `/lecdm check` covers every spell, "no power" and trinket slots 13 and 14 (into the log,
   with a summary in chat); blocked actions (any addon's) and the first swings of each fight are
   logged; `/lecdm host on|off` places Blizzard's buff icons and bars in a row Lecdm controls.
 

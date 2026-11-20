@@ -49,8 +49,8 @@ Install with `tools\install_forever.cmd`, fully restart the game (first install)
 Added 2026-11-20, for a second dungeon run (`/reload` after the install script is enough):
 
 12. **Expired, or the target died?** Each "removed" line now ends with "target exists ...,
-    dead ...". Let a debuff run out on a live mob, and kill a debuffed mob: do the two read
-    differently, in combat, in the dungeon?
+    dead ...", and the next line ("a frame later: ...") looks again one frame later. Let a
+    debuff run out on a live mob, and kill a debuffed mob: do the two read differently?
 13. **Trinkets.** `/lecdm check` now also logs trinket slots 13 and 14 (and every spell, and
     "no power"). Press it in combat, ideally with an on-use trinket on cooldown: SECRET or not?
 14. **Blizzard's icons in a Lecdm row.** `/lecdm host on` (or the Test build tab) places
@@ -100,6 +100,15 @@ From the owner's warrior, test build 1 (e865554), 2026-11-20: open world, then a
 - **No Lua errors** (step 11).
 
 Test build 1 is done: everything the plan relies on works in game.
+
+Second dungeon run (870f69d, 2026-11-20):
+
+- **Swings are readable in combat, in an instance** (step 15): PLAYER_SWING gave "duration
+  2.261, type 0".
+- **At the moment of a removal, a dying target isn't dead yet** (step 12): Sunder Armor and
+  Thunder Clap went together 5 s after Thunder Clap was applied (a kill, by the look of it),
+  with "target exists true, dead false". The frame-later look (a1) is to check next.
+- Not in that log yet: the trinket check (13) and the host test (14).
 
 ## Problems
 

@@ -48,6 +48,11 @@ check(line and line:find("aura ID secret") and line:find("is refused"), "secret 
 M.target = { dead = true }
 shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
 check(Logged("removed: Battle Shout %(Buffs%).-target exists true, dead true"), "target state missing: " .. tostring(Logged("removed: Battle Shout")))
+shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
+M.RunTimers()
+local again = 0
+for _, l in ipairs(LecdmDB.log) do if l:find("a frame later: target exists true, dead true") then again = again + 1 end end
+check(again == 1, "a frame later logged " .. again .. " times for two removals, not once")
 M.target = nil
 
 -- A reused icon is named by the entry it has now, not the one it had.
