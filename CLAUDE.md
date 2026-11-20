@@ -4,17 +4,50 @@ Orientation for Claude working on lecdm. Read this first.
 
 ## What this is
 
-A new, empty project: as of 2026-11-20 the repo (`addohm/lecdm`) holds only
-the standard docs. Nothing is decided yet about what it does; ask the owner
-before writing code, and record the answers here and in README.md.
+Lecdm is a WoW: Forever addon (Interface 16001: the modern client with the Midnight "secret
+values" addon API, running Classic level-60 content) that makes Blizzard's Cooldown Manager
+better and simpler to manage. The plan, agreed on 2026-11-20, is in ROADMAP.md: "Blizzard
+knows, Lecdm shows", with three engines (the Cooldown Manager's list and its announcements, the
+spell API, aura containers) feeding Lecdm's own bars, all managed from one Lecdm window.
+The remote is `addohm/lecdm` on GitHub (`origin`, branch `main`).
+
+It stands on its own. leboof and leproc (the owner's other addons) are reference material only,
+for what's proven on Forever and for house style; nothing is left out of Lecdm because they do
+something similar. EllesmereUI's Cooldown Manager is the feature reference: it's "all rights
+reserved", so ideas only, never its code, and it's never named in the addon or its docs for
+players.
+
+Now: test build 1 (0.0.1-dev), which checks in game what the plan relies on (TESTING.md).
 
 ## Layout
 
-- `README.md`, `CHANGELOG.md`, `DEPLOY.md`, `SECURITY.md`, `ROADMAP.md`:
-  the standard docs
-- `CLAUDE.md`: this file
-
-No code folders yet; list them here as they're added.
+- `Lecdm/`: the addon (what players copy into `Interface\AddOns`). `Lecdm.toc` sets the load
+  order and holds `## Version`, the only version source.
+  - `Build.lua`: build stamp, empty in the repo; the install script writes the commit into it.
+  - `Core.lua`: `ns.Print`, `ns.IsSecret` / `ns.Show` (secret-safe text), `ns.Where`, the
+    version, settings defaults (`LecdmDB`), `/lecdm`, login.
+  - `Log.lua`: `ns.Log(text, toChat)` into `LecdmDB.log` (last 500), and the copy window
+    (`LecdmLog`).
+  - `Catalogue.lua`: Blizzard's list through `C_CooldownViewer` (`ns.Catalogue.byID` by cooldown
+    ID, `.sections`, `.Spells(sections)`, `.Name(cooldownID)`), `/lecdm list`.
+  - `Listen.lua`: hooks `OnAcquireItemFrame` on the four viewers and `TriggerAlertEvent` on each
+    icon (weak table of hooked icons), logs what the Cooldown Manager announces, the raid
+    warning on "removed"; proc glow events.
+  - `Check.lua`: `/lecdm check`, what's readable about the Essential/Utility spells now.
+  - `Icons.lua`: the test icons (own frames, swipe from `GetSpellCooldownDuration`).
+  - `Blizz.lua`: `/lecdm blizz hide|show`, the invisible-viewers test.
+- `tools/install_forever.cmd`: pulls (and explains a rewritten history), copies the addon into
+  the Windows client, stamps the build, packs `Lecdm-<version>.zip` on the desktop. Keep it CRLF
+  (`.gitattributes`).
+- `tools/make_release.py`: `release/Lecdm-<version>.zip` from the committed `Lecdm/` folder.
+- `tests/`: `wowmock.lua` (a fake client: viewers with item pools, a secret value that errors
+  when misused), `smoke.lua` (scenarios), `run_tests.py`.
+- `TESTING.md`: what to check in game, and what's been confirmed.
+- Reference material, outside the repo:
+  - Blizzard's Forever UI source (Gethe/wow-ui-source, `forever` branch, sparse):
+    `/srv/claude/workspaces/_wfscratch/lecdm/ui`.
+  - EllesmereUI v9.9.1: `/srv/claude/workspaces/_wfscratch/eui/src`; notes on its Cooldown
+    Manager in `/srv/claude/workspaces/_wfscratch/lecdm/notes/`.
 
 ## Workflow
 
@@ -27,17 +60,34 @@ No code folders yet; list them here as they're added.
    - DEPLOY.md: when deploying or running it live changes
    - SECURITY.md: when secrets, access or permissions change
    - ROADMAP.md: when something on it is done, or new plans are made
+   - TESTING.md: what needs checking in game, and results the owner reports
    - this file: when the layout, workflow or conventions change
-4. Run the checks (TODO: none yet; add the lint and test commands with the
-   first code), then commit.
+4. Run the checks: `.venv/bin/python tests/run_tests.py` (set up with
+   `python3 -m venv .venv && .venv/bin/pip install lupa`). Then commit and push, and say
+   "Pushed: <commit>" so the owner can run the install script.
+5. Discuss before building: changes need the owner's go-ahead.
 
 ## Conventions
 
+- Lua 5.1, no libraries. Every file starts `local _, ns = ...`; shared state lives on `ns`.
+  Globals only from the list in `tests/run_tests.py`.
+- **Secret values:** never compare, concatenate, index or even test one for nil. Ask
+  `ns.IsSecret` first; `ns.Show` gives text for any value. Wrap game calls that may refuse in
+  `pcall`.
+- **Blizzard's Cooldown Manager is read-only.** Never write its data, its frames' fields, Edit
+  Mode layouts or its CVars; never call its refresh methods; no forced reloads. Listen with
+  `hooksecurefunc`; keep per-frame state in weak tables. Identify an icon by its cooldown ID read
+  when needed: icons are pooled and reused. (`/lecdm blizz hide` setting viewer alpha is a test
+  only.)
+- Events, not timers or retry ladders.
+- The version alone in any UI; the build only in chat (login line, `/lecdm help`).
 - Dates in the docs are absolute (2026-11-20), never "today" or "last week".
 - CHANGELOG entries go under *Unreleased* in Keep a Changelog style.
-
-TODO: coding style and naming, once the language is chosen.
+- Check APIs against Blizzard's Forever source (path above) and its
+  `Blizzard_APIDocumentationGenerated` flags (`SecretWhen...`, `NeverSecret`,
+  `SecretArguments`, `HasRestrictions`).
 
 ## Don't
 
 - Commit secrets (`.env`, keys, tokens).
+- Copy code from other addons, or name them in the addon or its player docs.

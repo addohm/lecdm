@@ -10,3 +10,9 @@ All notable changes to lecdm. The format follows
 
 - Standard docs: README, CLAUDE, CHANGELOG, DEPLOY, SECURITY and ROADMAP (2026-11-20),
   filled in with what's known so far.
+- The plan in ROADMAP.md: Blizzard knows, Lecdm shows (2026-11-20).
+- Test build 1, 0.0.1-dev (2026-11-20): listens to Blizzard's Cooldown Manager (applied,
+  removed, on cooldown ...), with a raid warning when a tracked buff drops; `/lecdm list` shows
+  Blizzard's list; `/lecdm check` shows what's readable now; test icons from duration objects;
+  `/lecdm blizz hide|show` tests invisible viewers; a copyable log. TESTING.md has what to try.
+- `tools/install_forever.cmd`, `tools/make_release.py` and the tests (`tests/run_tests.py`).

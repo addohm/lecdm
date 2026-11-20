@@ -7,14 +7,15 @@ issue for a vulnerability.
 
 ## Secrets
 
-None yet: the repo holds no code or config. When secrets are added, list
-each one here by name (never its value), where it lives and how to rotate it.
-Never commit them.
+None: Lecdm is a game addon with no keys or accounts. If secrets are ever added, list each one
+here by name (never its value), where it lives and how to rotate it. Never commit them.
 
 ## Access
 
 - Source: `addohm/lecdm` on GitHub, owned by addohm. Claude's workspace
-  pushes with a per-repo deploy key.
-- No production yet.
+  pushes with a per-repo deploy key (`deploy-ws-lecdm`).
+- No production: the addon runs in each player's game client.
+- In game, Lecdm only reads and displays. It doesn't call protected functions, and it never
+  writes Blizzard's Cooldown Manager data or Edit Mode layouts.
 
 TODO: is the repo public or private, and does anyone else get push access?

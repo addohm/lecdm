@@ -1,29 +1,59 @@
 # lecdm
 
-No code yet: the repository (`addohm/lecdm` on GitHub) holds only the
-standard docs so far.
+Lecdm is a WoW: Forever addon that makes Blizzard's Cooldown Manager better and simpler to
+manage: bars of your cooldowns, buffs and procs, laid out and styled your way from one window,
+with sounds and glows that work in combat. The plan is in [ROADMAP.md](ROADMAP.md).
 
-TODO: what is lecdm, and who is it for? (Is it another WoW Forever addon like
-leboof, leproc and leprofit, and what does "cdm" stand for?)
+**Status:** test build 1 (0.0.1-dev). It doesn't show bars yet: it checks, in game, what the
+plan relies on. [TESTING.md](TESTING.md) has what to try.
 
 ## Getting started
 
-Clone it:
+You need git and the WoW: Forever client on Windows.
 
-```sh
-git clone git@github.com:addohm/lecdm.git
-```
+1. Clone the repo:
 
-TODO: what else needs installing, and how to run it locally, once there's code.
+   ```sh
+   git clone https://github.com/addohm/lecdm.git
+   ```
 
-## Usage
+2. Check `WOW` at the top of `tools\install_forever.cmd`. It defaults to
+   `C:\Program Files (x86)\World of Warcraft\_forever_`.
+3. Run `tools\install_forever.cmd` from a terminal. It pulls, copies `Lecdm` into the client's
+   `Interface\AddOns`, stamps the build, and packs `Lecdm-<version>.zip` on your desktop.
+4. Fully restart the game the first time (and whenever the script says so); otherwise `/reload`.
+   `/lecdm help` shows the build you're running.
 
-TODO: how to use it, once there's something to use.
+## Usage (test build 1)
+
+Everything is a chat command; `/lcdm` works too.
+
+| Command | What it does |
+|---|---|
+| `/lecdm` | Status: is Blizzard's Cooldown Manager available, what it lists, what's listened to |
+| `/lecdm help` | The commands, and the build |
+| `/lecdm list` | Every entry Blizzard's Cooldown Manager lists for you, by section |
+| `/lecdm check` | What an addon can read about your spells right now (try it in combat) |
+| `/lecdm sound` | Sound on/off when a tracked buff drops (on by default: raid warning) |
+| `/lecdm icons` | Test icons on/off (on by default) |
+| `/lecdm move` | Drag the test icons; again to lock them |
+| `/lecdm blizz hide` / `show` | Make Blizzard's cooldown viewers invisible, or bring them back (a test) |
+| `/lecdm log` | The log in a window, ready to copy; `/lecdm log clear` empties it |
+
+What it does on its own:
+
+- **Listens to Blizzard's Cooldown Manager.** Whenever it notices a tracked buff applied or
+  removed, or a spell going on cooldown, the log says so (buffs in chat too), and a raid warning
+  plays when a tracked buff drops. It only listens; it changes nothing in the Cooldown Manager.
+- **Logs proc glows** (Overpower, Revenge, Clearcasting ...).
+- **Test icons:** one per learned spell in Blizzard's Essential and Utility sections, with a
+  swipe and countdown, grey on cooldown, dark when you can't cast it.
 
 ## Docs
 
+- [ROADMAP.md](ROADMAP.md): the plan, what's done and what's next
+- [TESTING.md](TESTING.md): what to check in game, and the results
 - [CHANGELOG.md](CHANGELOG.md): what changed in each version
-- [DEPLOY.md](DEPLOY.md): how it's deployed
+- [DEPLOY.md](DEPLOY.md): installing on the test PC, and releases
 - [SECURITY.md](SECURITY.md): secrets, access, reporting problems
-- [ROADMAP.md](ROADMAP.md): what's done and what's next
 - [CLAUDE.md](CLAUDE.md): notes for Claude working on it
