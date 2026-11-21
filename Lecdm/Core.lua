@@ -12,7 +12,8 @@ local DEFAULTS = {
 	classColour = false,                -- the options window in your class colour
 	window = {},                        -- the options window: pos, size, tab
 	minimap = { angle = 350, hide = false }, -- clear of the owner's other addons (200-325)
-	test = { sound = true },            -- test build 1: the raid warning when a tracked buff drops
+	test = { sound = true, chat = "main" }, -- test build 1: the raid warning when a tracked buff drops;
+	                                    -- where its debug lines go (Log.lua: ns.Debug)
 	-- the cooldown bars (Bars.lua): list = { bar ... } (B.NewBar has a bar's fields), seeded once
 	-- from Blizzard's list, and whether Blizzard's Essential and Utility viewers are made invisible
 	bars = { list = {}, seeded = false, nextID = 1, hideBlizzard = true, hideBlizzardBuffs = false },

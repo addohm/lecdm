@@ -35,7 +35,9 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
     Switching by talents or role: `LecdmDB.auto["First Last"]`. Init also moves 0.0.1's flat
     settings (`sound`, `icons`, `pos`) into the profile's `test` table once.
   - `Log.lua`: `ns.Log(text, toChat)` into `LecdmDB.log` (account-wide, last 500), and the copy
-    window (`LecdmLog`).
+    window (`LecdmLog`). `toChat` lines are the test build's debug output: `ns.Debug(line)`
+    sends them where `ns.db.test.chat` says ("main", a chat tab's name from `ns.ChatTabs()`,
+    or "off"). Replies to commands and real errors use `ns.Print` (always the main chat).
   - `Catalogue.lua`: Blizzard's list through `C_CooldownViewer` (`ns.Catalogue.byID` by cooldown
     ID, `.bySpell`, `.sections`, `.Spells(sections, all)`, `.Name(cooldownID)`), `/lecdm list`.
     It gives Blizzard's default sections, not where the player put things in `/cdm`.

@@ -1,6 +1,8 @@
 -- Lecdm: the log. Each line has the time and "[combat]" / "[instance]" when they apply. Lines go
--- to LecdmDB.log (account-wide, saved at /reload or logout), some to chat as well, and /lecdm log
--- shows them in a window, selected, ready for Ctrl+C.
+-- to LecdmDB.log (account-wide, saved at /reload or logout), and /lecdm log shows them in a
+-- window, selected, ready for Ctrl+C. Some are the test build's debug lines in chat too: they go
+-- where the Test build tab says (ns.db.test.chat: "main", a chat tab's name, or "off"). Replies
+-- to the player's commands and real errors use ns.Print, always the main chat window.
 local _, ns = ...
 
 local MAX = 500
@@ -11,7 +13,35 @@ function ns.Log(text, toChat)
 	local line = date("%H:%M:%S") .. " " .. ns.Where() .. text
 	table.insert(log, line)
 	while #log > MAX do table.remove(log, 1) end
-	if toChat then ns.Print(line) end
+	if toChat then ns.Debug(line) end
+end
+
+-- The chat tabs, by name (for the Test build tab's choice).
+function ns.ChatTabs()
+	local list = {}
+	for i = 1, NUM_CHAT_WINDOWS or 10 do
+		local ok, name, _, _, _, _, _, shown, _, docked = pcall(GetChatWindowInfo, i)
+		if ok and type(name) == "string" and name ~= "" and (shown or docked) then
+			list[#list + 1] = { name = name, frame = _G["ChatFrame" .. i] }
+		end
+	end
+	return list
+end
+
+-- A test build debug line: to the main chat window, a chat tab by name (the main window if it's
+-- gone), or nowhere (the log has it).
+function ns.Debug(line)
+	local where = ns.db and ns.db.test.chat or "main"
+	if where == "off" then return end
+	if where ~= "main" then
+		for _, tab in ipairs(ns.ChatTabs()) do
+			if tab.name == where and tab.frame then
+				tab.frame:AddMessage("|cff4fc3f7Lecdm|r: " .. line)
+				return
+			end
+		end
+	end
+	ns.Print(line)
 end
 
 local W = {}

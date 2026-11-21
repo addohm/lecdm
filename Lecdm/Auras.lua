@@ -407,7 +407,10 @@ function A.Build()
 		if not f then return end
 		live[group.id] = true
 		local ok, err = pcall(PlaceGroup, f, group, i)
-		if not ok then ns.Log("buff group " .. group.name .. " couldn't be set up: " .. tostring(err), true) end
+		if not ok then
+			ns.Print("buff group " .. group.name .. " couldn't be set up: " .. tostring(err))
+			ns.Log("buff group " .. group.name .. " couldn't be set up: " .. tostring(err))
+		end
 	end
 	for id, f in pairs(frames) do
 		if not live[id] then

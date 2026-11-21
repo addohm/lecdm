@@ -166,9 +166,11 @@ for _, e in ipairs({ "SPELL_ACTIVATION_OVERLAY_GLOW_SHOW", "SPELL_ACTIVATION_OVE
 end
 events:SetScript("OnEvent", function(_, event, a, b)
 	if event == "ADDON_ACTION_BLOCKED" or event == "ADDON_ACTION_FORBIDDEN" then
-		-- Logged even while Lecdm is off: any addon's, in chat when it's Lecdm's.
+		-- Logged even while Lecdm is off: any addon's; Lecdm's own also in the main chat (a real error).
 		local who = ns.Show(a)
-		ns.Log((event == "ADDON_ACTION_BLOCKED" and "blocked: " or "forbidden: ") .. who .. " tried " .. ns.Show(b), who == "Lecdm")
+		local text = (event == "ADDON_ACTION_BLOCKED" and "blocked: " or "forbidden: ") .. who .. " tried " .. ns.Show(b)
+		ns.Log(text)
+		if who == "Lecdm" then ns.Print(text) end
 		return
 	end
 	if not ns.Enabled() then return end

@@ -23,6 +23,9 @@ New files: install, then fully restart the game.
     icons and timer bars": they vanish, and stay gone after `/reload`, a restart and a loading
     screen. The raid warning on a drop still comes. Untick: they're back.
 7. Any Lua errors?
+8. **Test messages** (Test build tab, "Show them in"): make a chat tab named Lecdm (right-click
+   a chat tab, Create New Window), pick it: the applied / removed lines go there, `/lecdm help`
+   still answers in the main chat. "Nowhere": no lines in chat, but `/lecdm log` has them.
 
 ## To check (cooldown bars, 0.1.0-dev)
 

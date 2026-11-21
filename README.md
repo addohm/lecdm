@@ -59,7 +59,10 @@ Lecdm opens the options window:
   at first) makes Blizzard's own ones invisible at every login and `/reload`; your debuffs on
   the target only show there until Lecdm's buff groups take them in.
 - **Alerts:** not built yet; it says what's coming.
-- **Test build:** test build 1's settings and tools (the same as its chat commands below).
+- **Test build:** test build 1's settings and tools (the same as its chat commands below), and
+  where its debug lines go: "Show them in" the main chat window, a chat tab you've made (say
+  one named Lecdm: right-click a chat tab, Create New Window), or nowhere (the log keeps them).
+  Replies to your commands and errors always use the main chat.
 - **Profiles:** each character starts with its own ("First Last"); pick another to share it,
   copy, rename, delete, reset, or switch automatically by your talents or group role.
 

@@ -146,6 +146,20 @@ function hooksecurefunc(a, b, c)
 end
 
 UIParent = CreateFrame("Frame", "UIParent")
+-- Chat windows: General (the main one) and a tab the player made, "Lecdm".
+NUM_CHAT_WINDOWS = 3
+M.chatTabs = { "General", "Combat Log", "Lecdm" }
+for i = 1, 3 do
+	local f = CreateFrame("Frame", "ChatFrame" .. i)
+	f.messages = {}
+	function f:AddMessage(text) table.insert(self.messages, text) end
+end
+DEFAULT_CHAT_FRAME = ChatFrame1
+function GetChatWindowInfo(i)
+	local name = M.chatTabs[i]
+	if not name then return nil end
+	return name, 14, 1, 1, 1, 1, true, false, true, false
+end
 Minimap = CreateFrame("Frame", "Minimap")
 Minimap:SetSize(140, 140)
 GameTooltip = CreateFrame("GameTooltip", "GameTooltip")

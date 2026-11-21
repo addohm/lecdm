@@ -85,6 +85,27 @@ shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
 check(#M.sounds == sounds, "sound played while off")
 M.Slash("sound")
 
+-- The test build's chat lines go where the Test build tab says: a chat tab by name, or nowhere;
+-- replies to commands stay in the main chat.
+check(#ns.ChatTabs() == 3 and ns.ChatTabs()[3].name == "Lecdm", "chat tabs not listed")
+ns.db.test.chat = "Lecdm"
+local printed = #M.printed
+shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
+check(ChatFrame3.messages[#ChatFrame3.messages]:find("removed: Battle Shout") and #M.printed == printed, "debug line not in the Lecdm tab")
+M.Slash("help")
+check(#M.printed > printed, "a command's reply left the main chat")
+M.chatTabs[3] = nil
+printed = #M.printed
+shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
+check(#M.printed == printed + 1, "with the tab gone, the line didn't fall back to the main chat")
+M.chatTabs[3] = "Lecdm"
+ns.db.test.chat = "off"
+printed = #M.printed
+local logged = #LecdmDB.log
+shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
+check(#M.printed == printed and #LecdmDB.log == logged + 1, "with Nowhere, a debug line reached chat, or left the log")
+ns.db.test.chat = "main"
+
 -- Proc events are logged with the spell's name.
 M.Fire("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW", 6572)
 check(Logged("proc glow on: Revenge %(6572%)"), "proc not logged")
@@ -466,6 +487,20 @@ deleteRow.button.scripts.OnClick()
 M.Accept()
 check(#ns.db.bars.list == 3 and picker.dropdown.text == "Cooldowns", "delete didn't, or didn't show the first bar")
 ns.Bars.Delete(ns.db.bars.list[3].id)
+
+-- The Test build tab's chat picker: main, each tab made by the player, nowhere.
+M.Slash("test")
+local testPanel = ns.Window.CurrentPanel()
+local chatMenu = M.Menu()
+local chatRow
+for _, row in ipairs(testPanel.stack.rows) do
+	if row.dropdown then chatRow = row end
+end
+chatRow.dropdown.generator(nil, chatMenu)
+check(#chatMenu.children == 4 and chatMenu.children[1].text == "Main chat window" and chatMenu.children[4].text:find("Nowhere"), "chat picker entries wrong")
+chatMenu.children[3].setSelected()
+check(ns.db.test.chat == "Lecdm" and chatRow.dropdown.text == "Lecdm", "picking the Lecdm tab didn't")
+ns.db.test.chat = "main"
 
 -- The Buffs tab: the group picker, a row per buff, the checklist from Blizzard's list and the
 -- buffs on you now (ticking one adds it, and learns its ID).
