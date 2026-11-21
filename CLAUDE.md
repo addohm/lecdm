@@ -84,8 +84,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     `keep` container at a fixed place, and keep / missing ones a presence container (one
     invisible 1 px button sized by the game) with the red copy and missing glow clipped to its
     edge (`PlaceMissing`); the rest flow in the group's container after them.
-  - `Hosted.lua`: Blizzard's icons and timer bars taken in (`ns.db.buffs.blizzard.icons` /
-    `.bars`: `mode` "take" | "hide" | "leave", `gap`, `grow`, `vertical`, `perRow`, `pos`).
+  - `Hosted.lua`: Blizzard's icons and timer bars, hidden by default (the owner: Lecdm shows
+    only what the player sets up; profiles from 0.9.0-alpha switch once, `hiddenByDefault`),
+    or taken in (`ns.db.buffs.blizzard.icons` / `.bars`: `mode` "hide" | "take" | "leave", `gap`, `grow`, `vertical`, `perRow`, `pos`).
     In "take", each item of the BuffIcon / BuffBar viewer is anchored into Lecdm's place
     (`Layout`, in Blizzard's layoutIndex order, hidden ones skipped, offsets converted by
     effective scale), after each `RefreshLayout` / `Layout` of the viewer and each item's

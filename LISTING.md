@@ -68,8 +68,9 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 - **Buff groups** show any buff on you, whoever cast it (another priest's Fortitude, world
   buffs, procs), while it's up, as **icons** or **timer bars**.
 - **Keep up** buffs get a fixed place: a dimmed red copy with a glow while you're missing it.
-- **Blizzard's own icons and timer bars** (your debuffs on the target, which only Blizzard can
-  time) are taken into Lecdm's own places, follow each target and close up.
+- **Only what you set up shows:** Blizzard's own icons and timer bars are hidden. If you want
+  your debuffs on the target (only Blizzard can time them), Lecdm can take Blizzard's in, into
+  its own places, following each target.
 - Timer bars: texture, colour (class colour too), background, icon, name and time each on or off.
 
 #### Alerts

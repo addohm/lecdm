@@ -157,7 +157,17 @@ check(charge.icon.desaturated == true and revenge.icon.desaturated == false, "gr
 check(revenge.icon.vertex == 0.4, "unusable spell not dark")
 check(charge.cd.duration and charge.cd.duration.spell == 100, "swipe not given the duration")
 check(M.viewers.EssentialCooldownViewer.alpha == 0 and M.viewers.UtilityCooldownViewer.alpha == 0, "Blizzard's Essential/Utility not invisible")
-check(M.viewers.BuffIconCooldownViewer.alpha == 1, "Blizzard's buff viewer touched")
+check(M.viewers.BuffIconCooldownViewer.alpha == 0 and M.viewers.BuffBarCooldownViewer.alpha == 0, "Blizzard's buff icons and timer bars not hidden by default")
+-- A profile from 0.9.0-alpha (Blizzard's taken in) switches to hidden once; a later choice holds.
+ns.db.buffs.hiddenByDefault = nil
+ns.db.buffs.blizzard.icons.mode = "take"
+ns.Refresh()
+check(ns.db.buffs.blizzard.icons.mode == "hide", "an old profile didn't switch to hidden")
+ns.db.buffs.blizzard.icons.mode = "take"
+ns.Refresh()
+check(ns.db.buffs.blizzard.icons.mode == "take", "a later choice was switched back")
+ns.db.buffs.blizzard.icons.mode = "hide"
+ns.Refresh()
 M.range[100] = false
 M.Fire("SPELL_RANGE_CHECK_UPDATE", 100, false, true)
 check(charge.icon.vertex == 1, "out of range not red")
@@ -231,11 +241,12 @@ check(ns.Bars.IsUnlocked() and cooldowns.mouse and cooldowns.shade.shown and coo
 M.Slash("move")
 check(not ns.Bars.IsUnlocked() and not cooldowns.mouse, "move didn't lock")
 
--- Blizzard's icons and timer bars, taken in (the default): each sits in Lecdm's place, again
+-- Blizzard's icons and timer bars, taken in (when chosen; hidden is the default): each sits in Lecdm's place, again
 -- after each of Blizzard's layouts (in combat too); a hidden one's gap closes; "hide" makes the
 -- viewer invisible; "leave" lets Blizzard keep them.
 local iconViewer, barViewer = M.viewers.BuffIconCooldownViewer, M.viewers.BuffBarCooldownViewer
 local function PlaceOf(item) return item.points[1] and item.points[1][2] end
+ns.db.buffs.blizzard.icons.mode, ns.db.buffs.blizzard.bars.mode = "take", "take"
 local sunderBar = M.AddItem("BuffBarCooldownViewer", 16)
 local second = M.AddItem("BuffIconCooldownViewer", 14)
 second.layoutIndex, shout.layoutIndex = 2, 1

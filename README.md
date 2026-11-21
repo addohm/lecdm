@@ -62,11 +62,13 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   Every rank of a buff, whoever cast it, and its full duration are learned the first time Lecdm
   sees it on you out of combat. Changes made in combat apply when it ends.
 
-  The dropdown also has **Blizzard's icons** and **Blizzard's timer bars**: what Blizzard's
-  Cooldown Manager tracks in its Buffs tab, your debuffs on the target among them (only
-  Blizzard can time those). For each: **take them into Lecdm** (the default: Lecdm's own place,
-  spaced and grown your way, gaps closed, following each target), **hide them**, or **leave
-  them** where Blizzard shows them; and when they show. Which ones and their order are picked in
+  Lecdm shows only what you set up: Blizzard's own buff icons and timer bars (what its
+  Cooldown Manager tracks in its Buffs tab) are **hidden** by default. They keep running, so
+  the in-combat sounds still hear them. The dropdown has them as **Blizzard's icons** and
+  **Blizzard's timer bars**, for anyone who wants their debuffs on the target (only Blizzard
+  can time those): **hide them** (the default), **take them into Lecdm** (Lecdm's own place,
+  spaced and grown your way, gaps closed, following each target), or **leave them** where
+  Blizzard shows them; and when they show. Which ones and their order are picked in
   `/cdm` (Tracked Buffs for icons, Tracked Bars for timer bars; "Open /cdm" is right there);
   their size is Edit Mode's.
 - **Alerts:** the sounds and glows every spell and buff gets unless it has its own (the ⚙ on

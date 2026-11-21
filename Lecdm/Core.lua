@@ -27,10 +27,11 @@ local DEFAULTS = {
 	bars = { list = {}, seeded = false, nextID = 1, hideBlizzard = true },
 	-- the buff groups (Auras.lua): list = { group ... } (A.NewGroup has a group's fields), seeded once
 	buffs = { list = {}, seeded = false, nextID = 1,
-		-- Blizzard's two buff viewers (Hosted.lua): "take" (into Lecdm's place), "hide" or "leave"
+		-- Blizzard's two buff viewers (Hosted.lua): "hide" (the default: Lecdm shows only what the
+		-- player sets up), "take" (into Lecdm's place) or "leave"
 		blizzard = {
-			icons = { mode = "take", gap = 4, grow = "CENTER", vertical = false, perRow = 12, showWhen = "always", alpha = 1, oocAlpha = 1 },
-			bars = { mode = "take", gap = 2, grow = "LEFT", showWhen = "always", alpha = 1, oocAlpha = 1 },
+			icons = { mode = "hide", gap = 4, grow = "CENTER", vertical = false, perRow = 12, showWhen = "always", alpha = 1, oocAlpha = 1 },
+			bars = { mode = "hide", gap = 2, grow = "LEFT", showWhen = "always", alpha = 1, oocAlpha = 1 },
 		},
 	},
 }

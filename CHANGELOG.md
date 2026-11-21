@@ -6,6 +6,13 @@ All notable changes to lecdm. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Blizzard's own buff icons and timer bars are hidden by default, and profiles from
+  0.9.0-alpha switch to hidden once (the owner: Lecdm shows only what you set up). They keep
+  running, so in-combat sounds still hear them; taking them in or leaving them is still a
+  choice on the Buffs tab. Version 0.9.1-dev.
+
 ## [0.9.0-alpha] - 2026-11-21
 
 The first alpha. The development notes from 2026-11-20 and 2026-11-21 (test build 1, then

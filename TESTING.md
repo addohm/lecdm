@@ -3,6 +3,13 @@
 What to check in game, and what's been confirmed. Results go under Confirmed or Problems, with
 the build and date.
 
+## To check (0.9.1-dev, 2026-11-21)
+
+1. After installing: Blizzard's buff icons and timer bars are gone (the Buffs tab's dropdown,
+   "Blizzard's icons": What happens to them: Hide them), and stay gone after `/reload`. Lecdm's
+   own buff groups and icon bars are all that shows. In-combat drop sounds for buffs tracked in
+   /cdm still play.
+
 ## To check (0.9.0-alpha, 2026-11-21)
 
 Install the release zip or run `tools\install_forever.cmd`, then fully restart the game.

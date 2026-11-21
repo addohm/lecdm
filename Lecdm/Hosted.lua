@@ -1,10 +1,12 @@
--- Lecdm: Blizzard's icons and timer bars, taken in. Your debuffs on the target (and anything else
--- Blizzard's Cooldown Manager tracks in its Buffs tab) can only be timed by Blizzard's own icons,
--- so Lecdm places those, not its own: each of Blizzard's two buff viewers (Tracked Buffs: icons,
--- Tracked Bars: timer bars) has a Lecdm place on the Buffs tab. Its mode:
+-- Lecdm: Blizzard's icons and timer bars. Lecdm shows only what the player sets up (the owner,
+-- 2026-11-21: "no need to see them, ever"), so by default Blizzard's two buff viewers (Tracked
+-- Buffs: icons, Tracked Bars: timer bars) are hidden; they keep running, so Lecdm still hears
+-- their announcements. For anyone who wants their debuffs on the target (only Blizzard's own
+-- icons can time them), each viewer has a place on the Buffs tab. Its mode:
 --   "take":  Blizzard's icons sit in Lecdm's place, laid out Lecdm's way (spacing, grow from,
 --            vertical, per row), in Blizzard's order, the gaps of hidden ones closed;
---   "hide":  the viewer is made invisible (it keeps running, so the listener still hears it);
+--   "hide":  the default: the viewer is made invisible (it keeps running, so the listener still
+--            hears it);
 --   "leave": Blizzard's own place and layout.
 -- Which auras, and their order, are picked in Blizzard's /cdm (the owner's choice, 2026-11-21);
 -- their size is Edit Mode's. Lecdm re-places the icons after each of Blizzard's layouts
@@ -178,6 +180,12 @@ end
 -- change). Leaving a place: Blizzard puts its icons back at its next layout.
 function H.Build()
 	if not ns.db then return end
+	-- Profiles from before "hide" was the default (0.9.0-alpha took them in) switch once.
+	local buffs = ns.db.buffs
+	if not buffs.hiddenByDefault then
+		buffs.hiddenByDefault = true
+		buffs.blizzard.icons.mode, buffs.blizzard.bars.mode = "hide", "hide"
+	end
 	H.Setup()
 	local unlocked = ns.Bars.IsUnlocked()
 	for _, kind in ipairs(H.KINDS) do
