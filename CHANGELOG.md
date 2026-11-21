@@ -72,6 +72,13 @@ All notable changes to lecdm. The format follows
   the target died. Sounds: the game's, or "Say it" (text to speech). Glow styles: pulse,
   pixel, action button, auto-cast, GCD, modern, classic.
 
+- Looks and visibility (2026-11-21). Icon bars: border and colour, icon zoom, countdown text
+  size, keybind text (the key of the first action button on screen holding it, from any bar
+  addon), grey / red / dark each on or off. Buff groups: border and colour, icon zoom, time
+  text size; timer bars: texture, colour, background, icon, name and time on or off. Icon
+  bars, buff groups and Blizzard's places: show always, only in combat, or in combat or with a
+  target; opacity; out of combat the same, faded or hidden.
+
 ### Changed
 
 - The test build's raid warning on a drop (and `/lecdm sound`) is gone: the alerts replace it.

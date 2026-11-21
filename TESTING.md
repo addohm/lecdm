@@ -3,6 +3,19 @@
 What to check in game, and what's been confirmed. Results go under Confirmed or Problems, with
 the build and date.
 
+## To check (looks and visibility, 2026-11-21)
+
+New files: install, then fully restart the game.
+
+1. **Icon bars tab, "Its look":** border (thick, class colour), icon zoom, countdown text
+   (off, large), keybind text (on: the keys from your bars, EllesmereUI's too), grey / red /
+   dark each off and on.
+2. **"When it shows":** "Only in combat": the bar appears when you pull, goes when combat ends.
+   "Out of combat: 30%": faded between pulls.
+3. **Buffs tab:** a group as timer bars: texture, colour (class colour), background, icon /
+   name / time off and on; border and zoom on icon groups. Same "When it shows" options, and
+   for Blizzard's icons and timer bars.
+
 ## To check (alerts, 2026-11-21)
 
 New files: install, then fully restart the game.

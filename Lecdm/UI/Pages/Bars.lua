@@ -269,6 +269,18 @@ ns.Window.Page({
 		local perGet, perSet = Field("perRow")
 		local gcdGet, gcdSet = Field("gcd")
 		local emptyGet, emptySet = Field("emptyItems")
+		local borderGet, borderSet = Field("border")
+		local bcolGet, bcolSet = Field("borderColor")
+		local zoomGet, zoomSet = Field("zoom")
+		local cdGet, cdSet = Field("countdown")
+		local keyGet, keySet = Field("keybind")
+		local greyGet, greySet = Field("grey")
+		local redGet, redSet = Field("red")
+		local darkGet, darkSet = Field("dark")
+		local showGet, showSet = Field("showWhen")
+		local alphaGet, alphaSet = Field("alpha")
+		local oocGet, oocSet = Field("oocAlpha")
+		local V = ns.Visibility
 		panel.parts = p
 		p.picker = BarPickerRow(stack.inner)
 		p.top = {
@@ -297,6 +309,23 @@ ns.Window.Page({
 			UI.OptionSelect(stack.inner, "Items you have none of", { { "hide", "Hide them" }, { "grey", "Show them greyed" } },
 				emptyGet, emptySet,
 				{ tooltip = { "Items you have none of", "A potion or healthstone on this bar when your bags have none: hidden (its place closes up), or shown greyed with a 0." } }),
+			UI.OptionHeading(stack.inner, "Its look"),
+			UI.OptionSelect(stack.inner, "Border", Bars.BORDERS, borderGet, borderSet),
+			UI.OptionSelect(stack.inner, "Border colour", Bars.BORDER_COLORS, bcolGet, bcolSet),
+			UI.OptionSelect(stack.inner, "Icon zoom", Bars.ZOOMS, zoomGet, zoomSet,
+				{ tooltip = { "Icon zoom", "How much of the icon's own edge is cut off." } }),
+			UI.OptionSelect(stack.inner, "Countdown text", Bars.TEXT_SIZES, cdGet, cdSet,
+				{ tooltip = { "Countdown text", "The cooldown's time left on the icon (the game draws it; its own setting, Show Numbers for Cooldowns, must be on)." } }),
+			UI.OptionCheck(stack.inner, "Keybind text", keyGet, keySet,
+				{ "Keybind text", "The key of the first action button on screen holding the spell or item, from any bar addon." }),
+			UI.OptionCheck(stack.inner, "Grey while on cooldown", greyGet, greySet),
+			UI.OptionCheck(stack.inner, "Red while your target is out of range", redGet, redSet),
+			UI.OptionCheck(stack.inner, "Dark while you can't use it", darkGet, darkSet),
+			UI.OptionHeading(stack.inner, "When it shows"),
+			UI.OptionSelect(stack.inner, "Show it", V.SHOW, showGet, showSet),
+			UI.OptionSelect(stack.inner, "Opacity", V.ALPHAS, alphaGet, alphaSet),
+			UI.OptionSelect(stack.inner, "Out of combat", V.OOC, oocGet, oocSet,
+				{ tooltip = { "Out of combat", "Its opacity out of combat, as a share of the opacity above: fade it, or hide it, while you're not fighting." } }),
 			UI.OptionButton(stack.inner, "", "Delete this icon bar", function()
 				local bar = Current()
 				if not bar then return end

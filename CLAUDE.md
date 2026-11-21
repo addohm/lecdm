@@ -43,6 +43,11 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
     It gives Blizzard's default sections, not where the player put things in `/cdm`.
   - `Glow.lua`: the owner's glow styles (`Glow.STYLES`, `Glow.COLORS`, `Glow.Build`, `Glow.Show`):
     textures and Alpha/Translation/Rotation/FlipBook animations only.
+  - `Visibility.lua`: `V.Alpha(cfg)` from `showWhen` / `alpha` / `oocAlpha` (bars, groups,
+    Blizzard's places), `V.Apply()` on combat and target changes (opacity only).
+  - `Keybinds.lua`: action buttons from any bar addon (EnumerateFrames, out of combat, one scan
+    per frame), the key of the first one on screen holding a spell or item (its HotKey text,
+    else its click binding), `K.For(name)`.
   - `Alerts.lua`: sounds (`A.SOUNDS`, `A.Play`: SOUNDKIT names or "say", text to speech) and
     when they play; `ns.db.alerts`: `defaults.spells / .buffs / .blizzard` and each spell's
     (`spells[key]`) or buff's (`buffs[name]`, `blizzard[name]`) own (`A.Get`, `A.Set`,

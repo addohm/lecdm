@@ -29,8 +29,8 @@ local DEFAULTS = {
 	buffs = { list = {}, seeded = false, nextID = 1,
 		-- Blizzard's two buff viewers (Hosted.lua): "take" (into Lecdm's place), "hide" or "leave"
 		blizzard = {
-			icons = { mode = "take", gap = 4, grow = "CENTER", vertical = false, perRow = 12 },
-			bars = { mode = "take", gap = 2, grow = "LEFT" },
+			icons = { mode = "take", gap = 4, grow = "CENTER", vertical = false, perRow = 12, showWhen = "always", alpha = 1, oocAlpha = 1 },
+			bars = { mode = "take", gap = 2, grow = "LEFT", showWhen = "always", alpha = 1, oocAlpha = 1 },
 		},
 	},
 }

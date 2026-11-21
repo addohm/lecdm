@@ -76,6 +76,19 @@ local function NewRegion(kind, name, parent)
 	end
 	function f:CreateFontString() return NewRegion("FontString", nil, self) end
 	function f:SetupMenu(generator) self.generator = generator end
+	function f:SetTexCoord(...) self.texcoord = { ... } end
+	function f:SetHideCountdownNumbers(v) self.hideNumbers = v end
+	function f:IsForbidden() return false end
+	function f:IsObjectType(kind2) return self.kind == kind2 end
+	function f:GetAttribute(k) return self.attributes and self.attributes[k] end
+	function f:IsVisible()
+		local r = self
+		while r do
+			if not r.shown then return false end
+			r = r.parent
+		end
+		return true
+	end
 	function f:EnableMouse(v) self.mouse = v end
 	function f:SetCooldownFromDurationObject(dur)
 		if dur == SECRET then error("secret duration refused") end
@@ -131,6 +144,23 @@ local function Container(c)
 	function c:SetFlowLayoutMaximumLineSize(n) self.lineSize = n end
 	return c
 end
+
+-- Every frame, in the order made, as the game's EnumerateFrames walks them.
+function EnumerateFrames(prev)
+	if not prev then return M.frames[1] end
+	for i, f in ipairs(M.frames) do
+		if f == prev then return M.frames[i + 1] end
+	end
+end
+
+-- Action slots: M.actions[slot] = { kind, id, sub }; bindings by command.
+M.actions, M.bindings = {}, {}
+function GetActionInfo(slot)
+	local a = M.actions[slot]
+	if a then return a[1], a[2], a[3] end
+end
+function GetBindingKey(command) return M.bindings[command] end
+RANGE_INDICATOR = "●"
 
 function CreateFrame(kind, name, parent, template)
 	local f = NewRegion(kind, name, parent)

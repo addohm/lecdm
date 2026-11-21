@@ -325,6 +325,44 @@ check(not Glowing(revenge.glow), "proc glow not cleared")
 M.spells[100].active = true
 M.Fire("SPELL_UPDATE_COOLDOWN")
 
+-- Icon bar looks: border, zoom, countdown text; keybind text from any action button on screen.
+list[1].border, list[1].zoom, list[1].countdown = 2, 0.15, "off"
+ns.Refresh()
+check(charge.edge.points[1][2] == -2 and charge.icon.texcoord[1] == 0.15 and charge.cd.hideNumbers == true, "look not applied")
+list[1].border, list[1].zoom, list[1].countdown = 1, 0.08, "normal"
+local actionButton = CreateFrame("CheckButton", "SomeBarButton1", UIParent)
+actionButton.action = 5
+actionButton.HotKey = actionButton:CreateFontString()
+actionButton.HotKey:SetText("S1")
+M.actions[5] = { "spell", 100 }
+list[1].keybind = true
+M.Fire("PLAYER_ENTERING_WORLD")
+M.RunTimers()
+check(charge.keyText.text == "S1", "keybind text missing: " .. tostring(charge.keyText.text))
+actionButton.HotKey:SetText(RANGE_INDICATOR)
+M.bindings["CLICK SomeBarButton1:LeftButton"] = "CTRL-MOUSEWHEELUP"
+M.Fire("UPDATE_BINDINGS")
+M.RunTimers()
+check(charge.keyText.text == "CMwU", "click binding not used: " .. tostring(charge.keyText.text))
+list[1].keybind = false
+ns.Refresh()
+check(charge.keyText.text == "", "keybind text shown while off")
+
+-- Visibility: only in combat; faded out of combat.
+list[1].showWhen = "combat"
+ns.Refresh()
+check(cooldowns.alpha == 0, "a combat-only bar showed out of combat")
+M.combat = true
+M.Fire("PLAYER_REGEN_DISABLED")
+check(cooldowns.alpha == 1, "a combat-only bar didn't show in combat")
+M.combat = false
+M.Fire("PLAYER_REGEN_ENABLED")
+list[1].showWhen, list[1].oocAlpha = "always", 0.3
+ns.Refresh()
+check(math.abs(cooldowns.alpha - 0.3) < 0.001, "out-of-combat fade wrong: " .. tostring(cooldowns.alpha))
+list[1].oocAlpha = 1
+ns.Refresh()
+
 -- A spell's ⚙ menu: a submenu per setting, Default first; picking sets its own, Default clears.
 local alertMenu = M.Menu()
 ns.AlertsMenu("spells", 100, "Charge", alertMenu)
@@ -399,7 +437,7 @@ local function G(prefix)
 end
 local keys = {}
 for key, g in pairs(container.groups) do keys[#keys + 1] = key .. "=" .. tostring(g.enabled) end
-local shoutGroup = G("Battle Shout/icons:32:0/")
+local shoutGroup = G("Battle Shout/icons:32:0:")
 check(shoutGroup and shoutGroup.enabled and shoutGroup.ids[6673], "Battle Shout's aura group missing: " .. table.concat(keys, ", ") .. tostring(M.Printed("set up")))
 local bound = shoutGroup.button.bound
 check(bound.SetIcon and bound.SetDurationCooldown and bound.SetDurationText and bound.SetApplicationCount, "icon parts not bound")
@@ -414,15 +452,15 @@ check(not LecdmDB.auraIDs["Power Word: Fortitude"], "a buff in no group was lear
 -- Adding a buff from the ones on you; a change in combat waits for the end of combat.
 ns.Auras.Learn("Power Word: Fortitude", 1243)
 ns.Auras.SetInGroup(buffs[1], "Power Word: Fortitude", true)
-check(G("Power Word: Fortitude/icons:32:0/").layout.layoutIndex == 2, "added buff not second")
+check(G("Power Word: Fortitude/icons:32:0:").layout.layoutIndex == 2, "added buff not second")
 M.combat = true
 buffs[1].style = "bars"
 ns.Refresh()
-check(ns.Auras.IsPending() and not G("Battle Shout/bars:32:200/"), "a buff group was changed in combat")
+check(ns.Auras.IsPending() and not G("Battle Shout/bars:32:200:"), "a buff group was changed in combat")
 M.combat = false
 M.Fire("PLAYER_REGEN_ENABLED")
-local barGroup = G("Battle Shout/bars:32:200/")
-check(barGroup and not G("Battle Shout/icons:32:0/"), "the timer bar look didn't replace the icons after combat")
+local barGroup = G("Battle Shout/bars:32:200:")
+check(barGroup and not G("Battle Shout/icons:32:0:"), "the timer bar look didn't replace the icons after combat")
 check(barGroup.button.bound.SetDurationBar and barGroup.button.bound.SetSpellName and barGroup.layout.elementWidth == 200, "timer bar parts wrong")
 check(container.axis == AnchorUtil.FlowLayoutAxis.Vertical, "timer bars not stacked")
 buffs[1].style = "icons"
@@ -432,7 +470,7 @@ ns.Refresh()
 ns.Auras.SetInGroup(buffs[1], "Unheard Of", true)
 check(not G("Unheard Of/"), "a buff with no IDs got an aura group")
 ns.Auras.MoveEntry(buffs[1], 2, -1)
-check(buffs[1].entries[1] == "Power Word: Fortitude" and G("Power Word: Fortitude/icons:32:0/").layout.layoutIndex == 1, "move up didn't reorder")
+check(buffs[1].entries[1] == "Power Word: Fortitude" and G("Power Word: Fortitude/icons:32:0:").layout.layoutIndex == 1, "move up didn't reorder")
 ns.Auras.SetInGroup(buffs[1], "Unheard Of", false)
 check(#buffs[1].entries == 2, "taking a buff out didn't")
 
@@ -441,9 +479,9 @@ M.Slash("move")
 check(container.parent.shade.shown and container.parent.mouse, "buff group not unlocked with the bars")
 M.Slash("move")
 M.Slash("off")
-check(not container.parent.shown and not G("Battle Shout/icons:32:0/"), "buff group shown while off")
+check(not container.parent.shown and not G("Battle Shout/icons:32:0:"), "buff group shown while off")
 M.Slash("on")
-check(container.parent.shown and G("Battle Shout/icons:32:0/"), "buff group not back")
+check(container.parent.shown and G("Battle Shout/icons:32:0:"), "buff group not back")
 
 -- Buff alerts: out of combat, a buff in a group coming or going on you plays its sounds; its
 -- full duration is learned; the glow while up and the warning glow are part of the game's
@@ -471,11 +509,32 @@ check(#M.sounds == heard + 1, "Blizzard's announcement and Lecdm's own reading b
 BD.applied, BD.removed = "none", "none"
 BD.warnGlow, BD.upGlow = "pixel", "autocast"
 ns.Refresh()
-local warned = G("Battle Shout/icons:32:0/autocast:gold:5:pixel:120")
+local warned = G("Battle Shout/icons:32:0:1:black:0.08:small/autocast:gold:5:pixel:120")
 check(warned and warned.button.bound.SetDurationBar, "the warning glow isn't timed on the button")
 check(warned.button.bound.SetDurationText, "no time text")
 BD.warnGlow, BD.upGlow = "none", "none"
 ns.Refresh()
+-- A group's look is in its aura groups' keys; timer bars' own options too.
+buffs[1].style, buffs[1].barColor, buffs[1].barIcon = "bars", "class", false
+ns.Refresh()
+check(G("Battle Shout/bars:32:200:1:black:0.08:small:blizzard:class:0.5:false:true:true/"), "timer bar look not in the key")
+buffs[1].style, buffs[1].barColor, buffs[1].barIcon = "icons", "blue", true
+buffs[1].showWhen = "combat"
+ns.Refresh()
+check(container.parent.alpha == 0, "a combat-only buff group showed out of combat")
+buffs[1].showWhen = "always"
+ns.Refresh()
+-- Blizzard's places fade through the viewer, in take mode.
+ns.db.buffs.blizzard.icons.showWhen = "combat"
+ns.Refresh()
+check(M.viewers.BuffIconCooldownViewer.alpha == 0, "Blizzard's icons showed out of combat")
+M.combat = true
+M.Fire("PLAYER_REGEN_DISABLED")
+check(M.viewers.BuffIconCooldownViewer.alpha == 1, "Blizzard's icons didn't show in combat")
+M.combat = false
+ns.db.buffs.blizzard.icons.showWhen = "always"
+M.Fire("PLAYER_REGEN_ENABLED")
+check(M.viewers.BuffIconCooldownViewer.alpha == 1, "Blizzard's icons not back")
 M.buffsOnMe = { { name = "Battle Shout", spellId = 25289, icon = 1 }, { name = "Power Word: Fortitude", spellId = 1243, icon = 8 } }
 
 -- /lecdm check, in combat with secret cooldown times: SECRET shown, nothing compared.
@@ -607,7 +666,10 @@ local nameRow = panel.parts.top[3]
 nameRow.box.text = "Big ones"
 nameRow.box.scripts.OnEnterPressed(nameRow.box)
 check(ns.db.bars.list[4].name == "Big ones" and picker.dropdown.text == "Big ones", "rename didn't")
-local deleteRow = panel.parts.top[11]
+local deleteRow
+for _, row in ipairs(panel.parts.top) do
+	if row.button and row.button.text == "Delete this icon bar" then deleteRow = row end
+end
 check(deleteRow.button.text == "Delete this icon bar", "delete button not where expected: " .. tostring(deleteRow.button.text))
 deleteRow.button.scripts.OnClick()
 M.Accept()

@@ -82,8 +82,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 ## Next
 
-1. **Icon bars in game** (TESTING.md), then their next pieces: drag to order in the window,
-   more per-spell looks (borders, zoom, text), charges. Naming (owner, 2026-11-21): ours are
+1. **Icon bars in game** (TESTING.md). Looks, keybinds and visibility done 2026-11-21. Next
+   pieces: drag to order in the window, per-spell looks, charges. Naming (owner, 2026-11-21): ours are
    **icon bars**; Blizzard's "tracked bars" (icon left, a draining fill right) are **timer
    bars**.
 2. **Items:** first build done 2026-11-21: equipment slots (trinkets, on-use gear), bag items

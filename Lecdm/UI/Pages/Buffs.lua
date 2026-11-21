@@ -260,6 +260,28 @@ ns.Window.Page({
 		local growGet, growSet = Field("grow")
 		local vertGet, vertSet = Field("vertical")
 		local perGet, perSet = Field("perRow")
+		local V, Bars = ns.Visibility, ns.Bars
+		local function Row(kind, label, list, key, tip)
+			local get, set = Field(key)
+			if kind == "check" then return UI.OptionCheck(stack.inner, label, get, set, tip) end
+			return UI.OptionSelect(stack.inner, label, list, get, set, tip and { tooltip = tip } or nil)
+		end
+		p.lookHead = UI.OptionHeading(stack.inner, "Its look")
+		p.border = Row("select", "Border", Bars.BORDERS, "border")
+		p.borderColor = Row("select", "Border colour", Bars.BORDER_COLORS, "borderColor")
+		p.zoom = Row("select", "Icon zoom", Bars.ZOOMS, "zoom")
+		p.timeText = Row("select", "Time text", Bars.TEXT_SIZES, "timeText")
+		p.barTexture = Row("select", "Bar texture", Auras.TEXTURES, "barTexture")
+		p.barColor = Row("select", "Bar colour", Auras.BAR_COLORS, "barColor")
+		p.barBg = Row("select", "Bar background", Auras.BG, "barBg")
+		p.barIcon = Row("check", "Icon at the left", nil, "barIcon")
+		p.barName = Row("check", "The buff's name", nil, "barName")
+		p.barTime = Row("check", "The time left", nil, "barTime")
+		p.showHead = UI.OptionHeading(stack.inner, "When it shows")
+		p.showWhen = Row("select", "Show it", V.SHOW, "showWhen")
+		p.alpha = Row("select", "Opacity", V.ALPHAS, "alpha")
+		p.ooc = Row("select", "Out of combat", V.OOC, "oocAlpha",
+			{ "Out of combat", "Its opacity out of combat, as a share of the opacity above: fade it, or hide it, while you're not fighting." })
 		p.picker = PickerRow(stack.inner)
 		local modeGet, modeSet = BlizzField("mode")
 		local bGapGet, bGapSet = BlizzField("gap")
@@ -273,6 +295,12 @@ ns.Window.Page({
 		p.blizzGrow = UI.OptionSelect(stack.inner, "Grow from", GROW, bGrowGet, bGrowSet)
 		p.blizzVertical = UI.OptionCheck(stack.inner, "Vertical", bVertGet, bVertSet)
 		p.blizzPerRow = UI.OptionSelect(stack.inner, "Icons per row", Numbers(1, 20, 1), bPerGet, bPerSet)
+		local bShowGet, bShowSet = BlizzField("showWhen")
+		local bAlphaGet, bAlphaSet = BlizzField("alpha")
+		local bOocGet, bOocSet = BlizzField("oocAlpha")
+		p.blizzShow = UI.OptionSelect(stack.inner, "Show them", ns.Visibility.SHOW, bShowGet, bShowSet)
+		p.blizzAlpha = UI.OptionSelect(stack.inner, "Opacity", ns.Visibility.ALPHAS, bAlphaGet, bAlphaSet)
+		p.blizzOoc = UI.OptionSelect(stack.inner, "Out of combat", ns.Visibility.OOC, bOocGet, bOocSet)
 		p.blizzNote = UI.OptionText(stack.inner, function()
 			local kind = CurrentKind()
 			local section = kind and kind.key == "bars" and "Tracked Bars" or "Tracked Buffs"
@@ -345,6 +373,9 @@ ns.Window.Page({
 					stack:Add(p.blizzVertical)
 					stack:Add(p.blizzPerRow)
 				end
+				stack:Add(p.blizzShow)
+				stack:Add(p.blizzAlpha)
+				stack:Add(p.blizzOoc)
 			end
 			stack:Add(p.blizzNote)
 			stack:Add(p.blizzOpen)
@@ -363,6 +394,18 @@ ns.Window.Page({
 				stack:Add(p.vertical)
 				stack:Add(p.perRow)
 			end
+			stack:Add(p.lookHead)
+			stack:Add(p.border)
+			stack:Add(p.borderColor)
+			stack:Add(p.zoom)
+			if bars then
+				for _, row in ipairs({ p.barTexture, p.barColor, p.barBg, p.barIcon, p.barName, p.barTime }) do stack:Add(row) end
+			end
+			stack:Add(p.timeText)
+			stack:Add(p.showHead)
+			stack:Add(p.showWhen)
+			stack:Add(p.alpha)
+			stack:Add(p.ooc)
 			stack:Add(p.delete)
 			stack:Add(p.buffsHead)
 			stack:Add(p.checklist)

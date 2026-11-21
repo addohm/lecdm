@@ -24,15 +24,14 @@ A.STYLES = { { "icons", "Icons" }, { "bars", "Timer bars" } }
 local frames = {} -- group id -> { anchor, container, made = { [aura group key] = true } }
 local pending = false
 local unavailable = false
-local TEXCOORD = { 0.08, 0.92, 0.08, 0.92 }
 
 -- Groups ---------------------------------------------------------------------------------
 
 function A.NewGroup(name)
 	local buffs = ns.db.buffs
 	buffs.nextID = (buffs.nextID or 1) + 1
-	local group = { id = "buffs" .. buffs.nextID, name = name, style = "icons", entries = {},
-		size = 32, gap = 4, grow = "CENTER", vertical = false, perRow = 12, barWidth = 200 }
+	local group = { id = "buffs" .. buffs.nextID, name = name, entries = {} }
+	A.FillLook(group)
 	table.insert(buffs.list, group)
 	return group
 end
@@ -265,6 +264,55 @@ function A.AlertLook(name)
 		.. ":" .. Get("buffs", name, "warnGlow") .. ":" .. total
 end
 
+-- A group's look and visibility (also for groups made before a setting existed).
+A.LOOK = {
+	style = "icons", size = 32, gap = 4, grow = "CENTER", vertical = false, perRow = 12, barWidth = 200,
+	border = 1, borderColor = "black", zoom = 0.08, timeText = "small",
+	barTexture = "blizzard", barColor = "blue", barBg = 0.5, barIcon = true, barName = true, barTime = true,
+	showWhen = "always", alpha = 1, oocAlpha = 1,
+}
+function A.FillLook(group)
+	for k, v in pairs(A.LOOK) do
+		if group[k] == nil then group[k] = v end
+	end
+end
+
+A.TEXTURES = { { "blizzard", "Blizzard" }, { "flat", "Flat" }, { "smooth", "Smooth" } }
+local TEXTURE_FILES = {
+	blizzard = "Interface\\TargetingFrame\\UI-StatusBar",
+	flat = "Interface\\Buttons\\WHITE8X8",
+	smooth = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill",
+}
+A.BAR_COLORS = { { "blue", "Blue" }, { "class", "Class colour" }, { "gold", "Gold" }, { "green", "Green" },
+	{ "red", "Red" }, { "purple", "Purple" }, { "white", "White" } }
+local BAR_RGB = { blue = { 0.25, 0.6, 1 }, gold = { 1, 0.75, 0.1 }, green = { 0.25, 0.8, 0.3 }, red = { 0.9, 0.25, 0.2 },
+	purple = { 0.65, 0.4, 1 }, white = { 0.85, 0.85, 0.85 } }
+A.BG = { { 0, "None" }, { 0.25, "25%" }, { 0.5, "50%" }, { 0.75, "75%" } }
+
+local function BarRGB(color)
+	if color == "class" then
+		local _, class = UnitClass("player")
+		local c = class and RAID_CLASS_COLORS and RAID_CLASS_COLORS[class]
+		if c then return c.r, c.g, c.b end
+	end
+	local c = BAR_RGB[color] or BAR_RGB.blue
+	return c[1], c[2], c[3]
+end
+
+-- What a group's buttons' parts depend on, besides the alerts (part of the aura group key).
+function A.LookKey(group)
+	local bars = group.style == "bars"
+	local parts = { group.style, group.size, bars and group.barWidth or 0, group.border, group.borderColor,
+		group.zoom, group.timeText }
+	if bars then
+		for _, k in ipairs({ "barTexture", "barColor", "barBg", "barIcon", "barName", "barTime" }) do
+			parts[#parts + 1] = tostring(group[k])
+		end
+	end
+	for i, v in ipairs(parts) do parts[i] = tostring(v) end
+	return table.concat(parts, ":")
+end
+
 -- The parts of one of the game's aura buttons, built once when the game makes it.
 local function Styler(group, name)
 	local size, bars, width = group.size, group.style == "bars", group.barWidth
@@ -273,10 +321,13 @@ local function Styler(group, name)
 	local warn, warnGlow = Get("buffs", name, "warn"), Get("buffs", name, "warnGlow")
 	local total = A.Duration(name)
 	local timeOptions = warn > 0 and { textColor = { curve = WarnCurve(warn), property = Enum.DurationTextBindingProperty.RemainingDuration } } or nil
+	local font = ns.Bars.FONTS[group.timeText]
+	local z, n = group.zoom or 0.08, group.border or 1
+	local er, eg, eb = ns.Bars.BorderRGB(group.borderColor)
 	return function(button)
 		local edge = button:CreateTexture(nil, "BACKGROUND")
 		local icon = button:CreateTexture(nil, "ARTWORK")
-		icon:SetTexCoord(unpack(TEXCOORD))
+		icon:SetTexCoord(z, 1 - z, z, 1 - z)
 		button:SetIcon(icon)
 		local top = CreateFrame("Frame", nil, button)
 		top:SetAllPoints(button)
@@ -284,19 +335,24 @@ local function Styler(group, name)
 		local count = top:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
 		button:SetApplicationCount(count)
 		if bars then
-			-- A timer bar: the icon at the left, the bar draining to the right with the buff's name and
-			-- the time left; the game drives the bar (SetTimerDuration).
+			-- A timer bar: the icon at the left (or none), the bar draining to the right with the
+			-- buff's name and the time left; the game drives the bar (SetTimerDuration).
 			button:SetSize(width, size)
-			icon:SetSize(size, size)
+			local iconW = group.barIcon and size or 0
+			icon:SetSize(math.max(iconW, 1), size)
 			icon:SetPoint("LEFT")
-			edge:SetPoint("TOPLEFT", icon, -1, 1)
-			edge:SetPoint("BOTTOMRIGHT", button, 1, -1)
-			edge:SetColorTexture(0, 0, 0, 0.8)
+			icon:SetShown(group.barIcon)
+			edge:SetPoint("TOPLEFT", button, -n, n)
+			edge:SetPoint("BOTTOMRIGHT", button, n, -n)
+			edge:SetColorTexture(er, eg, eb, n > 0 and 1 or 0)
 			local bar = CreateFrame("StatusBar", nil, button)
-			bar:SetPoint("TOPLEFT", icon, "TOPRIGHT", 1, 0)
+			bar:SetPoint("TOPLEFT", button, "TOPLEFT", iconW > 0 and (iconW + 1) or 0, 0)
 			bar:SetPoint("BOTTOMRIGHT")
-			bar:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-			bar:SetStatusBarColor(0.25, 0.6, 1)
+			bar:SetStatusBarTexture(TEXTURE_FILES[group.barTexture] or TEXTURE_FILES.blizzard)
+			bar:SetStatusBarColor(BarRGB(group.barColor))
+			local bg = bar:CreateTexture(nil, "BACKGROUND")
+			bg:SetAllPoints()
+			bg:SetColorTexture(0, 0, 0, group.barBg or 0.5)
 			button:SetDurationBar(bar, {
 				direction = Enum.StatusBarTimerDirection.RemainingTime,
 				interpolation = Enum.StatusBarInterpolation.Immediate,
@@ -304,30 +360,36 @@ local function Styler(group, name)
 			local barTop = CreateFrame("Frame", nil, bar)
 			barTop:SetAllPoints(bar)
 			barTop:SetFrameLevel(bar:GetFrameLevel() + 2)
-			local name = barTop:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-			name:SetPoint("LEFT", 4, 0)
-			name:SetPoint("RIGHT", -40, 0)
-			name:SetJustifyH("LEFT")
-			button:SetSpellName(name)
-			local time = barTop:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
-			time:SetPoint("RIGHT", -4, 0)
-			button:SetDurationText(time, timeOptions)
+			if group.barName then
+				local label = barTop:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+				label:SetPoint("LEFT", 4, 0)
+				label:SetPoint("RIGHT", -40, 0)
+				label:SetJustifyH("LEFT")
+				button:SetSpellName(label)
+			end
+			if group.barTime and font then
+				local time = barTop:CreateFontString(nil, "OVERLAY", font)
+				time:SetPoint("RIGHT", -4, 0)
+				button:SetDurationText(time, timeOptions)
+			end
 			count:SetPoint("BOTTOMRIGHT", icon, -1, 1)
 		else
 			button:SetSize(size, size)
 			icon:SetAllPoints()
-			edge:SetPoint("TOPLEFT", -1, 1)
-			edge:SetPoint("BOTTOMRIGHT", 1, -1)
-			edge:SetColorTexture(0, 0, 0, 1)
+			edge:SetPoint("TOPLEFT", -n, n)
+			edge:SetPoint("BOTTOMRIGHT", n, -n)
+			edge:SetColorTexture(er, eg, eb, n > 0 and 1 or 0)
 			local cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
 			cooldown:SetAllPoints()
 			cooldown:SetDrawEdge(false)
 			cooldown:SetReverse(true)
 			cooldown:SetHideCountdownNumbers(true)
 			button:SetDurationCooldown(cooldown)
-			local time = top:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
-			time:SetPoint("BOTTOM", 0, 1)
-			button:SetDurationText(time, timeOptions)
+			if font then
+				local time = top:CreateFontString(nil, "OVERLAY", font)
+				time:SetPoint("BOTTOM", 0, 1)
+				button:SetDurationText(time, timeOptions)
+			end
 			count:SetPoint("TOPRIGHT", -1, -1)
 			AddTimedGlow(button, warnGlow, color, size, warn, total)
 		end
@@ -337,7 +399,7 @@ local function Styler(group, name)
 			local holder = CreateFrame("Frame", nil, button)
 			holder:SetAllPoints(button)
 			holder:SetFrameLevel(button:GetFrameLevel() + 2)
-			local built = ns.Glow.Build(holder, upGlow, color, bars and size or size)
+			local built = ns.Glow.Build(holder, upGlow, color, size)
 			for _, g in ipairs(built.groups) do button:AddAuraShownAnimation(g) end
 		end
 	end
@@ -399,6 +461,7 @@ end
 local DIRS -- AnchorUtil.FlowDirection values, read when first needed
 
 local function PlaceGroup(f, group, i)
+	A.FillLook(group)
 	local step = group.size + group.gap
 	local bars = group.style == "bars"
 	local w = bars and group.barWidth or group.size
@@ -445,7 +508,7 @@ local function PlaceGroup(f, group, i)
 	end
 	pcall(c.SetFlowLayoutMaximumLineSize, c, bars and math.huge or (per * step - group.gap))
 
-	local look = group.style .. ":" .. group.size .. ":" .. (bars and group.barWidth or 0)
+	local look = A.LookKey(group)
 	local wanted = {}
 	for j, name in ipairs(group.entries) do
 		local ids, count = A.IDs(name)
@@ -477,7 +540,18 @@ local function PlaceGroup(f, group, i)
 	f.anchor.shade:SetShown(unlocked)
 	f.anchor.label:SetShown(unlocked)
 	f.anchor:EnableMouse(unlocked)
+	f.anchor:SetAlpha(ns.Visibility.Alpha(group))
 	f.anchor:Show()
+end
+
+-- Every group's opacity (Visibility.lua: combat and target changes; our frames only, so in
+-- combat too).
+function A.ApplyAlpha()
+	if not ns.db then return end
+	for i, group in ipairs(ns.db.buffs.list) do
+		local f = frames[group.id]
+		if f then f.anchor:SetAlpha(ns.Visibility.Alpha(group)) end
+	end
 end
 
 -- Sets up every group for the profile in use (at login, and whenever settings, buffs or the

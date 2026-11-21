@@ -198,6 +198,26 @@ function H.Build()
 			frame:Hide()
 		end
 	end
+	H.ApplyAlpha()
+end
+
+-- In "take" mode, the viewer's opacity follows the place's visibility (Visibility.lua): Blizzard's
+-- icons are the viewer's children, so that's the only way to fade them. Untouched while the
+-- settings are the defaults.
+local touched = {}
+function H.ApplyAlpha()
+	if not ns.db then return end
+	for _, kind in ipairs(H.KINDS) do
+		local s = H.Settings(kind.key)
+		local viewer = _G[kind.global]
+		if viewer and ns.Enabled() and s.mode == "take" then
+			local alpha = ns.Visibility.Alpha(s)
+			if alpha ~= 1 or touched[viewer] then
+				pcall(viewer.SetAlpha, viewer, alpha)
+				touched[viewer] = alpha ~= 1 or nil
+			end
+		end
+	end
 end
 
 -- For B.ApplyBlizzard: a viewer is made invisible only in "hide" mode.

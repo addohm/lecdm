@@ -35,10 +35,41 @@ local faded = {}   -- Blizzard viewer -> true while Lecdm keeps it invisible
 function B.NewBar(name)
 	local bars = ns.db.bars
 	bars.nextID = (bars.nextID or 1) + 1
-	local bar = { id = "bar" .. bars.nextID, name = name, spells = {}, show = {},
-		size = 40, gap = 4, grow = "CENTER", vertical = false, perRow = 12, gcd = true, emptyItems = "hide" }
+	local bar = { id = "bar" .. bars.nextID, name = name, spells = {}, show = {} }
+	B.FillLook(bar)
 	table.insert(bars.list, bar)
 	return bar
+end
+
+-- A bar's look and visibility (also for bars made before a setting existed).
+B.LOOK = {
+	size = 40, gap = 4, grow = "CENTER", vertical = false, perRow = 12, gcd = true, emptyItems = "hide",
+	border = 1, borderColor = "black", zoom = 0.08, countdown = "normal", keybind = false,
+	grey = true, red = true, dark = true, showWhen = "always", alpha = 1, oocAlpha = 1,
+}
+function B.FillLook(bar)
+	for k, v in pairs(B.LOOK) do
+		if bar[k] == nil then bar[k] = v end
+	end
+end
+
+B.BORDERS = { { 0, "None" }, { 1, "Thin" }, { 2, "Thick" }, { 3, "Heavy" } }
+B.BORDER_COLORS = { { "black", "Black" }, { "class", "Class colour" }, { "gold", "Gold" }, { "white", "White" } }
+B.ZOOMS = { { 0, "None" }, { 0.08, "A little" }, { 0.15, "More" } }
+B.TEXT_SIZES = { { "off", "Off" }, { "small", "Small" }, { "normal", "Normal" }, { "large", "Large" }, { "huge", "Huge" } }
+B.FONTS = { small = "NumberFontNormalSmall", normal = "NumberFontNormal", large = "NumberFontNormalLarge", huge = "NumberFontNormalHuge" }
+
+function B.BorderRGB(color)
+	if color == "class" then
+		local _, class = UnitClass("player")
+		local c = class and RAID_CLASS_COLORS and RAID_CLASS_COLORS[class]
+		if c then return c.r, c.g, c.b end
+	elseif color == "gold" then
+		return 1, 0.82, 0
+	elseif color == "white" then
+		return 1, 1, 1
+	end
+	return 0, 0, 0
 end
 
 function B.Get(id)
@@ -242,6 +273,7 @@ local function Button(frame, i)
 	local b = frame.buttons[i]
 	if b then return b end
 	b = CreateFrame("Frame", nil, frame)
+	b.edge = b:CreateTexture(nil, "BACKGROUND")
 	b.icon = b:CreateTexture(nil, "ARTWORK")
 	b.icon:SetAllPoints()
 	b.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
@@ -254,6 +286,8 @@ local function Button(frame, i)
 	b.over:SetFrameLevel(b.cd:GetFrameLevel() + 1)
 	b.count = b.over:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
 	b.count:SetPoint("BOTTOMRIGHT", -2, 2)
+	b.keyText = b.over:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmallGray")
+	b.keyText:SetPoint("TOPRIGHT", -2, -2)
 	-- The alerts' glow (Alerts.lua), above the swipe, below the text.
 	b.glow = CreateFrame("Frame", nil, b)
 	b.glow:SetAllPoints()
@@ -273,7 +307,7 @@ local function SpellState(b, bar)
 		onGCD = info.isOnGCD == true
 		onCooldown = info.isActive == true and not onGCD
 	end
-	b.icon:SetDesaturated(onCooldown)
+	b.icon:SetDesaturated(onCooldown and bar.grey)
 
 	if onGCD and not bar.gcd then
 		b.cd:Clear()
@@ -288,9 +322,9 @@ local function SpellState(b, bar)
 	local okRange, inRange = pcall(C_Spell.IsSpellInRange, id)
 	local okUse, usable = pcall(C_Spell.IsSpellUsable, id)
 	if not okUse or ns.IsSecret(usable) then usable = nil end
-	if okRange and not ns.IsSecret(inRange) and inRange == false then
+	if bar.red and okRange and not ns.IsSecret(inRange) and inRange == false then
 		r, g, bl = 1, 0.3, 0.3
-	elseif usable == false then
+	elseif bar.dark and usable == false then
 		r, g, bl = 0.4, 0.4, 0.4
 	end
 	b.icon:SetVertexColor(r, g, bl)
@@ -316,7 +350,7 @@ local function ItemState(b, bar)
 		onGCD = duration <= 1.5
 		onCooldown = not onGCD
 	end
-	b.icon:SetDesaturated(onCooldown)
+	b.icon:SetDesaturated(onCooldown and bar.grey)
 	if plain and (onCooldown or (onGCD and bar.gcd)) then
 		b.cd:SetCooldown(start, duration)
 	elseif not (ok and not plain and pcall(b.cd.SetCooldown, b.cd, start, duration)) then
@@ -324,7 +358,7 @@ local function ItemState(b, bar)
 	end
 	local okUse, usable = pcall(C_Item.IsUsableItem, B.ItemOf(b.key))
 	if not okUse or ns.IsSecret(usable) then usable = nil end
-	local v = usable == false and 0.4 or 1
+	local v = (bar.dark and usable == false) and 0.4 or 1
 	b.icon:SetVertexColor(v, v, v)
 	local n = kind == "item" and B.ItemCount(id) or 0
 	if kind == "item" and n == 0 then
@@ -466,7 +500,7 @@ function B.Build()
 	local live = {}
 	for i, bar in ipairs(ns.Enabled() and ns.db.bars.list or {}) do
 		live[bar.id] = true
-		bar.emptyItems = bar.emptyItems or "hide" -- bars made before the setting
+		B.FillLook(bar) -- bars made before a setting existed
 		local frame = Frame(bar)
 		local step = bar.size + bar.gap
 		local per = math.max(1, bar.perRow)
@@ -488,6 +522,7 @@ function B.Build()
 			b.wanted = nil
 			b.icon:SetTexture(B.EntryIcon(key))
 			if b.spellID then pcall(C_Spell.EnableSpellRangeCheck, id, true) end
+			B.ApplyLook(b, bar)
 		end
 		for j = #bar.spells + 1, #frame.buttons do
 			frame.buttons[j].key, frame.buttons[j].spellID = nil, nil
@@ -498,6 +533,7 @@ function B.Build()
 		frame.label:SetShown(unlocked)
 		frame:EnableMouse(unlocked)
 		frame:Show()
+		frame:SetAlpha(ns.Visibility.Alpha(bar))
 		UpdateBar(frame, bar)
 		Layout(frame, bar)
 	end
@@ -505,6 +541,53 @@ function B.Build()
 		if not live[id] then frame:Hide() end
 	end
 	B.ApplyBlizzard()
+end
+
+-- A button's look: border, zoom, countdown size, keybind text.
+function B.ApplyLook(b, bar)
+	local z = bar.zoom or 0.08
+	b.icon:SetTexCoord(z, 1 - z, z, 1 - z)
+	local n = bar.border or 1
+	b.edge:ClearAllPoints()
+	b.edge:SetPoint("TOPLEFT", -n, n)
+	b.edge:SetPoint("BOTTOMRIGHT", n, -n)
+	b.edge:SetColorTexture(B.BorderRGB(bar.borderColor))
+	b.edge:SetShown(n > 0)
+	local font = B.FONTS[bar.countdown]
+	b.cd:SetHideCountdownNumbers(font == nil)
+	if font then pcall(b.cd.SetCountdownFont, b.cd, font) end
+	B.ShowKey(b, bar)
+end
+
+function B.ShowKey(b, bar)
+	local text
+	if bar.keybind and b.key and ns.Keybinds then
+		local kind = B.Kind(b.key)
+		text = ns.Keybinds.For(kind == "spell" and b.name or ("item:" .. tostring(B.ItemOf(b.key))))
+	end
+	b.keyText:SetText(text or "")
+end
+
+-- Every icon's keybind text again (Keybinds.lua, when bars or bindings change).
+function B.ShowKeys()
+	if not ns.db then return end
+	for _, bar in ipairs(ns.db.bars.list) do
+		local frame = frames[bar.id]
+		if frame then
+			for _, b in ipairs(frame.buttons) do
+				if b.key then B.ShowKey(b, bar) end
+			end
+		end
+	end
+end
+
+-- Every bar's opacity (Visibility.lua: combat and target changes).
+function B.ApplyAlpha()
+	if not ns.db then return end
+	for _, bar in ipairs(ns.db.bars.list) do
+		local frame = frames[bar.id]
+		if frame then frame:SetAlpha(ns.Visibility.Alpha(bar)) end
+	end
 end
 
 -- Unlock: every bar shows its name and a shade, and can be dragged; lock again to keep it.

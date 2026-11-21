@@ -36,8 +36,11 @@ Lecdm opens the options window:
 - **Icon bars:** your cooldowns in rows of icons. The dropdown at the top picks an icon bar,
   and its last entry, "New icon bar...", makes one (it asks for a name). Below it, everything
   is about the bar picked:
-  - its name, look (icon size, spacing, grow from, vertical, icons per row, the GCD sweep) and
-    Delete;
+  - its name and layout (icon size, spacing, grow from, vertical, icons per row, the GCD sweep);
+  - its look: border and border colour, icon zoom, countdown text size, keybind text (from any
+    bar addon's buttons), grey on cooldown, red out of range, dark when unusable;
+  - when it shows: always, only in combat, or in combat or with a target; its opacity, and out
+    of combat the same, faded or hidden; and Delete;
   - its spells and items: tick them in the checklist (Blizzard's Essential and Utility lists,
     your spellbook, your equipped trinkets and on-use gear, and usable items in your bags such
     as potions and healthstones; an entry on another icon bar says "(on ...)" and ticking moves
@@ -54,7 +57,9 @@ Lecdm opens the options window:
   ("New buff group..." makes one); below it, its name, **Show as** icons (a swipe and the time
   left) or **timer bars** (the icon, then a bar draining to the right with the name and the
   time left), its look, Delete, and its buffs: tick them from your buffs in Blizzard's list or
-  from the buffs on you now (out of combat), and order them with the arrows. Every rank of a
+  from the buffs on you now (out of combat), and order them with the arrows. Its look: border,
+  icon zoom, time text size; timer bars also texture, colour (class colour among them),
+  background, and the icon, name and time each on or off. When it shows: as for icon bars. Every rank of a
   buff, whoever cast it, is learned the first time Lecdm sees it on you out of combat.
   Changes made in combat apply when it ends.
 
@@ -64,7 +69,7 @@ Lecdm opens the options window:
   place, which you drag with the rest, spaced and grown your way, gaps closed, following each
   target), **hide them**, or **leave them** where Blizzard shows them. Which ones, and their
   order, are picked in `/cdm` (Tracked Buffs for icons, Tracked Bars for timer bars; "Open
-  /cdm" is right there); their size is Edit Mode's.
+  /cdm" is right there); their size is Edit Mode's. When they show, as for icon bars.
 - **Alerts:** the sounds and glows every spell and buff gets, unless it has its own (the ⚙ on
   its row on the Icon bars and Buffs tabs: a submenu per setting, "Default (...)" first).
   Sounds are the game's (raid warning, ready check, alarm clock ...) or "Say it", which speaks
