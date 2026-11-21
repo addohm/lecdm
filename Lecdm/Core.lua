@@ -112,7 +112,7 @@ local function Greet()
 	if not LecdmDB.welcomed then
 		LecdmDB.welcomed = true
 		ns.Print("thanks for installing! Type |cffffd100/lecdm|r or click the minimap button for the options. "
-			.. "Your cooldowns are in two bars under your character: /lecdm move to drag them.")
+			.. "Your cooldowns are in two icon bars under your character: /lecdm move to drag them.")
 	elseif ns.db.loginMessage then
 		ns.Print(ns.Version(true) .. " loaded. Type |cffffd100/lecdm|r to open the options.")
 	end
@@ -144,7 +144,7 @@ end)
 -- /lecdm <page> opens that tab.
 local PAGE_WORDS = {
 	general = "general", settings = "general",
-	bars = "bars", cooldowns = "bars",
+	bars = "bars", iconbars = "bars", icons = "bars", cooldowns = "bars",
 	buffs = "buffs", auras = "buffs",
 	alerts = "alerts", sounds = "alerts", glows = "alerts",
 	test = "test",
@@ -157,7 +157,7 @@ local function Help()
 	ns.Print("/lecdm general | bars | buffs | alerts | test | profiles - open that tab")
 	ns.Print("/lecdm profile - the profile in use, and the Profiles tab (where they're managed)")
 	ns.Print("/lecdm minimap - show or hide the minimap button; /lecdm on | off - turn Lecdm on or off")
-	ns.Print("/lecdm move - unlock the bars to drag them; again to lock them")
+	ns.Print("/lecdm move - unlock the icon bars to drag them; again to lock them")
 	ns.Print("Test build: /lecdm status - Blizzard's Cooldown Manager, its list, what's listened to")
 	ns.Print("/lecdm list - every spell Blizzard's Cooldown Manager lists for you, by section")
 	ns.Print("/lecdm check - what an addon can read about your spells right now (try it in combat)")

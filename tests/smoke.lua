@@ -311,6 +311,51 @@ chargeItem.setSelected()
 check(ns.Bars.BarOf(100) == first, "ticking didn't put Charge back")
 book.children[1].setSelected()
 check(ns.Bars.BarOf(2565) == first and #panel.parts.spellRows >= #first.spells, "spellbook spell not added")
+
+-- A spell on another icon bar says which, in the checklist.
+root = M.Menu()
+panel.parts.top[#panel.parts.top].dropdown.generator(nil, root)
+local deathWish = root.children[2].children[1]
+check(deathWish.text:find("Death Wish") and deathWish.text:find("%(on Utility%)"), "no (on Utility) label: " .. tostring(deathWish.text))
+check(not root.children[1].children[1].text:find("%(on "), "a spell on this bar got an (on ...) label")
+
+-- The icon bar dropdown: one entry per bar, the one shown ticked; picking another shows it;
+-- "New icon bar..." opens the popup, which makes the bar (an empty name gets a number).
+local picker = panel.parts.picker
+check(picker.dropdown.text == "Cooldowns", "picker text wrong: " .. tostring(picker.dropdown.text))
+local menu = M.Menu()
+picker.dropdown.generator(nil, menu)
+check(#menu.children == 3 and menu.children[1].text == "Cooldowns" and menu.children[1].isSelected(), "picker entries wrong")
+menu.children[2].setSelected()
+check(picker.dropdown.text == "Utility", "picking Utility didn't show it")
+check(menu.children[3].text == "New icon bar..." and menu.children[3].onClick, "no New icon bar entry")
+menu.children[3].onClick()
+check(M.popup and M.popup.which == "LECDM_NEW_BAR", "no new-bar popup")
+M.Accept("Defensives")
+check(#ns.db.bars.list == 3 and picker.dropdown.text == "Defensives", "new bar not made and shown")
+menu.children[3].onClick()
+M.Accept("  ")
+check(ns.db.bars.list[4].name == "Icon bar 4", "empty name not numbered: " .. tostring(ns.db.bars.list[4].name))
+
+-- The name field renames the bar shown; Delete asks first.
+local nameRow = panel.parts.top[3]
+nameRow.box.text = "Big ones"
+nameRow.box.scripts.OnEnterPressed(nameRow.box)
+check(ns.db.bars.list[4].name == "Big ones" and picker.dropdown.text == "Big ones", "rename didn't")
+local deleteRow = panel.parts.top[10]
+check(deleteRow.button.text == "Delete this icon bar", "delete button not where expected: " .. tostring(deleteRow.button.text))
+deleteRow.button.scripts.OnClick()
+M.Accept()
+check(#ns.db.bars.list == 3 and picker.dropdown.text == "Cooldowns", "delete didn't, or didn't show the first bar")
+ns.Bars.Delete(ns.db.bars.list[3].id)
+
+-- No icon bars at all: only the dropdown and a note.
+local saved = ns.db.bars.list
+ns.db.bars.list = {}
+ns.Window.Refresh()
+check(panel.parts.none.shown and not panel.parts.top[2].shown, "the no-bars note isn't shown alone")
+ns.db.bars.list = saved
+ns.Refresh()
 ns.Window.Hide()
 
 -- Profiles: a new one starts at the defaults; switching back brings the old settings back.

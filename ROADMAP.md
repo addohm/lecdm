@@ -73,7 +73,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
   Last", shared, switched by talents or group role), the minimap button and addon compartment,
   an Options > AddOns entry, `/lecdm`. The icon is a stand-in (a pocket watch) until the release
   kit's art. Not tried in game yet.
-- Cooldown bars, first build (0.1.0-dev, 2026-11-20): any number of bars (two filled from
+- Icon bars, first build (0.1.0-dev, 2026-11-20): any number of icon bars (two filled from
   Blizzard's list at first), Lecdm's own icons (swipe and countdown, grey on cooldown, GCD sweep
   on or off, dark when unusable, red out of range), per spell "only when ready" or "only on
   cooldown" with the gap closing, a checklist of Blizzard's list and the spellbook, order with
@@ -82,23 +82,26 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 ## Next
 
-1. **Cooldown bars in game** (TESTING.md), then their next pieces: drag to order in the
-   window, more per-spell looks (borders, zoom, text), charges.
+1. **Icon bars in game** (TESTING.md), then their next pieces: drag to order in the window,
+   more per-spell looks (borders, zoom, text), charges. Naming (owner, 2026-11-21): ours are
+   **icon bars**; Blizzard's "tracked bars" (icon left, a draining fill right) are **timer
+   bars**.
 2. **Items:** trinkets and other on-use slots, racials, potions, healthstones.
 3. **The display of what only the Cooldown Manager can show** (the player's effects on the
    target, its timers; an addon can't time them in combat): settled 2026-11-20 in the host
    test. Blizzard's own buff icons and bars live in Lecdm's bars, re-placed after each of
    Blizzard's layouts, and follow each target. Confirmed in the open world and in a dungeon.
 4. **Buffs:** the Cooldown Manager's tracked buffs and procs, buffs from others (aura
-   containers), missing state.
-5. **Effects on the target:** the player's DoTs and HoTs.
+   containers), missing state; each buff shown as an icon or a **timer bar** (moved here from
+   its own step on 2026-11-21: timer bars mostly show buffs and target debuffs, and the host
+   test showed Blizzard's own timer bars can live in Lecdm), with groups, thresholds and ticks.
+5. **Effects on the target:** the player's debuffs, DoTs and HoTs, as icons or timer bars.
 6. **Alerts and effects:** sounds and glows on ready, applied, removed, charges; per-spell
    glow styles; keybind text; visibility rules (combat, group, instance, target, mounted ...).
-7. **Status bars** (EllesmereUI's Tracking Bars): groups, thresholds, ticks.
-8. **The rest of EllesmereUI's list:** action-bar button glows on buff state, focus interrupt
+7. **The rest of EllesmereUI's list:** action-bar button glows on buff state, focus interrupt
    bar, swing-timer sweep for on-next-swing attacks, queued-attack highlight, key-press mirror,
    import/export.
-9. **Release kit:** icon and banner, LISTING.md, packaging, CurseForge and Wago.
+8. **Release kit:** icon and banner, LISTING.md, packaging, CurseForge and Wago.
 
 ## Ideas
 

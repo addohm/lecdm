@@ -4,7 +4,7 @@ Lecdm is a WoW: Forever addon that makes Blizzard's Cooldown Manager better and 
 manage: bars of your cooldowns, buffs and procs, laid out and styled your way from one window,
 with sounds and glows that work in combat. The plan is in [ROADMAP.md](ROADMAP.md).
 
-**Status:** 0.1.0-dev, not released. The cooldown bars are in (not tried in game yet); buffs
+**Status:** 0.1.0-dev, not released. The icon bars are in (tried in game 2026-11-21); buffs
 and alerts come next. Test build 1's checks are still on the Test build tab.
 [TESTING.md](TESTING.md) has what to try.
 
@@ -32,12 +32,18 @@ Lecdm opens the options window:
 
 - **General:** Enable Lecdm, the minimap button, the login reminder, a class-coloured window,
   Reset all settings, the chat commands.
-- **Bars:** your cooldown bars. Pick a bar (or make a new one), set its look (icon size,
-  spacing, grow from, vertical, icons per row, the GCD sweep), tick its spells in the
-  checklist (Blizzard's Essential and Utility lists, and your spellbook), order them with the
-  arrows, and choose when each shows: always, only when ready, or only on cooldown. Unlock to
-  drag the bars. Blizzard's own Essential and Utility icons are made invisible while Lecdm's
-  bars are on; untick "Hide Blizzard's Essential and Utility icons" to keep them.
+- **Icon bars:** your cooldowns in rows of icons. The dropdown at the top picks an icon bar,
+  and its last entry, "New icon bar...", makes one (it asks for a name). Below it, everything
+  is about the bar picked:
+  - its name, look (icon size, spacing, grow from, vertical, icons per row, the GCD sweep) and
+    Delete;
+  - its spells: tick them in the checklist (Blizzard's Essential and Utility lists, and your
+    spellbook; a spell on another icon bar says "(on ...)" and ticking moves it), order them
+    with the arrows, and choose when each shows: always, only when ready, or only on cooldown.
+
+  Unlock to drag the icon bars. Blizzard's own Essential and Utility icons are made invisible
+  while Lecdm's icon bars are on; untick "Hide Blizzard's Essential and Utility icons" to keep
+  them. (Timer bars, Blizzard's "tracked bars", come with the buffs.)
 - **Buffs, Alerts:** not built yet; each says what's coming.
 - **Test build:** test build 1's settings and tools (the same as its chat commands below).
 - **Profiles:** each character starts with its own ("First Last"); pick another to share it,
@@ -51,7 +57,7 @@ Chat commands:
 | `/lecdm general` ... `profiles` | Open that tab (`bars`, `buffs`, `alerts`, `test` too) |
 | `/lecdm profile` | The profile in use, and the Profiles tab |
 | `/lecdm minimap` | Show or hide the minimap button |
-| `/lecdm move` | Unlock the bars to drag them; again to lock them |
+| `/lecdm move` | Unlock the icon bars to drag them; again to lock them |
 | `/lecdm on` / `off` | Turn Lecdm on or off |
 | `/lecdm help` | The commands, and the build |
 | `/lecdm status` | Is Blizzard's Cooldown Manager available, what it lists, what's listened to |

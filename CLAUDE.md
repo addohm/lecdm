@@ -60,9 +60,10 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
     window `LecdmFrame`: tabs, Defaults, resize grip; pages register with `ns.Window.Page`; the
     Options > AddOns entry), `UI/Minimap.lua` (`LecdmMinimapButton`, angle 350, the addon
     compartment): the owner's house code, from leproc.
-  - `UI/Pages/`: `General.lua`, `Bars.lua` (the bar picker, look, the spell checklist on
-    Blizzard's `DropdownButton` / MenuUtil, a row per spell rebuilt each refresh with
-    `UI.Stack` Reset/Add/Done), `Soon.lua` (Buffs, Alerts: what's coming), `Test.lua` (test
+  - `UI/Pages/`: `General.lua`, `Bars.lua` (the Icon bars tab: a `DropdownButton` picks the
+    bar, its "New icon bar..." entry opens the `LECDM_NEW_BAR` popup with a name box; below,
+    only the bar picked: name field, look, Delete, then the spell checklist (MenuUtil) and a
+    row per spell rebuilt each refresh with `UI.Stack` Reset/Add/Done), `Soon.lua` (Buffs, Alerts: what's coming), `Test.lua` (test
     build 1's settings and tools), `Profiles.lua`.
 - `tools/install_forever.cmd`: pulls (and explains a rewritten history), copies the addon into
   the Windows client, stamps the build, packs `Lecdm-<version>.zip` on the desktop. Keep it CRLF
@@ -116,6 +117,9 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
 - New settings go in `ns.DEFAULTS` (so in every profile); only the log and `welcomed` are
   account-wide. A setting change calls `ns.Refresh()`.
 - Example names in docs and tests are made up ("Brenna Ashford").
+- **Words players see:** ours are "icon bars" (the code and settings say `bars`); Blizzard's
+  tracked bars are "timer bars". Don't put two look-alike controls side by side (the owner
+  confused New and Rename): creating lives in the picker, renaming is the bar's own field.
 - Dates in the docs are absolute (2026-11-20), never "today" or "last week".
 - CHANGELOG entries go under *Unreleased* in Keep a Changelog style.
 - Check APIs against Blizzard's Forever source (path above) and its

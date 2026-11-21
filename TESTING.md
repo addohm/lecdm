@@ -14,7 +14,9 @@ build.
 2. **In combat** (a dungeon too): each icon's swipe and countdown, grey while on cooldown and
    back to colour when ready, a short GCD sweep, dark when you can't cast it (no rage), red
    when your target is out of range (Charge, Intercept). No Lua errors.
-3. **Bars tab** (`/lecdm bars`):
+3. **Icon bars tab** (`/lecdm bars`; since 2026-11-21: the dropdown picks a bar, its "New icon
+   bar..." entry asks for a name in a popup, the name field renames, Delete asks first; a spell
+   on another bar says "(on ...)" in the checklist):
    - "Add or remove spells": the checklist opens with Blizzard's Essential, Blizzard's
      Utility and Spellbook sections; ticking adds a spell to the bar shown (moving it from
      another bar), unticking takes it off; the list stays open while you tick.
@@ -32,6 +34,10 @@ build.
 6. **A trinket on cooldown.** Put the Satchel (or an on-use trinket) on a bar? It isn't in the
    checklist yet (items come next): just note whether `/lecdm check` in combat, with it cooling
    down, shows SECRET.
+
+Owner, 2026-11-21 (e835f70): two blue bars filled with the right warrior spells; the rest
+"seems fine". Asked for: a dropdown instead of the arrows, a popup for a new bar, no look-alike
+controls side by side, and the name "icon bar". Done in the build after.
 
 ## Checked (test build 1, 0.0.1-dev)
 

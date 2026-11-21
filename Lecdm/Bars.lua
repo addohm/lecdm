@@ -1,5 +1,6 @@
--- Lecdm: cooldown bars. Lecdm's own icons, in bars the player sets up (ns.db.bars.list). Each
--- icon is one spell:
+-- Lecdm: icon bars (the code says "bars"). Lecdm's own icons, in bars the player sets up
+-- (ns.db.bars.list); not to be confused with timer bars (Blizzard's "tracked bars"), which
+-- come with the buffs. Each icon is one spell:
 --  * the swipe and countdown come from C_Spell.GetSpellCooldownDuration, drawn by the game
 --    (Cooldown:SetCooldownFromDurationObject), the GCD included unless the bar turns it off;
 --  * grey while on a real cooldown (isActive and not isOnGCD: never secret), dark while it can't
@@ -330,8 +331,8 @@ end
 function B.SetUnlocked(on)
 	unlocked = on and true or false
 	B.Build()
-	ns.Print(unlocked and "bars unlocked: drag them, then /lecdm move (or Lock on the Bars tab) to lock them."
-		or "bars locked.")
+	ns.Print(unlocked and "icon bars unlocked: drag them, then /lecdm move (or Lock on the Icon bars tab) to lock them."
+		or "icon bars locked.")
 	if ns.Window then ns.Window.Refresh() end
 end
 

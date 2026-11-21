@@ -132,15 +132,17 @@ function GetMinimapShape() return "ROUND" end
 function ReloadUI() M.reloaded = true end
 function HideUIPanel(f) f:Hide() end
 function GameTooltip_Hide() end
-YES, NO = "Yes", "No"
+YES, NO, OKAY, CANCEL = "Yes", "No", "Okay", "Cancel"
 RAID_CLASS_COLORS = { WARRIOR = { r = 0.78, g = 0.61, b = 0.43 } }
 C_ClassColor = { GetClassColor = function(class) return RAID_CLASS_COLORS[class] end }
 StaticPopupDialogs = {}
 function StaticPopup_Show(which, text, _, data) M.popup = { which = which, text = text, data = data } end
-function M.Accept()
+-- Accept the popup shown; text is what's typed in its edit box, if it has one.
+function M.Accept(text)
 	local p = M.popup
 	M.popup = nil
-	StaticPopupDialogs[p.which].OnAccept(nil, p.data)
+	local dialog = { GetEditBox = function() return { GetText = function() return text end } end }
+	StaticPopupDialogs[p.which].OnAccept(dialog, p.data)
 end
 M.timers = {}
 C_Timer = { After = function(_, fn) table.insert(M.timers, fn) end }
@@ -291,8 +293,9 @@ function M.Slash(msg) SlashCmdList.LECDM(msg) end
 function M.Menu()
 	local function Node(text)
 		local n = { text = text, children = {} }
-		function n:CreateButton(t)
+		function n:CreateButton(t, onClick)
 			local c = Node(t)
+			c.onClick = onClick
 			table.insert(self.children, c)
 			return c
 		end
@@ -303,6 +306,13 @@ function M.Menu()
 			table.insert(self.children, c)
 			return c
 		end
+		function n:CreateRadio(t, isSelected, setSelected)
+			local c = Node(t)
+			c.isSelected, c.setSelected = isSelected, setSelected
+			table.insert(self.children, c)
+			return c
+		end
+		function n:CreateDivider() end
 		function n:CreateTitle() end
 		return n
 	end

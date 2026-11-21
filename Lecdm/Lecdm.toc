@@ -1,6 +1,6 @@
 ## Interface: 16001
 ## Title: Lecdm
-## Notes: Makes Blizzard's Cooldown Manager better and simpler to manage: your cooldowns in bars you lay out, with swipes, grey on cooldown and range colours.
+## Notes: Makes Blizzard's Cooldown Manager better and simpler to manage: your cooldowns in icon bars you lay out, with swipes, grey on cooldown and range colours.
 ## Author: addohm
 ## Version: 0.1.0-dev
 ## IconTexture: Interface\Icons\INV_Misc_PocketWatch_01
