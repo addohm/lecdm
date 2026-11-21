@@ -19,6 +19,9 @@ New files: install, then fully restart the game.
 5. **Move.** `/lecdm move`: the buff group shows its name on a blue shade with the icon bars.
 6. **Bag items** (Icon bars tab): "Items you have none of: Show them greyed": a potion you've
    run out of stays, greyed, with a 0.
+6b. **Blizzard's buff icons and timer bars** (Buffs tab, bottom): tick "Hide Blizzard's buff
+    icons and timer bars": they vanish, and stay gone after `/reload`, a restart and a loading
+    screen. The raid warning on a drop still comes. Untick: they're back.
 7. Any Lua errors?
 
 ## To check (cooldown bars, 0.1.0-dev)

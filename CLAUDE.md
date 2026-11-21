@@ -124,8 +124,10 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
   Mode layouts or its CVars; never call its refresh methods; no forced reloads. Listen with
   `hooksecurefunc`; keep per-frame state in weak tables. Identify an icon by its cooldown ID read
   when needed: icons are pooled and reused. Two exceptions, both confirmed harmless in game:
-  while Lecdm's bars are on, the Essential and Utility viewers get alpha 0 (never `Hide()`,
-  which stops their events; set again after Edit Mode and loading screens, not fought), and
+  while Lecdm's bars are on, the Essential and Utility viewers get alpha 0, and the buff
+  viewers too when the player ticks "Hide Blizzard's buff icons and timer bars" (never
+  `Hide()`, which stops their events; set again after Edit Mode and loading screens, not
+  fought: `B.ApplyBlizzard`), and
   the host test re-places Buffs/Bars viewer icons into a Lecdm row.
 - **A two-value call only passes both values when it's last** in an argument list: give
   getter/setter pairs their own locals (UI/Pages/Bars.lua).

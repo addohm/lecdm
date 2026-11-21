@@ -25,6 +25,7 @@ ns.Bars = B
 B.SHOW = { { "always", "Always" }, { "ready", "Only when ready" }, { "cooldown", "Only on cooldown" } }
 B.GROW = { { "CENTER", "Centre" }, { "LEFT", "Left / top" }, { "RIGHT", "Right / bottom" } }
 B.BLIZZARD = { "EssentialCooldownViewer", "UtilityCooldownViewer" }
+B.BLIZZARD_BUFFS = { "BuffIconCooldownViewer", "BuffBarCooldownViewer" }
 
 local frames = {}  -- bar id -> its frame
 local unlocked = false
@@ -510,10 +511,9 @@ end
 
 -- Blizzard's Essential and Utility viewers: invisible while Lecdm's bars are on and the setting
 -- is on, given their own alpha back otherwise. Set again after Edit Mode, which reapplies its
--- opacity setting.
-function B.ApplyBlizzard()
-	local want = ns.Enabled() and ns.db.bars.hideBlizzard and #ns.db.bars.list > 0
-	for _, global in ipairs(B.BLIZZARD) do
+-- opacity setting, and after loading screens.
+local function Fade(globals, want)
+	for _, global in ipairs(globals) do
 		local viewer = _G[global]
 		if viewer then
 			if want then
@@ -525,6 +525,15 @@ function B.ApplyBlizzard()
 			end
 		end
 	end
+end
+
+-- Blizzard's buff icons and timer bars: invisible while the player chose so (Buffs tab), until
+-- Lecdm's buff groups take them in (Buffs part 3). They keep running, so the listener still
+-- hears them.
+function B.ApplyBlizzard()
+	local on = ns.Enabled()
+	Fade(B.BLIZZARD, on and ns.db.bars.hideBlizzard and #ns.db.bars.list > 0)
+	Fade(B.BLIZZARD_BUFFS, on and ns.db.bars.hideBlizzardBuffs)
 end
 
 -- Spellbook spells with a cooldown, by skill line: { name, spells = { spellID ... } }. Out of

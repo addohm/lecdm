@@ -15,7 +15,7 @@ local DEFAULTS = {
 	test = { sound = true },            -- test build 1: the raid warning when a tracked buff drops
 	-- the cooldown bars (Bars.lua): list = { bar ... } (B.NewBar has a bar's fields), seeded once
 	-- from Blizzard's list, and whether Blizzard's Essential and Utility viewers are made invisible
-	bars = { list = {}, seeded = false, nextID = 1, hideBlizzard = true },
+	bars = { list = {}, seeded = false, nextID = 1, hideBlizzard = true, hideBlizzardBuffs = false },
 	-- the buff groups (Auras.lua): list = { group ... } (A.NewGroup has a group's fields), seeded once
 	buffs = { list = {}, seeded = false, nextID = 1 },
 }

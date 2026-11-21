@@ -52,6 +52,9 @@ All notable changes to lecdm. The format follows
   you out of combat. The first group is filled from Blizzard's list. Unlock moves buff groups
   with the icon bars.
 - Icon bars: "Items you have none of": hide them (as before), or show them greyed with a 0.
+- Buffs tab: "Hide Blizzard's buff icons and timer bars" (off at first): Blizzard's own buff
+  viewers made invisible at every login and `/reload`, still running, so Lecdm hears them
+  (the test command `/lecdm blizz hide` wasn't kept after a reload).
 
 ### Changed
 

@@ -55,7 +55,9 @@ Lecdm opens the options window:
   time left), its look, Delete, and its buffs: tick them from your buffs in Blizzard's list or
   from the buffs on you now (out of combat), and order them with the arrows. Every rank of a
   buff, whoever cast it, is learned the first time Lecdm sees it on you out of combat.
-  Changes made in combat apply when it ends.
+  Changes made in combat apply when it ends. "Hide Blizzard's buff icons and timer bars" (off
+  at first) makes Blizzard's own ones invisible at every login and `/reload`; your debuffs on
+  the target only show there until Lecdm's buff groups take them in.
 - **Alerts:** not built yet; it says what's coming.
 - **Test build:** test build 1's settings and tools (the same as its chat commands below).
 - **Profiles:** each character starts with its own ("First Last"); pick another to share it,

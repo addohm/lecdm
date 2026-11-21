@@ -189,6 +189,18 @@ check(ns.Bars.IsUnlocked() and cooldowns.mouse and cooldowns.shade.shown and coo
 M.Slash("move")
 check(not ns.Bars.IsUnlocked() and not cooldowns.mouse, "move didn't lock")
 
+-- Blizzard's buff icons and timer bars: left alone, unless that setting is on.
+local buffViewer = M.viewers.BuffBarCooldownViewer
+check(buffViewer.alpha == 1, "Blizzard's timer bars hidden by default")
+ns.db.bars.hideBlizzardBuffs = true
+ns.Refresh()
+check(buffViewer.alpha == 0 and M.viewers.BuffIconCooldownViewer.alpha == 0, "Blizzard's buff viewers not invisible with the setting")
+M.Fire("PLAYER_ENTERING_WORLD")
+check(buffViewer.alpha == 0, "not kept after a loading screen")
+ns.db.bars.hideBlizzardBuffs = false
+ns.Refresh()
+check(buffViewer.alpha == 1, "Blizzard's buff viewers not given back")
+
 -- Blizzard's icons back when the setting is off.
 ns.db.bars.hideBlizzard = false
 ns.Refresh()

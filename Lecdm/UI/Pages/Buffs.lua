@@ -267,6 +267,13 @@ ns.Window.Page({
 				return ns.Bars.IsUnlocked() and "Lock" or "Unlock"
 			end, function() ns.Bars.SetUnlocked(not ns.Bars.IsUnlocked()) end,
 				{ "Move", "Unlocked, every icon bar and buff group shows its name and can be dragged. /lecdm move does the same." }),
+			UI.OptionCheck(stack.inner, "Hide Blizzard's buff icons and timer bars",
+				function() return ns.db.bars.hideBlizzardBuffs end,
+				function(v)
+					ns.db.bars.hideBlizzardBuffs = v
+					ns.Refresh()
+				end,
+				{ "Blizzard's buff icons and timer bars", "Made invisible, at every login and /reload; they keep running, so Lecdm still hears them. Your debuffs on the target (Sunder Armor, Thunder Clap ...) only show there for now: Lecdm's buff groups take them in later." }),
 			UI.OptionButton(stack.inner, "Every buff group", "Start over", function()
 				Confirm("Replace every buff group with one filled from Blizzard's list, as on a new profile?", function()
 					Auras.StartOver()
