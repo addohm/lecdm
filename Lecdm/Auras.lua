@@ -66,6 +66,21 @@ function A.MoveEntry(group, index, dir)
 	ns.Refresh()
 end
 
+-- How a buff in a group shows: "up" (while it's up; the rest close up), "keep" (a fixed place:
+-- the game's icon while it's up, a dimmed red copy and the missing glow while it isn't) or
+-- "missing" (a fixed place showing only the red copy, while it's missing).
+A.MODES = { { "up", "While it's up" }, { "keep", "Keep up" }, { "missing", "Only while missing" } }
+
+function A.Mode(group, name)
+	return group.modes and group.modes[name] or "up"
+end
+
+function A.SetMode(group, name, mode)
+	group.modes = group.modes or {}
+	group.modes[name] = mode ~= "up" and mode or nil
+	ns.Refresh()
+end
+
 function A.Delete(id)
 	local _, i = A.Get(id)
 	if i then table.remove(ns.db.buffs.list, i) end
@@ -448,9 +463,119 @@ local function Frame(group)
 	container:SetSize(1, 1)
 	container:SetFrameLevel(anchor:GetFrameLevel() + 5)
 	container:Show()
-	f = { anchor = anchor, container = container, made = {} }
+	local keep = CreateFrame("AuraContainer", nil, anchor, "CustomAuraContainerTemplate")
+	keep:SetUnit("player")
+	keep:SetSize(1, 1)
+	keep:SetPoint("TOPLEFT", anchor, "TOPLEFT")
+	keep:SetFrameLevel(anchor:GetFrameLevel() + 6)
+	keep:Show()
+	f = { anchor = anchor, container = container, made = {}, keep = keep, slots = {}, presence = {} }
 	frames[group.id] = f
 	return f
+end
+
+-- The missing look ------------------------------------------------------------------------
+-- A keep-up buff's place shows a dimmed red copy (and the missing glow) while the buff is down.
+-- It must be gone, not just covered, while the buff is up, and Lecdm can't know when that is in
+-- combat. So each such buff has its own "presence" container holding only it, with an invisible
+-- 1 px button: empty it's 1 px wide, with the buff span + 1. The copy sits in a clipping frame
+-- stretched from that container's right edge to the far side of its place: full size while the
+-- buff is missing, squeezed to nothing while it's up. The game does the sizing (secret); Blizzard
+-- allows anchoring addon frames to a container made with DisableUntrustedLayoutScriptsTemplate.
+-- The owner's technique, proven on Forever.
+
+local function Invisible(button)
+	button:SetSize(1, 1)
+	button:EnableMouse(false)
+end
+
+local function RedCopy(parent)
+	local c = CreateFrame("Frame", nil, parent)
+	c.border = c:CreateTexture(nil, "BACKGROUND")
+	c.border:SetPoint("TOPLEFT", -1, 1)
+	c.border:SetPoint("BOTTOMRIGHT", 1, -1)
+	c.border:SetColorTexture(0.7, 0, 0, 1)
+	c.bar = c:CreateTexture(nil, "BORDER")
+	c.bar:SetColorTexture(0.35, 0.05, 0.05, 0.85)
+	c.icon = c:CreateTexture(nil, "ARTWORK")
+	c.icon:SetDesaturated(true)
+	c.icon:SetVertexColor(1, 0.4, 0.4)
+	c.name = c:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	c.name:SetJustifyH("LEFT")
+	c.name:SetTextColor(1, 0.5, 0.5)
+	c:SetAlpha(0.85)
+	return c
+end
+
+local function Presence(f, name)
+	local p = f.presence[name]
+	if p then return p end
+	p = {}
+	p.container = CreateFrame("AuraContainer", nil, f.anchor, "CustomAuraContainerTemplate")
+	p.container:SetUnit("player")
+	p.container:SetSize(1, 1)
+	p.container:Show()
+	local ids = A.IDs(name)
+	p.container:AddAuraGroup("buff", "HELPFUL", {
+		candidateFilters = { includeSpellIDs = ids },
+		maxFrameCount = 1,
+		initializeFrame = Invisible,
+	})
+	p.clip = CreateFrame("Frame", nil, f.anchor, "DisableUntrustedLayoutScriptsTemplate")
+	p.clip:SetClipsChildren(true)
+	p.clip:SetFrameLevel(f.anchor:GetFrameLevel() + 2)
+	p.host = CreateFrame("Frame", nil, p.clip)
+	p.copy = RedCopy(p.host)
+	p.copy:SetAllPoints(p.host)
+	p.glow = CreateFrame("Frame", nil, p.host)
+	p.glow:SetAllPoints(p.host)
+	p.glow:SetFrameLevel(p.copy:GetFrameLevel() + 2)
+	f.presence[name] = p
+	return p
+end
+
+-- The red copy and the missing glow for a buff's place: x, y from the group's top left (y down).
+local function PlaceMissing(f, group, name, x, y, w, h)
+	local p = Presence(f, name)
+	local margin = Margin(h)
+	local span = w + 2 * margin
+	p.container:SetAuraGroupCandidateFilters("buff", { includeSpellIDs = A.IDs(name) })
+	p.container:SetAuraGroupLayout("buff", { elementWidth = span + 1, elementHeight = 1 })
+	p.container:SetAuraGroupEnabled("buff", true)
+	p.container:ClearAllPoints()
+	p.container:SetPoint("TOPLEFT", f.anchor, "TOPLEFT", x - margin - 1, -y + margin)
+	p.clip:ClearAllPoints()
+	p.clip:SetPoint("TOPLEFT", p.container, "TOPRIGHT")
+	p.clip:SetPoint("BOTTOMRIGHT", f.anchor, "TOPLEFT", x + w + margin, -y - h - margin)
+	p.clip:Show()
+	p.host:ClearAllPoints()
+	p.host:SetPoint("TOPLEFT", f.anchor, "TOPLEFT", x, -y)
+	p.host:SetSize(w, h)
+	local c = p.copy
+	c.icon:ClearAllPoints()
+	c.icon:SetPoint("TOPLEFT")
+	c.icon:SetSize(h, h)
+	c.icon:SetTexture(A.Icon(name))
+	local bars = group.style == "bars"
+	c.bar:SetShown(bars)
+	c.name:SetShown(bars)
+	if bars then
+		c.bar:ClearAllPoints()
+		c.bar:SetPoint("TOPLEFT", h + 1, 0)
+		c.bar:SetPoint("BOTTOMRIGHT")
+		c.name:ClearAllPoints()
+		c.name:SetPoint("LEFT", h + 5, 0)
+		c.name:SetPoint("RIGHT", -4, 0)
+		c.name:SetText(name)
+	end
+	ns.Glow.Show(p.glow, ns.Alerts.Get("buffs", name, "missingGlow"), ns.Alerts.Get("buffs", name, "missingColor"), h)
+end
+
+local function HideMissing(f, name)
+	local p = f.presence[name]
+	if not p then return end
+	p.clip:Hide()
+	p.container:SetAuraGroupEnabled("buff", false)
 end
 
 -- The default place of the i-th group: above the middle of the screen, one above another.
@@ -462,55 +587,118 @@ local DIRS -- AnchorUtil.FlowDirection values, read when first needed
 
 local function PlaceGroup(f, group, i)
 	A.FillLook(group)
-	local step = group.size + group.gap
+	local gap, h = group.gap, group.size
 	local bars = group.style == "bars"
 	local w = bars and group.barWidth or group.size
 	local per = bars and 1 or math.max(1, group.perRow)
-	local n = math.max(1, #group.entries)
 	local vertical = bars or group.vertical
-	-- The anchor is the area the group can fill: the shade and the drag handle while unlocked.
-	local across = math.min(n, per)
-	local lines = math.ceil(n / per)
-	local width = vertical and (lines * (w + group.gap) - group.gap) or (across * step - group.gap)
-	local height = vertical and (across * step - group.gap) or (lines * step - group.gap)
-	if bars then width, height = w, n * step - group.gap end
+	-- Keep-up and only-while-missing buffs have fixed places on the first line (column, for
+	-- vertical groups; the top rows, for timer bars); the rest flow after them, closing gaps.
+	local fixed, flow = {}, {}
+	for j, name in ipairs(group.entries) do
+		if A.Mode(group, name) == "up" then flow[#flow + 1] = name else fixed[#fixed + 1] = name end
+	end
+	local K, F = #fixed, #flow
+	local stepX, stepY = w + gap, h + gap
+	local width, height
+	if bars then
+		width, height = w, math.max(1, K + F) * stepY - gap
+	elseif vertical then
+		local tall = math.max(K, math.min(F, per), 1)
+		local cols = (K > 0 and 1 or 0) + math.ceil(F / per)
+		width, height = math.max(1, cols) * stepX - gap, tall * stepY - gap
+	else
+		local wide = math.max(K, math.min(F, per), 1)
+		local rows = (K > 0 and 1 or 0) + math.ceil(F / per)
+		width, height = wide * stepX - gap, math.max(1, rows) * stepY - gap
+	end
 	f.anchor:SetSize(width, height)
 	local pos = group.pos or DefaultPos(i)
 	f.anchor:ClearAllPoints()
 	f.anchor:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
 
+	local look = A.LookKey(group)
+	-- The fixed places.
+	local wantSlot, keepNames = {}, {}
+	for k, name in ipairs(fixed) do
+		local x, y
+		if bars then
+			x, y = 0, (k - 1) * stepY
+		elseif vertical then
+			local keepH = K * stepY - gap
+			local y0 = group.grow == "RIGHT" and (height - keepH) or group.grow == "LEFT" and 0 or (height - keepH) / 2
+			x, y = 0, y0 + (k - 1) * stepY
+		else
+			local keepW = K * stepX - gap
+			local x0 = group.grow == "RIGHT" and (width - keepW) or group.grow == "LEFT" and 0 or (width - keepW) / 2
+			x, y = x0 + (k - 1) * stepX, 0
+		end
+		keepNames[name] = true
+		local ids, count = A.IDs(name)
+		if count > 0 then
+			PlaceMissing(f, group, name, x, y, w, h)
+			if A.Mode(group, name) == "keep" then
+				local key = name .. "/" .. look .. "/" .. A.AlertLook(name)
+				wantSlot[key] = true
+				local button = f.slots[key]
+				if not button then
+					button = f.keep:AddAuraSlot(key, "HELPFUL", {
+						candidateFilters = { includeSpellIDs = ids },
+						initializeFrame = Styler(group, name),
+					})
+					f.slots[key] = button
+				end
+				f.keep:SetAuraSlotCandidateFilters(key, { includeSpellIDs = ids })
+				button:ClearAllPoints()
+				button:SetPoint("TOPLEFT", f.anchor, "TOPLEFT", x, -y)
+				f.keep:SetAuraSlotEnabled(key, true)
+			end
+		end
+	end
+	for key in pairs(f.slots) do
+		if not wantSlot[key] then f.keep:SetAuraSlotEnabled(key, false) end
+	end
+	for name in pairs(f.presence) do
+		if not keepNames[name] then HideMissing(f, name) end
+	end
+
+	-- The rest flow, after the fixed places.
 	DIRS = DIRS or (AnchorUtil and AnchorUtil.FlowDirection) or {}
 	local axis = AnchorUtil and AnchorUtil.FlowLayoutAxis
 	local c = f.container
 	c:ClearAllPoints()
+	local shiftX = (vertical and not bars and K > 0) and stepX or 0
+	local shiftY = ((bars or not vertical) and K > 0) and -K * stepY or 0
+	if not bars and not vertical then shiftY = K > 0 and -stepY or 0 end
 	if vertical then
 		pcall(c.SetFlowLayoutAxis, c, axis and axis.Vertical)
-		if group.grow == "RIGHT" then
+		if group.grow == "RIGHT" and not bars then
 			pcall(c.SetFlowLayoutGrowthDirection, c, DIRS.Right, DIRS.Up)
 			pcall(c.SetFlowLayoutAnchorPoint, c, "BOTTOMLEFT")
-			c:SetPoint("BOTTOMLEFT", f.anchor, "BOTTOMLEFT")
+			c:SetPoint("BOTTOMLEFT", f.anchor, "BOTTOMLEFT", shiftX, 0)
 		else
 			pcall(c.SetFlowLayoutGrowthDirection, c, DIRS.Right, DIRS.Down)
 			pcall(c.SetFlowLayoutAnchorPoint, c, "TOPLEFT")
-			c:SetPoint(group.grow == "LEFT" and "TOPLEFT" or "LEFT", f.anchor, group.grow == "LEFT" and "TOPLEFT" or "LEFT")
+			local point = (bars or group.grow == "LEFT") and "TOPLEFT" or "LEFT"
+			c:SetPoint(point, f.anchor, point, shiftX, shiftY)
 		end
 	else
 		pcall(c.SetFlowLayoutAxis, c, axis and axis.Horizontal)
 		if group.grow == "RIGHT" then
 			pcall(c.SetFlowLayoutGrowthDirection, c, DIRS.Left, DIRS.Down)
 			pcall(c.SetFlowLayoutAnchorPoint, c, "TOPRIGHT")
-			c:SetPoint("TOPRIGHT", f.anchor, "TOPRIGHT")
+			c:SetPoint("TOPRIGHT", f.anchor, "TOPRIGHT", 0, shiftY)
 		else
 			pcall(c.SetFlowLayoutGrowthDirection, c, DIRS.Right, DIRS.Down)
 			pcall(c.SetFlowLayoutAnchorPoint, c, "TOPLEFT")
-			c:SetPoint(group.grow == "LEFT" and "TOPLEFT" or "TOP", f.anchor, group.grow == "LEFT" and "TOPLEFT" or "TOP")
+			local point = group.grow == "LEFT" and "TOPLEFT" or "TOP"
+			c:SetPoint(point, f.anchor, point, 0, shiftY)
 		end
 	end
-	pcall(c.SetFlowLayoutMaximumLineSize, c, bars and math.huge or (per * step - group.gap))
+	pcall(c.SetFlowLayoutMaximumLineSize, c, bars and math.huge or (per * stepX - gap))
 
-	local look = A.LookKey(group)
 	local wanted = {}
-	for j, name in ipairs(group.entries) do
+	for j, name in ipairs(flow) do
 		local ids, count = A.IDs(name)
 		if count > 0 then
 			local key = name .. "/" .. look .. "/" .. A.AlertLook(name)
@@ -525,9 +713,9 @@ local function PlaceGroup(f, group, i)
 			end
 			c:SetAuraGroupCandidateFilters(key, { includeSpellIDs = ids })
 			c:SetAuraGroupLayout(key, {
-				elementSpacing = group.gap, lineSpacing = group.gap,
-				groupSpacing = group.gap, groupLineSpacing = group.gap,
-				elementWidth = w, elementHeight = group.size, layoutIndex = j,
+				elementSpacing = gap, lineSpacing = gap,
+				groupSpacing = gap, groupLineSpacing = gap,
+				elementWidth = w, elementHeight = h, layoutIndex = j,
 			})
 			c:SetAuraGroupEnabled(key, true)
 		end
@@ -580,6 +768,8 @@ function A.Build()
 		if not live[id] then
 			f.anchor:Hide()
 			for key in pairs(f.made) do pcall(f.container.SetAuraGroupEnabled, f.container, key, false) end
+			for key in pairs(f.slots) do pcall(f.keep.SetAuraSlotEnabled, f.keep, key, false) end
+			for name in pairs(f.presence) do pcall(HideMissing, f, name) end
 		end
 	end
 end

@@ -100,7 +100,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
    Blizzard's own icons and bars (the host test showed they can live in Lecdm).
    - Part 1, done 2026-11-21: buff groups, icons or timer bars, any buff on you (anyone's)
      while it's up, every rank learned by name.
-   - Part 2: "keep up" buffs with a missing state (a fixed place, dimmed red while down).
+   - Part 2, done 2026-11-21: "keep up" and "only while missing" buffs (a fixed place, dimmed
+     red with the missing glow while down).
    - Part 3, done 2026-11-21: Blizzard's icons and timer bars (the target's debuffs among
      them) taken into Lecdm's own places, or hidden, or left; picked in `/cdm`.
    - Then: thresholds and ticks on timer bars, bar colours.

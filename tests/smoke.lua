@@ -537,6 +537,37 @@ M.Fire("PLAYER_REGEN_ENABLED")
 check(M.viewers.BuffIconCooldownViewer.alpha == 1, "Blizzard's icons not back")
 M.buffsOnMe = { { name = "Battle Shout", spellId = 25289, icon = 1 }, { name = "Power Word: Fortitude", spellId = 1243, icon = 8 } }
 
+-- Keep up: a fixed place (an aura slot, first) and the missing look (a presence container the
+-- game sizes, and the red copy clipped to it); the others flow a line below. Only while
+-- missing: the presence alone. While it's up again: neither.
+local anchorFrame = container.parent
+local function Keep()
+	for _, c in ipairs(M.containers) do
+		if c.parent == anchorFrame and next(c.slots) then return c end
+	end
+end
+local function PresenceOf()
+	for _, c in ipairs(M.containers) do
+		if c.parent == anchorFrame and c.groups.buff then return c end
+	end
+end
+ns.Auras.SetMode(buffs[1], "Battle Shout", "keep")
+local keepC = Keep()
+local slotKey, slot
+for k, s2 in pairs(keepC and keepC.slots or {}) do
+	if k:find("^Battle Shout/") and s2.enabled then slotKey, slot = k, s2 end
+end
+check(slot and slot.ids[6673], "no fixed place for a keep-up buff")
+check(slot.button.points[1][1] == "TOPLEFT" and slot.button.points[1][5] == 0, "fixed place not on the first line")
+local presence = PresenceOf()
+check(presence and presence.groups.buff.enabled and presence.groups.buff.layout.elementWidth == 32 + 2 * 11 + 1, "no presence for the missing look")
+check(not G("Battle Shout/icons:32:0:"), "a keep-up buff also flows")
+check(container.points[1][5] == -36, "the flowing buffs aren't a line below: " .. tostring(container.points[1][5]))
+ns.Auras.SetMode(buffs[1], "Battle Shout", "missing")
+check(not keepC.slots[slotKey].enabled and presence.groups.buff.enabled, "only-while-missing wrong")
+ns.Auras.SetMode(buffs[1], "Battle Shout", "up")
+check(not presence.groups.buff.enabled and G("Battle Shout/icons:32:0:") and container.points[1][5] == 0, "back to while-up wrong")
+
 -- /lecdm check, in combat with secret cooldown times: SECRET shown, nothing compared.
 M.combat, M.secretCooldowns = true, true
 M.Slash("check")

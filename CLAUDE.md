@@ -78,7 +78,11 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
     `SetSpellName`, time, stacks). `A.IDs(name)`: learned + Blizzard's list + the spell's own;
     `A.ReadBuffs()` (out of combat only) and learning on `UNIT_AURA`; `A.Build()` waits for the
     end of combat (`pending`). `A.BlizzardBuffs()` (selfAura entries), `A.SetInGroup`,
-    `A.MoveEntry`, `A.NewGroup`, `A.Delete`, `A.StartOver`.
+    `A.MoveEntry`, `A.NewGroup`, `A.Delete`, `A.StartOver`. Modes (`group.modes[name]`: "up",
+    "keep", "missing"; `A.Mode`, `A.SetMode`): keep-up buffs get an aura slot in the group's
+    `keep` container at a fixed place, and keep / missing ones a presence container (one
+    invisible 1 px button sized by the game) with the red copy and missing glow clipped to its
+    edge (`PlaceMissing`); the rest flow in the group's container after them.
   - `Hosted.lua`: Blizzard's icons and timer bars taken in (`ns.db.buffs.blizzard.icons` /
     `.bars`: `mode` "take" | "hide" | "leave", `gap`, `grow`, `vertical`, `perRow`, `pos`).
     In "take", each item of the BuffIcon / BuffBar viewer is anchored into Lecdm's place

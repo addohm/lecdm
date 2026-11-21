@@ -3,6 +3,14 @@
 What to check in game, and what's been confirmed. Results go under Confirmed or Problems, with
 the build and date.
 
+## To check (keep-up buffs, 2026-11-21)
+
+1. **Buffs tab:** Battle Shout's row: "Keep up". It gets a fixed place at the start; let it
+   drop: a dimmed red copy with a red pixel glow takes its place; cast it: the copy is gone
+   (completely, no red around it), in combat too, in a dungeon too.
+2. "Only while missing": the place is empty while it's up, the red copy while it's down.
+3. As timer bars: the red copy is a dim red bar with the name.
+
 ## To check (looks and visibility, 2026-11-21)
 
 New files: install, then fully restart the game.

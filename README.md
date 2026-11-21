@@ -57,7 +57,10 @@ Lecdm opens the options window:
   ("New buff group..." makes one); below it, its name, **Show as** icons (a swipe and the time
   left) or **timer bars** (the icon, then a bar draining to the right with the name and the
   time left), its look, Delete, and its buffs: tick them from your buffs in Blizzard's list or
-  from the buffs on you now (out of combat), and order them with the arrows. Its look: border,
+  from the buffs on you now (out of combat), order them with the arrows, and choose how each
+  shows: **while it's up** (the others close up), **keep up** (a fixed place: the buff while
+  it's up, a dimmed red copy with the missing glow while it's down) or **only while missing**.
+  Keep-up buffs go first, on their own line. Its look: border,
   icon zoom, time text size; timer bars also texture, colour (class colour among them),
   background, and the icon, name and time each on or off. When it shows: as for icon bars. Every rank of a
   buff, whoever cast it, is learned the first time Lecdm sees it on you out of combat.

@@ -17,7 +17,8 @@ local DEFAULTS = {
 	alerts = {
 		defaults = {
 			spells = { ready = "none", readyGlow = "none", procGlow = "modern", glowColor = "gold" },
-			buffs = { applied = "none", removed = "none", upGlow = "none", warn = 5, warnGlow = "none", glowColor = "gold" },
+			buffs = { applied = "none", removed = "none", upGlow = "none", warn = 5, warnGlow = "none", glowColor = "gold",
+				missingGlow = "pixel", missingColor = "red" },
 			blizzard = { applied = "none", removed = "none", deaths = false },
 		},
 		spells = {}, buffs = {}, blizzard = {},

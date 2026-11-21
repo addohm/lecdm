@@ -21,6 +21,8 @@ local FIELDS = {
 		{ "warn", "Time turns red under", Alerts.WARNS },
 		{ "warnGlow", "Warning glow (icons, at that time)", ns.Glow.STYLES },
 		{ "glowColor", "Glow colour", ns.Glow.COLORS },
+		{ "missingGlow", "Glow while it's missing (keep-up buffs)", ns.Glow.STYLES },
+		{ "missingColor", "Missing glow colour", ns.Glow.COLORS },
 	},
 	blizzard = {
 		{ "applied", "Sound when it's applied", Alerts.SOUNDS },

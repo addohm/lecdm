@@ -79,6 +79,12 @@ All notable changes to lecdm. The format follows
   bars, buff groups and Blizzard's places: show always, only in combat, or in combat or with a
   target; opacity; out of combat the same, faded or hidden.
 
+- Keep-up buffs (2026-11-21): each buff in a group shows while it's up, or "keep up" (a fixed
+  place: the buff while it's up, a dimmed red copy and the missing glow while it's down), or
+  "only while missing". Fixed places go first; the rest flow after them. Lecdm never reads
+  the buff to do it: a presence container the game sizes hides the red copy while it's up.
+  New alerts: glow while it's missing (red pixel glow by default) and its colour.
+
 ### Changed
 
 - The test build's raid warning on a drop (and `/lecdm sound`) is gone: the alerts replace it.

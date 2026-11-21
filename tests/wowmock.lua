@@ -126,6 +126,28 @@ local function Container(c)
 		if options.initializeFrame then options.initializeFrame(b) end
 		self.groups[key] = { ids = ids, enabled = true, button = b, sort = options.sortMethod }
 	end
+	c.slots = {}
+	function c:AddAuraSlot(key, filter, options)
+		Open()
+		assert(not self.slots[key], "aura slot '" .. key .. "' already exists")
+		assert(filter == "HELPFUL" or filter == "HARMFUL", "bad filter string")
+		local ids = options.candidateFilters and options.candidateFilters.includeSpellIDs
+		assert(ids and next(ids), "includeSpellIDs required")
+		local b = NewRegion("Button", nil, self)
+		b.bound = {}
+		for _, binder in ipairs(BINDERS) do b[binder] = function(btn, x) btn.bound[binder] = x end end
+		if options.initializeFrame then options.initializeFrame(b) end
+		self.slots[key] = { ids = ids, enabled = true, button = b }
+		return b
+	end
+	function c:SetAuraSlotCandidateFilters(key, filters)
+		Open()
+		self.slots[key].ids = filters.includeSpellIDs
+	end
+	function c:SetAuraSlotEnabled(key, on)
+		Open()
+		self.slots[key].enabled = on
+	end
 	function c:SetAuraGroupCandidateFilters(key, filters)
 		Open()
 		self.groups[key].ids = filters.includeSpellIDs

@@ -203,31 +203,41 @@ local function SmallButton(row, texture, x, tip, onClick)
 	return b
 end
 
--- A buff in the group: its icon and name, then up / down / remove.
+-- A buff in the group: its icon and name, how it shows, then up / down / remove and its ⚙.
 local function BuffRow(parent)
-	local row = CreateFrame("Frame", nil, parent)
-	row:SetHeight(32)
-	row.label = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	row.label:SetPoint("LEFT", 16, 0)
-	row.label:SetWidth(300)
-	row.label:SetJustifyH("LEFT")
-	SmallButton(row, "Interface\\Buttons\\Arrow-Up", 334, "Move up", function()
+	local row
+	local function get()
+		local group = Current()
+		return group and row.name and Auras.Mode(group, row.name) or "up"
+	end
+	local function set(v)
+		local group = Current()
+		if group and row.name then Auras.SetMode(group, row.name, v) end
+	end
+	row = UI.OptionSelect(parent, "", Auras.MODES, get, set, {
+		controlX = 260, boxWidth = 130,
+		tooltip = function()
+			return { row.name or "", "While it's up: it shows while it's on you, and the others close up. Keep up: a fixed place, with a dimmed red copy and the missing glow while it's down. Only while missing: a fixed place showing only the red copy." }
+		end,
+		sync = function(r)
+			local own = r.name and ns.Alerts.HasOwn("buffs", r.name) and " |cff999999(own alerts)|r" or ""
+			r.label:SetText(r.name and (BuffText(r.name, 20) .. own) or "")
+		end,
+	})
+	local x = row.right + 4
+	SmallButton(row, "Interface\\Buttons\\Arrow-Up", x, "Move up", function()
 		local group = Current()
 		if group then Auras.MoveEntry(group, row.index, -1) end
 	end)
-	SmallButton(row, "Interface\\Buttons\\Arrow-Down", 358, "Move down", function()
+	SmallButton(row, "Interface\\Buttons\\Arrow-Down", x + 24, "Move down", function()
 		local group = Current()
 		if group then Auras.MoveEntry(group, row.index, 1) end
 	end)
-	SmallButton(row, "Interface\\Buttons\\UI-GroupLoot-Pass", 386, "Take it out of this buff group", function()
+	SmallButton(row, "Interface\\Buttons\\UI-GroupLoot-Pass", x + 52, "Take it out of this buff group", function()
 		local group = Current()
 		if group and row.name then Auras.SetInGroup(group, row.name, false) end
 	end)
-	ns.AlertsGear(row, 414, "buffs", function() return row.name end, function() return row.name end)
-	row.Sync = function()
-		local own = row.name and ns.Alerts.HasOwn("buffs", row.name) and " |cff999999(own alerts)|r" or ""
-		row.label:SetText(row.name and (BuffText(row.name, 20) .. own) or "")
-	end
+	ns.AlertsGear(row, x + 80, "buffs", function() return row.name end, function() return row.name end)
 	return row
 end
 
