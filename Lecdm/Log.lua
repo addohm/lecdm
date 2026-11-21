@@ -1,7 +1,7 @@
 -- Lecdm: the log. Each line has the time and "[combat]" / "[instance]" when they apply. Lines go
 -- to LecdmDB.log (account-wide, saved at /reload or logout), and /lecdm log shows them in a
--- window, selected, ready for Ctrl+C. Some are the test build's debug lines in chat too: they go
--- where the Test build tab says (ns.db.test.chat: "main", a chat tab's name, or "off"). Replies
+-- window, selected, ready for Ctrl+C. Some are the diagnostics' lines in chat too: they go
+-- where the Diagnostics tab says (ns.db.test.chat: "main", a chat tab's name, or "off"). Replies
 -- to the player's commands and real errors use ns.Print, always the main chat window.
 local _, ns = ...
 
@@ -16,7 +16,7 @@ function ns.Log(text, toChat)
 	if toChat then ns.Debug(line) end
 end
 
--- The chat tabs, by name (for the Test build tab's choice).
+-- The chat tabs, by name (for the Diagnostics tab's choice).
 function ns.ChatTabs()
 	local list = {}
 	for i = 1, NUM_CHAT_WINDOWS or 10 do
@@ -28,7 +28,7 @@ function ns.ChatTabs()
 	return list
 end
 
--- A test build debug line: to the main chat window, a chat tab by name (the main window if it's
+-- A diagnostics line: to the main chat window, a chat tab by name (the main window if it's
 -- gone), or nowhere (the log has it).
 function ns.Debug(line)
 	local where = ns.db and ns.db.test.chat or "main"

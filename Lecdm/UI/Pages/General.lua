@@ -15,8 +15,10 @@ ns.Window.Page({
 			"Lecdm makes Blizzard's Cooldown Manager better and simpler to manage: your cooldowns, buffs and procs, "
 			.. "laid out and styled your way from this window, with sounds and glows that work in combat.\n"
 			.. GOLD .. "Icon bars|r: start here. Your cooldowns in icon bars you lay out; two are made for you from Blizzard's list.\n"
-			.. "|cffff8040A development build:|r buffs and alerts come next. " .. GOLD .. "Test build|r keeps the checks.\n"
-			.. GOLD .. "Profiles|r: separate setups, switched by hand or by your talents or group role.", 84))
+			.. GOLD .. "Buffs|r: your buffs from anyone, as icons or timer bars, and Blizzard's own for your debuffs on the target. "
+			.. GOLD .. "Alerts|r: sounds and glows.\n"
+			.. "|cffff8040An alpha:|r please report what's wrong or missing. " .. GOLD .. "Diagnostics|r helps.\n"
+			.. GOLD .. "Profiles|r: separate setups, switched by hand or by your talents or group role.", 112))
 
 		stack:Add(UI.OptionHeading(stack.inner, "General"))
 		stack:Add(UI.OptionCheck(stack.inner, "Enable Lecdm",
@@ -48,9 +50,9 @@ ns.Window.Page({
 		stack:Add(UI.OptionText(stack.inner,
 			GOLD .. "/lecdm|r opens or closes this window (" .. GOLD .. "/lcdm|r for short).\n"
 			.. GOLD .. "/lecdm general|r, " .. GOLD .. "bars|r (icon bars), " .. GOLD .. "buffs|r, " .. GOLD .. "alerts|r, "
-			.. GOLD .. "test|r, " .. GOLD .. "profiles|r open a tab.\n"
+			.. GOLD .. "diagnostics|r, " .. GOLD .. "profiles|r open a tab.\n"
 			.. GOLD .. "/lecdm minimap|r shows or hides the minimap button; " .. GOLD .. "/lecdm on|r and " .. GOLD .. "off|r turn Lecdm on or off.\n"
-			.. GOLD .. "/lecdm help|r lists them all, the test build's too.", 80))
+			.. GOLD .. "/lecdm help|r lists them all.", 80))
 
 		stack:Add(UI.OptionHeading(stack.inner, "About"))
 		stack:Add(UI.OptionText(stack.inner, function()

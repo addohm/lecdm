@@ -2,8 +2,8 @@
 ## Title: Lecdm
 ## Notes: Makes Blizzard's Cooldown Manager better and simpler to manage: your cooldowns in icon bars, your buffs as icons or timer bars, laid out your way.
 ## Author: addohm
-## Version: 0.1.0-dev
-## IconTexture: Interface\Icons\INV_Misc_PocketWatch_01
+## Version: 0.9.0-alpha
+## IconTexture: Interface\AddOns\Lecdm\Media\Icon
 ## SavedVariables: LecdmDB
 ## AddonCompartmentFunc: Lecdm_OnAddonCompartmentClick
 

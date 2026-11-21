@@ -17,8 +17,9 @@ something similar. EllesmereUI's Cooldown Manager is the feature reference: it's
 reserved", so ideas only, never its code, and it's never named in the addon or its docs for
 players.
 
-Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relies on
-(TESTING.md); the cooldown bars are the first real feature.
+Now: 0.9.0-alpha (2026-11-21), the first alpha: icon bars, buff groups, Blizzard's icons
+taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in game,
+2026-11-20) confirmed what the plan relies on (TESTING.md).
 
 ## Layout
 
@@ -108,8 +109,14 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
     buffs and the buffs on you now, a row per buff), `Bars.lua` (the Icon bars tab: a `DropdownButton` picks the
     bar, its "New icon bar..." entry opens the `LECDM_NEW_BAR` popup with a name box; below,
     only the bar picked: name field, look, Delete, then the spell checklist (MenuUtil) and a
-    row per spell rebuilt each refresh with `UI.Stack` Reset/Add/Done), `Test.lua` (test
-    build 1's settings and tools), `Profiles.lua`.
+    row per spell rebuilt each refresh with `UI.Stack` Reset/Add/Done), `Test.lua` (the
+    Diagnostics tab, id "test": where diagnostic lines go, and the tools), `Profiles.lua`.
+- `art/`: `make_logo.py` (Pillow; Inter from `.scratch/fonts`) and what it draws: the icon
+  PNGs (512, 400 for the listing avatar, 256, 128), `lecdm-banner.png` (1600x500), and
+  `Lecdm/Media/Icon.tga` (128 px, the TOC's IconTexture; never edit by hand).
+- `LISTING.md`: the CurseForge / Wago page text; keep its feature list in step with README.md.
+- `release/`: `Lecdm-<version>.zip` packages, from `tools/make_release.py`, committed with each
+  release.
 - `tools/install_forever.cmd`: pulls (and explains a rewritten history), copies the addon into
   the Windows client, stamps the build, packs `Lecdm-<version>.zip` on the desktop. Keep it CRLF
   (`.gitattributes`).
@@ -137,7 +144,7 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
    - TESTING.md: what needs checking in game, and results the owner reports
    - this file: when the layout, workflow or conventions change
 4. Run the checks: `.venv/bin/python tests/run_tests.py` (set up with
-   `python3 -m venv .venv && .venv/bin/pip install lupa`). Then commit and push, and say
+   `python3 -m venv .venv && .venv/bin/pip install lupa pillow`; Pillow is for the art). Then commit and push, and say
    "Pushed: <commit>" so the owner can run the install script.
 5. Discuss before building: changes need the owner's go-ahead.
 

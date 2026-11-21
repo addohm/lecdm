@@ -3,6 +3,22 @@
 What to check in game, and what's been confirmed. Results go under Confirmed or Problems, with
 the build and date.
 
+## To check (0.9.0-alpha, 2026-11-21)
+
+Install the release zip or run `tools\install_forever.cmd`, then fully restart the game.
+`/lecdm help` shows the version (and the build, with the install script). The sections below,
+newest first, are what the alpha needs tried; the ones that matter most:
+
+1. Alerts in combat, in a dungeon: ready sounds, "Say it", glows (ready, proc, while up, at the
+   warning time); quiet when a mob dies.
+2. Keep-up buffs: the red copy shows while the buff is down and is completely gone while it's
+   up, in combat too.
+3. Blizzard's icons and timer bars taken in: they stay in Lecdm's places and follow each
+   target.
+4. A trinket or potion used in combat: its swipe runs (item cooldowns not secret).
+5. The new icon (AddOns list, minimap button, addon compartment, the window's title).
+6. Any Lua error or "blocked" line (Diagnostics, the log).
+
 ## To check (keep-up buffs, 2026-11-21)
 
 1. **Buffs tab:** Battle Shout's row: "Keep up". It gets a fixed place at the start; let it

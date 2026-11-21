@@ -61,61 +61,39 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 ## Done
 
-- Standard docs (2026-11-20), filled in with what's known so far.
-- The plan above (2026-11-20).
-- Test build 1 (0.0.1-dev, 2026-11-20): listens to the Cooldown Manager, reads its list, checks
-  what's readable in combat, test icons, an invisible-viewers test. Not tried in game yet.
-- Test build 1 tried in game (2026-11-20, TESTING.md): the listener hears applied and removed
-  in combat inside a dungeon, with Blizzard's viewers invisible too; cooldown state, GCD,
-  usable and range are readable there; Lecdm's own icons swipe and grey in combat.
-- Core (2026-11-20, in the owner's house style): the options window (General, Bars, Buffs,
-  Alerts, Test build, Profiles tabs; Bars, Buffs and Alerts say what's coming), profiles ("First
-  Last", shared, switched by talents or group role), the minimap button and addon compartment,
-  an Options > AddOns entry, `/lecdm`. The icon is a stand-in (a pocket watch) until the release
-  kit's art. Not tried in game yet.
-- Icon bars, first build (0.1.0-dev, 2026-11-20): any number of icon bars (two filled from
-  Blizzard's list at first), Lecdm's own icons (swipe and countdown, grey on cooldown, GCD sweep
-  on or off, dark when unusable, red out of range), per spell "only when ready" or "only on
-  cooldown" with the gap closing, a checklist of Blizzard's list and the spellbook, order with
-  up and down, size, spacing, grow from, vertical, icons per row, unlock to drag; Blizzard's
-  Essential and Utility viewers made invisible. Not tried in game yet.
+- The plan above (2026-11-20), and test build 1 tried in game (2026-11-20, TESTING.md): the
+  listener hears applied and removed in combat inside a dungeon, with Blizzard's viewers
+  invisible too; cooldown state, GCD, usable and range are readable there; Lecdm's own icons
+  swipe and grey in combat; Blizzard's buff icons and timer bars can live in Lecdm's frames.
+- **0.9.0-alpha (2026-11-21), the first alpha** (CHANGELOG.md has the details):
+  - the core: the options window, profiles, minimap button, Options > AddOns entry;
+  - icon bars: spells, trinkets and on-use gear, bag items; per-spell when it shows; looks,
+    keybind text, visibility. Naming (owner, 2026-11-21): ours are **icon bars**; Blizzard's
+    "tracked bars" (icon left, a draining fill right) are **timer bars**;
+  - buffs: buff groups as icons or timer bars (owner's pick 2026-11-21: buffs on you from aura
+    containers, picked in Lecdm), keep-up and only-while-missing buffs, Blizzard's icons and
+    timer bars taken in (your debuffs on the target, picked in `/cdm`);
+  - alerts: sounds ("Say it" too) and glows, defaults and per spell or buff;
+  - diagnostics; the release kit (icon, banner, LISTING.md, zip, tag).
 
 ## Next
 
-1. **Icon bars in game** (TESTING.md). Looks, keybinds and visibility done 2026-11-21. Next
-   pieces: drag to order in the window, per-spell looks, charges. Naming (owner, 2026-11-21): ours are
-   **icon bars**; Blizzard's "tracked bars" (icon left, a draining fill right) are **timer
-   bars**.
-2. **Items:** first build done 2026-11-21: equipment slots (trinkets, on-use gear), bag items
-   with counts; racials come with Blizzard's Utility list. Still to do: "best in your bags"
-   (one entry for any healing potion or healthstone, the best you carry), and showing an
-   item you've run out of (greyed) instead of hiding it.
-3. **The display of what only the Cooldown Manager can show** (the player's effects on the
-   target, its timers; an addon can't time them in combat): settled 2026-11-20 in the host
-   test. Blizzard's own buff icons and bars live in Lecdm's bars, re-placed after each of
-   Blizzard's layouts, and follow each target. Confirmed in the open world and in a dungeon.
-4. **Buffs**, each shown as an icon or a **timer bar** (timer bars moved here from their own
-   step on 2026-11-21: they mostly show buffs and target debuffs). Owner's pick 2026-11-21:
-   buffs on you come from aura containers, picked in Lecdm; your debuffs on the target from
-   Blizzard's own icons and bars (the host test showed they can live in Lecdm).
-   - Part 1, done 2026-11-21: buff groups, icons or timer bars, any buff on you (anyone's)
-     while it's up, every rank learned by name.
-   - Part 2, done 2026-11-21: "keep up" and "only while missing" buffs (a fixed place, dimmed
-     red with the missing glow while down).
-   - Part 3, done 2026-11-21: Blizzard's icons and timer bars (the target's debuffs among
-     them) taken into Lecdm's own places, or hidden, or left; picked in `/cdm`.
-   - Then: thresholds and ticks on timer bars, bar colours.
-5. **Effects on the target:** covered by Buffs part 3 (Blizzard's icons and timer bars, picked
-   in `/cdm`). Left: their size from Lecdm instead of Edit Mode, if it can be done without
-   fighting Blizzard's scale.
-6. **Alerts and effects** (first build done 2026-11-21: sounds, "Say it", glows on ready,
-   procs, while up and at the warning time, defaults and per spell or buff): sounds and glows on ready, applied, removed, charges; per-spell
-   glow styles; keybind text; visibility rules (combat, group, instance, target, mounted ...).
-7. **The rest of EllesmereUI's list:** action-bar button glows on buff state, focus interrupt
-   bar, swing-timer sweep for on-next-swing attacks, queued-attack highlight, key-press mirror,
-   import/export.
-8. **Release kit:** icon and banner, LISTING.md, packaging, CurseForge and Wago.
+1. **The alpha in game** (TESTING.md): above all the alerts, keep-up buffs, Blizzard's icons
+   taken in, and item cooldowns in combat.
+2. **Icon bars:** drag to order in the window, per-spell looks (its own border, glow colour),
+   charges, a cooldown shown as a timer bar.
+3. **Items:** "best in your bags" (one entry for any healing potion or healthstone, the best you
+   carry).
+4. **Timer bars:** thresholds and ticks, a colour change at the warning time.
+5. **Blizzard's icons taken in:** their size from Lecdm instead of Edit Mode, if it can be done
+   without fighting Blizzard's scale; their own alerts per aura from Lecdm's window.
+6. **Alerts:** a warning sound as a buff runs out (out of combat from its real time; in combat
+   only where it can be timed), on-screen text, charges.
+7. **The rest of the feature reference's list:** glows on action-bar buttons by buff state, a
+   focus interrupt bar, a swing-timer sweep for on-next-swing attacks (Heroic Strike, Cleave),
+   a queued-attack highlight, a key-press mirror, import/export.
+8. **Release:** the first upload to CurseForge and Wago (LISTING.md), then a beta.
 
 ## Ideas
 
-TODO: things that might be worth doing later.
+- A preview while the window is open, so buff groups can be laid out without the buffs.

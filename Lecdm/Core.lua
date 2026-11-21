@@ -3,8 +3,7 @@
 -- LecdmDB.welcomed are account-wide.
 local ADDON, ns = ...
 
--- A stand-in until Lecdm has its own icon (with the release kit).
-ns.ICON = "Interface\\Icons\\INV_Misc_PocketWatch_01"
+ns.ICON = "Interface\\AddOns\\Lecdm\\Media\\Icon" -- art/make_logo.py
 
 local DEFAULTS = {
 	enabled = true,                     -- off: nothing shows or plays, the addon stays loaded
@@ -12,7 +11,7 @@ local DEFAULTS = {
 	classColour = false,                -- the options window in your class colour
 	window = {},                        -- the options window: pos, size, tab
 	minimap = { angle = 350, hide = false }, -- clear of the owner's other addons (200-325)
-	test = { chat = "main" },           -- where the test build's debug lines go (Log.lua: ns.Debug)
+	test = { chat = "main" },           -- where the diagnostics' lines go (Log.lua: ns.Debug)
 	-- the alerts (Alerts.lua): defaults, and spells' and buffs' own settings by key or name
 	alerts = {
 		defaults = {
@@ -167,18 +166,18 @@ local PAGE_WORDS = {
 	bars = "bars", iconbars = "bars", icons = "bars", cooldowns = "bars",
 	buffs = "buffs", auras = "buffs",
 	alerts = "alerts", sounds = "alerts", glows = "alerts", sound = "alerts",
-	test = "test",
+	test = "test", diagnostics = "test", diag = "test",
 	profiles = "profiles",
 }
 
 local function Help()
-	ns.Print(ns.Version(true) .. ", test build 1. TESTING.md has what to try.")
+	ns.Print(ns.Version(true) .. ". /lecdm opens the options.")
 	ns.Print("/lecdm - open or close the options window (/lcdm for short)")
-	ns.Print("/lecdm general | bars | buffs | alerts | test | profiles - open that tab")
+	ns.Print("/lecdm general | bars | buffs | alerts | diagnostics | profiles - open that tab")
 	ns.Print("/lecdm profile - the profile in use, and the Profiles tab (where they're managed)")
 	ns.Print("/lecdm minimap - show or hide the minimap button; /lecdm on | off - turn Lecdm on or off")
 	ns.Print("/lecdm move - unlock the icon bars and buff groups to drag them; again to lock them")
-	ns.Print("Test build: /lecdm status - Blizzard's Cooldown Manager, its list, what's listened to")
+	ns.Print("Diagnostics: /lecdm status - Blizzard's Cooldown Manager, its list, what's listened to")
 	ns.Print("/lecdm list - every spell Blizzard's Cooldown Manager lists for you, by section")
 	ns.Print("/lecdm check - what an addon can read about your spells right now (try it in combat)")
 	ns.Print("/lecdm blizz hide | show - make Blizzard's cooldown viewers invisible, or bring them back")

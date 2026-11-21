@@ -30,10 +30,16 @@ ask for a revert commit on `main` and run the script.
 
 ## Releases
 
-None yet. Releases will follow the owner's other addons: `## Version` bumped, CHANGELOG moved
-under the version, `tools/make_release.py` builds `release/Lecdm-<version>.zip` from the
-committed folder (no build stamp, no LICENSE), the zip is committed, the commit tagged
-`v<version>`, and the zip published on both CurseForge and Wago with LISTING.md's text.
+The owner's pattern (as the other addons): `## Version` bumped in `Lecdm/Lecdm.toc`, the
+CHANGELOG's *Unreleased* entries moved under the version, `tools/make_release.py` builds
+`release/Lecdm-<version>.zip` from the committed `Lecdm/` folder (no build stamp, no LICENSE),
+the zip committed, the commit tagged `v<version>` and pushed with `--tags`, and the zip
+published on both CurseForge and Wago with LISTING.md's text (avatar `art/lecdm-icon-400.png`,
+banner `art/lecdm-banner.png`). The art comes from `art/make_logo.py` (Pillow; the Inter fonts
+in `.scratch/fonts`). Between releases the version is `<next>-dev`.
+
+- 0.9.0-alpha, 2026-11-21: `release/Lecdm-0.9.0-alpha.zip`, tag `v0.9.0-alpha`. Not uploaded
+  yet (no upload key here: the owner uploads).
 
 ## Configuration
 

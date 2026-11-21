@@ -77,7 +77,7 @@ end
 
 -- /lecdm status: Blizzard's Cooldown Manager, its list, its viewers, what's being listened to.
 function C.Status()
-	ns.Print(ns.Version(true) .. ", test build 1")
+	ns.Print(ns.Version(true) .. " status")
 	local okAvail, available, reason = pcall(C_CooldownViewer.IsCooldownViewerAvailable)
 	if okAvail then
 		local text = available and "available" or "not available"

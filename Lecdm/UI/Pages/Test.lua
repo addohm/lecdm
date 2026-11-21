@@ -1,8 +1,9 @@
--- Lecdm: the Test build tab: test build 1's settings and tools, the same as its chat commands.
+-- Lecdm: the Diagnostics tab (id "test", from test build 1): where its lines go in chat, and the
+-- tools, the same as their chat commands.
 local _, ns = ...
 local UI = ns.UI
 
--- Where the test build's debug lines go: the main chat window, a chat tab by name (make one with
+-- Where the diagnostics' lines go: the main chat window, a chat tab by name (make one with
 -- a right-click on a chat tab, "Create New Window"), or nowhere (the log keeps them).
 local function Where()
 	local where = ns.db.test.chat
@@ -38,8 +39,8 @@ local function ChatRow(parent)
 	row.dropdown:SetupMenu(BuildChatMenu)
 	row:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-		GameTooltip:AddLine("Test messages")
-		GameTooltip:AddLine("The test build's debug lines (applied, removed, procs, checks). For a tab of their own, right-click a chat tab, Create New Window, name it (Lecdm, say), and pick it here. Replies to your commands and errors stay in the main chat.", 1, 1, 1, true)
+		GameTooltip:AddLine("Diagnostic messages")
+		GameTooltip:AddLine("What Lecdm hears and checks (applied, removed, procs, checks). For a tab of their own, right-click a chat tab, Create New Window, name it (Lecdm, say), and pick it here. Replies to your commands and errors stay in the main chat.", 1, 1, 1, true)
 		GameTooltip:Show()
 	end)
 	row:SetScript("OnLeave", GameTooltip_Hide)
@@ -49,16 +50,16 @@ end
 
 ns.Window.Page({
 	id = "test",
-	label = "Test build",
+	label = "Diagnostics",
 	order = 5,
-	note = "Test build 1 checks in game what Lecdm will rely on. TESTING.md (in the addon's GitHub repo) has what to try; then open the log and paste it.",
+	note = "For finding out what's going on: what Lecdm hears from Blizzard's Cooldown Manager, what it can read about your spells, and the log to copy into a bug report.",
 	fill = function(stack)
 		stack:Add(UI.OptionHeading(stack.inner, "Listening"))
 		stack:Add(UI.OptionText(stack.inner,
 			"Lecdm listens to Blizzard's Cooldown Manager: when it notices a tracked buff applied or removed, or a spell "
 			.. "going on cooldown, the log says so (buffs in chat too). It only listens; it changes nothing there.", 44))
 
-		stack:Add(UI.OptionHeading(stack.inner, "Test messages"))
+		stack:Add(UI.OptionHeading(stack.inner, "Messages"))
 		stack:Add(ChatRow(stack.inner))
 
 		stack:Add(UI.OptionHeading(stack.inner, "Tools"))
