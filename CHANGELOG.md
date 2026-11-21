@@ -42,7 +42,8 @@ All notable changes to lecdm. The format follows
 - The Bars tab is now **Icon bars** (owner's naming, 2026-11-21: "timer bars" will be the
   other kind). A dropdown picks the icon bar, and its "New icon bar..." entry opens a popup
   for the name; the bar's name is a field under "This icon bar", with Delete at the end of
-  that section. In the checklist, a spell on another icon bar says "(on ...)".
+  that section. In the checklist, a spell on another icon bar says "(on ...)". Both dropdowns
+  are the size of the window's buttons and line up with them.
 - The test icons are gone: the bars replace them, and `/lecdm move` now moves the bars
   (`/lecdm icons` is gone).
 

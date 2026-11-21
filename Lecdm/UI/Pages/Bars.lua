@@ -106,15 +106,23 @@ local function BuildMenu(_, root)
 	end
 end
 
+-- A dropdown the size and place of the window's buttons (UI.OptionButton: 150 x 24, 30 px into
+-- the control column), so the column lines up.
+local function Dropdown(row, generator)
+	local dropdown = CreateFrame("DropdownButton", nil, row, "WowStyle1FilterDropdownTemplate")
+	dropdown:SetPoint("LEFT", 330, 0)
+	dropdown:SetSize(150, 24)
+	dropdown:SetupMenu(generator)
+	return dropdown
+end
+
 local function ChecklistRow(parent)
 	local row = CreateFrame("Frame", nil, parent)
 	row:SetHeight(36)
 	row.label = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	row.label:SetPoint("LEFT", 16, 0)
 	row.label:SetText("Add or remove spells")
-	local dropdown = CreateFrame("DropdownButton", nil, row, "WowStyle1FilterDropdownTemplate")
-	dropdown:SetPoint("LEFT", 300, 0)
-	dropdown:SetupMenu(BuildMenu)
+	local dropdown = Dropdown(row, BuildMenu)
 	row.dropdown = dropdown
 	row.Sync = function()
 		local bar = Current()
@@ -227,10 +235,7 @@ local function BarPickerRow(parent)
 	row.label = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	row.label:SetPoint("LEFT", 16, 0)
 	row.label:SetText("Icon bar")
-	local dropdown = CreateFrame("DropdownButton", nil, row, "WowStyle1FilterDropdownTemplate")
-	dropdown:SetPoint("LEFT", 300, 0)
-	dropdown:SetWidth(200)
-	dropdown:SetupMenu(BuildBarMenu)
+	local dropdown = Dropdown(row, BuildBarMenu)
 	row.dropdown = dropdown
 	row.Sync = function()
 		local bar = Current()

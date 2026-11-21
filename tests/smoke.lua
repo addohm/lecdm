@@ -323,6 +323,7 @@ check(not root.children[1].children[1].text:find("%(on "), "a spell on this bar 
 -- "New icon bar..." opens the popup, which makes the bar (an empty name gets a number).
 local picker = panel.parts.picker
 check(picker.dropdown.text == "Cooldowns", "picker text wrong: " .. tostring(picker.dropdown.text))
+check(picker.dropdown.w == 150 and picker.dropdown.h == 24 and picker.dropdown.points[1][2] == 330, "picker not the buttons' size and place")
 local menu = M.Menu()
 picker.dropdown.generator(nil, menu)
 check(#menu.children == 3 and menu.children[1].text == "Cooldowns" and menu.children[1].isSelected(), "picker entries wrong")
