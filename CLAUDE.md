@@ -39,9 +39,14 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
   - `Catalogue.lua`: Blizzard's list through `C_CooldownViewer` (`ns.Catalogue.byID` by cooldown
     ID, `.bySpell`, `.sections`, `.Spells(sections, all)`, `.Name(cooldownID)`), `/lecdm list`.
     It gives Blizzard's default sections, not where the player put things in `/cdm`.
-  - `Bars.lua`: the cooldown bars (`ns.db.bars`: `list` of bars, each `{ id, name, spells =
-    { spellID ... }, show = { [spellID] = "ready" | "cooldown" }, size, gap, grow, vertical,
-    perRow, gcd, pos }`; `seeded`, `nextID`, `hideBlizzard`). `B.Build()` (frames, buttons,
+  - `Bars.lua`: the icon bars (`ns.db.bars`: `list` of bars, each `{ id, name, spells =
+    { key ... }, show = { [key] = "ready" | "cooldown" }, size, gap, grow, vertical, perRow,
+    gcd, pos }`; `seeded`, `nextID`, `hideBlizzard`). A key is a spellID (number), `"slot:N"`
+    (an equipment slot: what's equipped there, shown while it has a use effect) or
+    `"item:ID"` (a bag item, shown while you have one, with the count): `B.Kind`,
+    `B.EntryName`, `B.EntryIcon`, `B.EntryKnown`, `B.Missing`, `B.ItemOf`, `B.Equipped()`,
+    `B.BagItems()`. Spells draw from duration objects (`SpellState`); items from plain numbers
+    with `Cooldown:SetCooldown` (`ItemState`: item cooldowns aren't secret). `B.Build()` (frames, buttons,
     seeding from Blizzard's list once per profile), `Update` (one icon: swipe from the duration
     object, grey, dark, red; returns whether it shows), `Layout` (closes gaps), `B.UpdateAll` /
     `B.UpdateSpell` on events, `B.SetOnBar`, `B.MoveSpell`, `B.NewBar`, `B.Delete`,

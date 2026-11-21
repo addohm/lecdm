@@ -97,9 +97,9 @@ local function BarFrame(name)
 		if f.barID and f.label and f.label.text == name and f.shown then return f end
 	end
 end
-local function Button(frame, spellID)
+local function Button(frame, key)
 	for _, b in ipairs(frame.buttons) do
-		if b.spellID == spellID then return b end
+		if b.key == key then return b end
 	end
 end
 local list = ns.db.bars.list
@@ -168,7 +168,7 @@ M.combat = false
 
 -- Moving spells between bars, ordering, a new bar, deleting it, starting over.
 ns.Bars.SetOnBar(list[1], 12292, true)
-check(#list[2].spells == 0 and list[1].spells[3] == 12292, "a spell didn't move bars")
+check(list[2].spells[1] == "slot:13" and list[1].spells[3] == 12292, "a spell didn't move bars")
 ns.Bars.MoveSpell(list[1], 3, -1)
 check(list[1].spells[2] == 12292 and list[1].spells[3] == 6572, "move up didn't")
 local extra = ns.Bars.NewBar("Defensives")
@@ -200,6 +200,39 @@ check(M.viewers.EssentialCooldownViewer.alpha == 0, "Blizzard's Essential not in
 -- The spellbook in the checklist: spells with a cooldown, not passives, not Blizzard's.
 local lines = ns.Bars.Spellbook()
 check(#lines == 1 and lines[1].name == "Protection" and #lines[1].spells == 1 and lines[1].spells[1] == 2565, "spellbook wrong")
+
+-- Items: the trinket slots go on the Utility bar. A slot shows what's equipped there while it has
+-- a use effect, its cooldown drawn with SetCooldown (grey past 1.5 s); a bag item shows its count
+-- and hides when you have none; a secret item cooldown is cleared, not an error.
+list = ns.db.bars.list
+check(list[2].spells[2] == "slot:13" and list[2].spells[3] == "slot:14", "trinket slots not seeded")
+utility = BarFrame("Utility")
+local topTrinket, bottomTrinket = Button(utility, "slot:13"), Button(utility, "slot:14")
+check(topTrinket.shown and topTrinket.icon.texture == 7, "top trinket not shown")
+check(not bottomTrinket.shown, "an empty trinket slot is shown")
+M.slotCD[13] = { 100, 120 }
+M.Fire("BAG_UPDATE_COOLDOWN")
+check(topTrinket.cd.cooldown and topTrinket.cd.cooldown[2] == 120 and topTrinket.icon.desaturated, "trinket cooldown not drawn")
+M.slotCD[13] = { 100, 1.5 }
+M.Fire("BAG_UPDATE_COOLDOWN")
+check(topTrinket.cd.cooldown and not topTrinket.icon.desaturated, "a GCD-length item cooldown went grey")
+M.slotCD[13] = nil
+M.combat = true
+M.Fire("BAG_UPDATE_COOLDOWN")
+check(topTrinket.cd.cooldown == nil, "a secret item cooldown left a swipe")
+M.combat = false
+ns.Bars.SetOnBar(list[2], "item:5512", true)
+local stone = Button(utility, "item:5512")
+check(stone and stone.shown and stone.count.text == "2", "bag item not shown with its count")
+M.bag[5512] = 0
+M.Fire("BAG_UPDATE_DELAYED")
+check(not Button(utility, "item:5512").shown, "an item you have none of is shown")
+M.bag[5512] = 2
+M.Fire("BAG_UPDATE_DELAYED")
+check(ns.Bars.EntryName("slot:13") == "Top trinket: Satchel of Potions" and ns.Bars.EntryName("item:5512") == "Healthstone", "entry names wrong")
+local equipped, bags = ns.Bars.Equipped(), ns.Bars.BagItems()
+check(#equipped == 2 and equipped[1] == "slot:13" and equipped[2] == "slot:14", "equipped list wrong")
+check(#bags == 1 and bags[1] == "item:5512", "bag list wrong (once each, usable only)")
 
 -- /lecdm check, in combat with secret cooldown times: SECRET shown, nothing compared.
 M.combat, M.secretCooldowns = true, true
@@ -297,12 +330,15 @@ check(ns.Window.IsShown(), "the addon compartment didn't open the window")
 M.Slash("bars")
 local panel = ns.Window.CurrentPanel()
 local first = ns.db.bars.list[1]
-check(panel.parts.spellRows[#first.spells] and panel.parts.spellRows[1].spellID == first.spells[1], "spell rows missing")
+check(panel.parts.spellRows[#first.spells] and panel.parts.spellRows[1].key == first.spells[1], "spell rows missing")
 local root = M.Menu()
 panel.parts.top[#panel.parts.top].dropdown.generator(nil, root)
 check(root.children[1].text == "Blizzard's Essential" and root.children[2].text == "Blizzard's Utility", "checklist sections wrong")
 local book = root.children[3]
 check(book and book.text == "Spellbook: Protection" and #book.children == 1, "spellbook section wrong")
+check(root.children[4].text:find("^Equipped") and #root.children[4].children == 2, "equipped section wrong")
+check(root.children[5].text:find("^In your bags") and root.children[5].children[1].text:find("Healthstone"), "bags section wrong")
+check(root.children[4].children[2].text:find("Bottom trinket: empty") and root.children[4].children[2].text:find("nothing with a use effect"), "empty slot not explained: " .. tostring(root.children[4].children[2].text))
 local chargeItem = root.children[1].children[1]
 check(chargeItem.isSelected() == true, "Charge not ticked")
 chargeItem.setSelected()

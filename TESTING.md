@@ -31,9 +31,14 @@ build.
 5. **Blizzard's icons.** Untick "Hide Blizzard's Essential and Utility icons": they come back.
    Tick it: gone again. Do they stay gone after Edit Mode and a loading screen? Does the
    listener (raid warning on a drop) still work with them gone?
-6. **A trinket on cooldown.** Put the Satchel (or an on-use trinket) on a bar? It isn't in the
-   checklist yet (items come next): just note whether `/lecdm check` in combat, with it cooling
-   down, shows SECRET.
+6. **Items** (2026-11-21). Your profile was made before items, so tick them yourself: Icon
+   bars tab, "Add or remove spells", "Equipped": tick the top trinket (Satchel of Potions);
+   "In your bags": tick a potion or healthstone. Then:
+   - the trinket's icon shows; using it, its swipe runs and it goes grey, in combat too (this
+     is the first real test of item cooldowns in combat: no swipe in combat means they're
+     secret after all);
+   - the bag item shows its count, and disappears when you have none left;
+   - swapping trinkets: the slot shows the new one (or hides, if it has no use effect).
 
 Owner, 2026-11-21 (e835f70): two blue bars filled with the right warrior spells; the rest
 "seems fine". Asked for: a dropdown instead of the arrows, a popup for a new bar, no look-alike

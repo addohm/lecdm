@@ -37,6 +37,12 @@ All notable changes to lecdm. The format follows
   Blizzard's Essential and Utility icons are made invisible while Lecdm's bars are on (they
   keep running); a setting gives them back.
 
+- Items on icon bars (2026-11-21): equipment slots (the trinkets, and any gear with a use
+  effect: whatever's equipped there, shown while it has one) and usable items from your bags
+  (potions, healthstones ...: with the count, hidden while you have none), with their
+  cooldown swipe, grey on cooldown and dark when unusable. New profiles get both trinket slots
+  on the Utility bar; the checklist has "Equipped" and "In your bags" sections.
+
 ### Changed
 
 - The Bars tab is now **Icon bars** (owner's naming, 2026-11-21: "timer bars" will be the

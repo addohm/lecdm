@@ -86,7 +86,10 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
    more per-spell looks (borders, zoom, text), charges. Naming (owner, 2026-11-21): ours are
    **icon bars**; Blizzard's "tracked bars" (icon left, a draining fill right) are **timer
    bars**.
-2. **Items:** trinkets and other on-use slots, racials, potions, healthstones.
+2. **Items:** first build done 2026-11-21: equipment slots (trinkets, on-use gear), bag items
+   with counts; racials come with Blizzard's Utility list. Still to do: "best in your bags"
+   (one entry for any healing potion or healthstone, the best you carry), and showing an
+   item you've run out of (greyed) instead of hiding it.
 3. **The display of what only the Cooldown Manager can show** (the player's effects on the
    target, its timers; an addon can't time them in combat): settled 2026-11-20 in the host
    test. Blizzard's own buff icons and bars live in Lecdm's bars, re-placed after each of

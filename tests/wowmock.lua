@@ -68,7 +68,13 @@ local function NewRegion(kind, name, parent)
 		if dur == SECRET then error("secret duration refused") end
 		self.duration = dur
 	end
-	function f:Clear() self.duration = nil end
+	function f:SetCooldown(start, duration)
+		if start == SECRET or duration == SECRET then error("secret cooldown refused") end
+		self.cooldown = { start, duration }
+	end
+	function f:Clear() self.duration, self.cooldown = nil, nil end
+	function f:GetFrameLevel() return self.level or 1 end
+	function f:SetFrameLevel(l) self.level = l end
 	return f
 end
 
@@ -118,12 +124,36 @@ function IsInGroup() return false end
 M.target = nil -- nil: no target; { dead = true/false }
 function UnitExists(unit) return unit == "target" and M.target ~= nil end
 function UnitIsDead(unit) return unit == "target" and M.target ~= nil and M.target.dead == true end
+-- Items: the Satchel (12345, on use) in the top trinket slot; in the bags 2 Healthstones (5512,
+-- on use) and a Linen Cloth (2589, no use); M.slotCD / M.itemCD give cooldowns.
 M.trinkets = { [13] = 12345 }
+M.bag = { [5512] = 2, [2589] = 5 }
+M.bagSlots = { 5512, 2589, 5512 }
+M.slotCD, M.itemCD = {}, {}
+local ITEMS = { [12345] = { "Satchel of Potions", true }, [5512] = { "Healthstone", true }, [2589] = { "Linen Cloth", false } }
 function GetInventoryItemID(_, slot) return M.trinkets[slot] end
-function GetInventoryItemCooldown() return M.combat and SECRET or 0, M.combat and SECRET or 0, 1 end
+function GetInventoryItemCooldown(_, slot)
+	if M.combat then return SECRET, SECRET, 1 end
+	local cd = M.slotCD[slot]
+	if cd then return cd[1], cd[2], 1 end
+	return 0, 0, 1
+end
 C_Item = {
-	GetItemNameByID = function() return "Satchel of Potions" end,
+	GetItemNameByID = function(id) return ITEMS[id] and ITEMS[id][1] end,
 	GetItemCooldown = function() return 0, 0, true end,
+	GetItemSpell = function(id) return ITEMS[id] and ITEMS[id][2] and "Use" or nil end,
+	GetItemCount = function(id) return M.bag[id] or 0 end,
+	IsUsableItem = function() return true end,
+	GetItemIconByID = function() return 7 end,
+}
+C_Container = {
+	GetContainerNumSlots = function(bag) return bag == 0 and #M.bagSlots or 0 end,
+	GetContainerItemInfo = function(_, slot) return M.bagSlots[slot] and { itemID = M.bagSlots[slot] } end,
+	GetItemCooldown = function(id)
+		local cd = M.itemCD[id]
+		if cd then return cd[1], cd[2], 1 end
+		return 0, 0, 1
+	end,
 }
 function UnitGroupRolesAssigned() return "NONE" end
 function strtrim(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end

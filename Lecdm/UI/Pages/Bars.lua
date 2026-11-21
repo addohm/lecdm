@@ -53,22 +53,25 @@ local function Confirm(text, action)
 	StaticPopup_Show("LECDM_BARS", text, nil, action)
 end
 
-local function SpellText(spellID, size)
-	local text = "|T" .. Bars.SpellIcon(spellID) .. ":" .. size .. ":" .. size .. "|t " .. Bars.SpellName(spellID)
-	if not Bars.Known(spellID) then text = "|cff999999" .. text .. " (not learned)|r" end
+-- An entry (a spell, an equipment slot, a bag item) as icon and name; grey, with the reason,
+-- while it can't show.
+local function EntryText(key, size)
+	local text = "|T" .. Bars.EntryIcon(key) .. ":" .. size .. ":" .. size .. "|t " .. Bars.EntryName(key)
+	if not Bars.EntryKnown(key) then text = "|cff999999" .. text .. " (" .. Bars.Missing(key) .. ")|r" end
 	return text
 end
 
 -- In the checklist, a spell on another icon bar says which: ticking it moves it here.
-local function MenuText(spellID, bar)
-	local text = SpellText(spellID, 16)
-	local other = Bars.BarOf(spellID)
+local function MenuText(key, bar)
+	local text = EntryText(key, 16)
+	local other = Bars.BarOf(key)
 	if other and other ~= bar then text = text .. " |cff999999(on " .. other.name .. ")|r" end
 	return text
 end
 
--- The checklist: Blizzard's two sections, then the spellbook's lines (spells with a cooldown
--- that Blizzard's list doesn't have). Ticking puts a spell on the bar shown (from any other).
+-- The checklist: Blizzard's two sections, the spellbook's lines (spells with a cooldown that
+-- Blizzard's list doesn't have), equipped slots (the trinkets, and gear with a use effect) and
+-- usable items in the bags. Ticking puts an entry on the bar shown (from any other).
 local function BuildMenu(_, root)
 	local bar = Current()
 	if not bar then return end
@@ -81,7 +84,7 @@ local function BuildMenu(_, root)
 				function() Bars.SetOnBar(bar, id, Bars.BarOf(id) ~= bar) end)
 			item:SetTooltip(function(tooltip)
 				local other = Bars.BarOf(id)
-				GameTooltip_SetTitle(tooltip, Bars.SpellName(id))
+				GameTooltip_SetTitle(tooltip, Bars.EntryName(id))
 				if other and other ~= bar then
 					GameTooltip_AddNormalLine(tooltip, "On the icon bar " .. other.name .. ": ticking it moves it here.")
 				end
@@ -104,6 +107,8 @@ local function BuildMenu(_, root)
 		end
 		Checks("Spellbook: " .. tostring(line.name), ids)
 	end
+	Checks("Equipped (trinkets, on-use gear)", Bars.Equipped())
+	Checks("In your bags (potions, healthstones ...)", Bars.BagItems())
 end
 
 -- A dropdown the size and place of the window's buttons (UI.OptionButton: 150 x 24, 30 px into
@@ -154,22 +159,22 @@ local function SpellRow(parent)
 	local row
 	local function get()
 		local bar = Current()
-		return bar and row.spellID and (bar.show[row.spellID] or "always") or "always"
+		return bar and row.key and (bar.show[row.key] or "always") or "always"
 	end
 	local function set(v)
 		local bar = Current()
-		if bar and row.spellID then
-			bar.show[row.spellID] = v ~= "always" and v or nil
+		if bar and row.key then
+			bar.show[row.key] = v ~= "always" and v or nil
 			ns.Refresh()
 		end
 	end
 	row = UI.OptionSelect(parent, "", Bars.SHOW, get, set, {
 		controlX = 260, boxWidth = 130,
 		tooltip = function()
-			return { row.spellID and Bars.SpellName(row.spellID) or "",
+			return { row.key and Bars.EntryName(row.key) or "",
 				"Always: the icon is always there. Only when ready: hidden while it's on cooldown. Only on cooldown: hidden while it's ready. A hidden icon's place closes up." }
 		end,
-		sync = function(r) r.label:SetText(r.spellID and SpellText(r.spellID, 20) or "") end,
+		sync = function(r) r.label:SetText(r.key and EntryText(r.key, 20) or "") end,
 	})
 	local x = row.right + 4
 	SmallButton(row, "Interface\\Buttons\\Arrow-Up", x, "Move up", function()
@@ -182,7 +187,7 @@ local function SpellRow(parent)
 	end)
 	SmallButton(row, "Interface\\Buttons\\UI-GroupLoot-Pass", x + 52, "Take it off this icon bar", function()
 		local bar = Current()
-		if bar and row.spellID then Bars.SetOnBar(bar, row.spellID, false) end
+		if bar and row.key then Bars.SetOnBar(bar, row.key, false) end
 	end)
 	return row
 end
@@ -299,7 +304,7 @@ ns.Window.Page({
 		p.empty = UI.OptionText(stack.inner, "No spells on this icon bar yet: tick some in the list above.", 24)
 		p.none = UI.OptionText(stack.inner, "There are no icon bars: pick \"New icon bar...\" in the dropdown above, or Start over below.", 24)
 		p.bottom = {
-			UI.OptionText(stack.inner, "Spells you haven't learned yet show grey here and appear on the bar once you learn them.", 24),
+			UI.OptionText(stack.inner, "Grey here: a spell not learned yet, a slot with nothing usable in it, an item you have none of. They appear on the bar when they can.", 24),
 			UI.OptionHeading(stack.inner, "All icon bars"),
 			UI.OptionButton(stack.inner, "Move the icon bars", function()
 				return Bars.IsUnlocked() and "Lock" or "Unlock"
@@ -333,7 +338,7 @@ ns.Window.Page({
 					row = SpellRow(stack.inner)
 					p.spellRows[i] = row
 				end
-				row.index, row.spellID = i, id
+				row.index, row.key = i, id
 				stack:Add(row)
 			end
 			if #bar.spells == 0 then stack:Add(p.empty) end

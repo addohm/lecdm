@@ -1,6 +1,10 @@
 -- Lecdm: icon bars (the code says "bars"). Lecdm's own icons, in bars the player sets up
 -- (ns.db.bars.list); not to be confused with timer bars (Blizzard's "tracked bars"), which
--- come with the buffs. Each icon is one spell:
+-- come with the buffs. A bar holds entries: a spell (its ID), an equipment slot ("slot:13":
+-- whatever is equipped there, shown while it has a use effect) or an item from the bags
+-- ("item:<itemID>": shown while you have one, with the count). Item cooldowns aren't secret
+-- (Blizzard's docs; the owner's trinket check read plain numbers in combat), so their swipe is
+-- Cooldown:SetCooldown; a secret one would be refused and cleared. For each spell:
 --  * the swipe and countdown come from C_Spell.GetSpellCooldownDuration, drawn by the game
 --    (Cooldown:SetCooldownFromDurationObject), the GCD included unless the bar turns it off;
 --  * grey while on a real cooldown (isActive and not isOnGCD: never secret), dark while it can't
@@ -54,6 +58,12 @@ local function Seed()
 		local bar = B.NewBar(def[1])
 		for _, e in ipairs(def[2]) do
 			if not B.BarOf(e.spellID) then table.insert(bar.spells, e.spellID) end
+		end
+		-- The trinkets go with the utility spells.
+		if def[1] == "Utility" then
+			for _, key in ipairs({ "slot:13", "slot:14" }) do
+				if not B.BarOf(key) then table.insert(bar.spells, key) end
+			end
 		end
 	end
 end
@@ -121,6 +131,110 @@ function B.SpellIcon(spellID)
 	return ok and not ns.IsSecret(icon) and icon or 134400
 end
 
+-- Entries: spells, equipment slots, bag items -----------------------------------------------
+
+B.SLOTS = { [1] = "Head", [2] = "Neck", [3] = "Shoulder", [5] = "Chest", [6] = "Waist", [7] = "Legs",
+	[8] = "Feet", [9] = "Wrist", [10] = "Hands", [11] = "Ring 1", [12] = "Ring 2", [13] = "Top trinket",
+	[14] = "Bottom trinket", [15] = "Back", [16] = "Main hand", [17] = "Off hand", [18] = "Ranged" }
+
+-- "spell", spellID / "slot", slot / "item", itemID.
+function B.Kind(key)
+	if type(key) == "number" then return "spell", key end
+	local kind, id = tostring(key):match("^(%a+):(%d+)$")
+	return kind, tonumber(id)
+end
+
+local function SlotItem(slot)
+	local ok, itemID = pcall(GetInventoryItemID, "player", slot)
+	if ok and not ns.IsSecret(itemID) and itemID then return itemID end
+end
+
+local function HasUse(itemID)
+	if not itemID then return false end
+	local ok, name = pcall(C_Item.GetItemSpell, itemID)
+	return ok and not ns.IsSecret(name) and name ~= nil
+end
+
+-- The item an entry shows now (a slot's: what's equipped there).
+function B.ItemOf(key)
+	local kind, id = B.Kind(key)
+	if kind == "slot" then return SlotItem(id) end
+	if kind == "item" then return id end
+end
+
+local function ItemName(itemID)
+	local ok, name = pcall(C_Item.GetItemNameByID, itemID)
+	return ok and not ns.IsSecret(name) and name or ("item " .. tostring(itemID))
+end
+
+function B.ItemCount(itemID)
+	local ok, n = pcall(C_Item.GetItemCount, itemID)
+	if ok and not ns.IsSecret(n) and type(n) == "number" then return n end
+	return 0
+end
+
+function B.EntryName(key)
+	local kind, id = B.Kind(key)
+	if kind == "spell" then return B.SpellName(id) end
+	if kind == "slot" then
+		local itemID = SlotItem(id)
+		return (B.SLOTS[id] or ("Slot " .. id)) .. ": " .. (itemID and ItemName(itemID) or "empty")
+	end
+	return ItemName(id)
+end
+
+function B.EntryIcon(key)
+	local kind, id = B.Kind(key)
+	if kind == "spell" then return B.SpellIcon(id) end
+	local itemID = B.ItemOf(key)
+	if not itemID then return 134400 end
+	local ok, icon = pcall(C_Item.GetItemIconByID, itemID)
+	return ok and not ns.IsSecret(icon) and icon or 134400
+end
+
+-- Shown at all: a spell learned, an equipped item with a use effect, an item in the bags.
+function B.EntryKnown(key)
+	local kind, id = B.Kind(key)
+	if kind == "spell" then return B.Known(id) end
+	if kind == "slot" then return HasUse(SlotItem(id)) end
+	return B.ItemCount(id) > 0
+end
+
+-- Why an entry isn't shown (for the tab).
+function B.Missing(key)
+	local kind = B.Kind(key)
+	if kind == "spell" then return "not learned" end
+	if kind == "slot" then return "nothing with a use effect" end
+	return "none in your bags"
+end
+
+-- For the checklist: the trinket slots, and every other slot holding an item with a use effect.
+function B.Equipped()
+	local list = {}
+	for slot = 1, 18 do
+		if slot == 13 or slot == 14 or HasUse(SlotItem(slot)) then list[#list + 1] = "slot:" .. slot end
+	end
+	return list
+end
+
+-- For the checklist: items with a use effect in the bags, once each.
+function B.BagItems()
+	local list, seen = {}, {}
+	if not (C_Container and C_Container.GetContainerNumSlots) then return list end
+	for bag = 0, 4 do
+		local okN, n = pcall(C_Container.GetContainerNumSlots, bag)
+		for slot = 1, (okN and not ns.IsSecret(n) and n) or 0 do
+			local okI, info = pcall(C_Container.GetContainerItemInfo, bag, slot)
+			local id = okI and type(info) == "table" and info.itemID
+			if id and not ns.IsSecret(id) and not seen[id] and HasUse(id) then
+				seen[id] = true
+				list[#list + 1] = "item:" .. id
+			end
+		end
+	end
+	return list
+end
+
 -- The icons ------------------------------------------------------------------------------
 
 local function Button(frame, i)
@@ -133,14 +247,19 @@ local function Button(frame, i)
 	b.cd = CreateFrame("Cooldown", nil, b, "CooldownFrameTemplate")
 	b.cd:SetAllPoints()
 	b.cd:SetHideCountdownNumbers(false)
+	-- The stack count, above the swipe.
+	b.over = CreateFrame("Frame", nil, b)
+	b.over:SetAllPoints()
+	b.over:SetFrameLevel(b.cd:GetFrameLevel() + 1)
+	b.count = b.over:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+	b.count:SetPoint("BOTTOMRIGHT", -2, 2)
 	frame.buttons[i] = b
 	return b
 end
 
--- Reads the spell's state and shows it. Returns whether the icon should be shown.
-local function Update(b, bar)
+-- A spell's state on its icon; returns whether it's on a real cooldown.
+local function SpellState(b, bar)
 	local id = b.spellID
-	if not b.known then return false end
 	local onCooldown, onGCD = false, false
 	local ok, info = pcall(C_Spell.GetSpellCooldown, id)
 	if ok and type(info) == "table" and not ns.IsSecret(info.isActive) and not ns.IsSecret(info.isOnGCD) then
@@ -167,8 +286,47 @@ local function Update(b, bar)
 		r, g, bl = 0.4, 0.4, 0.4
 	end
 	b.icon:SetVertexColor(r, g, bl)
+	b.count:SetText("")
+	return onCooldown
+end
 
-	local show = bar.show[id] or "always"
+-- An equipment slot's or a bag item's state on its icon; returns whether it's on a real cooldown
+-- (a 1.5 s one or shorter is the GCD).
+local function ItemState(b, bar)
+	local kind, id = B.Kind(b.key)
+	local ok, start, duration, enable
+	if kind == "slot" then
+		ok, start, duration, enable = pcall(GetInventoryItemCooldown, "player", id)
+	else
+		ok, start, duration, enable = pcall(C_Container.GetItemCooldown, id)
+	end
+	local plain = ok and not ns.IsSecret(start) and not ns.IsSecret(duration)
+		and type(start) == "number" and type(duration) == "number"
+	local enabled = ns.IsSecret(enable) or (enable ~= 0 and enable ~= false)
+	local onCooldown, onGCD = false, false
+	if plain and enabled and start > 0 and duration > 0 then
+		onGCD = duration <= 1.5
+		onCooldown = not onGCD
+	end
+	b.icon:SetDesaturated(onCooldown)
+	if plain and (onCooldown or (onGCD and bar.gcd)) then
+		b.cd:SetCooldown(start, duration)
+	elseif not (ok and not plain and pcall(b.cd.SetCooldown, b.cd, start, duration)) then
+		b.cd:Clear()
+	end
+	local okUse, usable = pcall(C_Item.IsUsableItem, B.ItemOf(b.key))
+	local v = (okUse and not ns.IsSecret(usable) and not usable) and 0.4 or 1
+	b.icon:SetVertexColor(v, v, v)
+	local n = kind == "item" and B.ItemCount(id) or 0
+	b.count:SetText(n > 1 and tostring(n) or "")
+	return onCooldown
+end
+
+-- Reads an entry's state and shows it. Returns whether the icon should be shown.
+local function Update(b, bar)
+	if not b.known then return false end
+	local onCooldown = (b.spellID and SpellState or ItemState)(b, bar)
+	local show = bar.show[b.key] or "always"
 	if show == "ready" then return not onCooldown end
 	if show == "cooldown" then return onCooldown end
 	return true
@@ -213,7 +371,7 @@ end
 local function UpdateBar(frame, bar)
 	local changed = false
 	for _, b in ipairs(frame.buttons) do
-		if b.spellID then
+		if b.key then
 			local wanted = Update(b, bar)
 			if wanted ~= b.wanted then
 				b.wanted = wanted
@@ -301,16 +459,18 @@ function B.Build()
 		local pos = bar.pos or DefaultPos(i)
 		frame:ClearAllPoints()
 		frame:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
-		for j, id in ipairs(bar.spells) do
+		for j, key in ipairs(bar.spells) do
 			local b = Button(frame, j)
-			b.spellID = id
-			b.known = B.Known(id)
+			local kind, id = B.Kind(key)
+			b.key = key
+			b.spellID = kind == "spell" and id or nil
+			b.known = B.EntryKnown(key)
 			b.wanted = nil
-			b.icon:SetTexture(B.SpellIcon(id))
-			pcall(C_Spell.EnableSpellRangeCheck, id, true)
+			b.icon:SetTexture(B.EntryIcon(key))
+			if b.spellID then pcall(C_Spell.EnableSpellRangeCheck, id, true) end
 		end
 		for j = #bar.spells + 1, #frame.buttons do
-			frame.buttons[j].spellID = nil
+			frame.buttons[j].key, frame.buttons[j].spellID = nil, nil
 			frame.buttons[j].wanted = false
 		end
 		frame.label:SetText(bar.name)
@@ -386,10 +546,11 @@ end
 
 local events = CreateFrame("Frame")
 for _, e in ipairs({ "SPELL_UPDATE_COOLDOWN", "SPELL_UPDATE_CHARGES", "SPELL_UPDATE_USABLE",
-	"ACTIONBAR_UPDATE_USABLE", "PLAYER_TARGET_CHANGED", "SPELL_RANGE_CHECK_UPDATE" }) do
+	"ACTIONBAR_UPDATE_USABLE", "PLAYER_TARGET_CHANGED", "SPELL_RANGE_CHECK_UPDATE", "BAG_UPDATE_COOLDOWN" }) do
 	pcall(events.RegisterEvent, events, e)
 end
-for _, e in ipairs({ "SPELLS_CHANGED", "COOLDOWN_VIEWER_DATA_LOADED", "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED" }) do
+for _, e in ipairs({ "SPELLS_CHANGED", "COOLDOWN_VIEWER_DATA_LOADED", "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED",
+	"BAG_UPDATE_DELAYED", "PLAYER_EQUIPMENT_CHANGED" }) do
 	pcall(events.RegisterEvent, events, e)
 end
 events:SetScript("OnEvent", function(_, event, arg)
@@ -400,6 +561,8 @@ events:SetScript("OnEvent", function(_, event, arg)
 	end
 	if event == "SPELLS_CHANGED" or event == "COOLDOWN_VIEWER_DATA_LOADED" then
 		ns.Catalogue.Build()
+		B.Build()
+	elseif event == "BAG_UPDATE_DELAYED" or event == "PLAYER_EQUIPMENT_CHANGED" then
 		B.Build()
 	elseif event == "PLAYER_ENTERING_WORLD" or event == "EDIT_MODE_LAYOUTS_UPDATED" then
 		B.ApplyBlizzard()

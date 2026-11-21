@@ -37,9 +37,12 @@ Lecdm opens the options window:
   is about the bar picked:
   - its name, look (icon size, spacing, grow from, vertical, icons per row, the GCD sweep) and
     Delete;
-  - its spells: tick them in the checklist (Blizzard's Essential and Utility lists, and your
-    spellbook; a spell on another icon bar says "(on ...)" and ticking moves it), order them
-    with the arrows, and choose when each shows: always, only when ready, or only on cooldown.
+  - its spells and items: tick them in the checklist (Blizzard's Essential and Utility lists,
+    your spellbook, your equipped trinkets and on-use gear, and usable items in your bags such
+    as potions and healthstones; an entry on another icon bar says "(on ...)" and ticking moves
+    it), order them with the arrows, and choose when each shows: always, only when ready, or
+    only on cooldown. A trinket slot shows whatever's equipped there while it has a use effect;
+    a bag item shows its count and hides while you have none.
 
   Unlock to drag the icon bars. Blizzard's own Essential and Utility icons are made invisible
   while Lecdm's icon bars are on; untick "Hide Blizzard's Essential and Utility icons" to keep
