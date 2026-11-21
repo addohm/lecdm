@@ -3,6 +3,22 @@
 What to check in game, and what's been confirmed. Results go under Confirmed or Problems, with
 the build and date.
 
+## To check (buffs, part 3, 2026-11-21)
+
+New files: install, then fully restart the game.
+
+1. **Taken in.** Without touching anything, Blizzard's buff icons and timer bars (Sunder Armor,
+   Thunder Clap ...) now sit in Lecdm's places: icons left of the middle, timer bars right of
+   it. `/lecdm move` shows them as "Blizzard's icons" and "Blizzard's timer bars": drag them.
+2. **In combat, in a dungeon:** do they stay there, follow each target, and close up as they
+   come and go? Any "blocked" line or Lua error?
+3. **Buffs tab, the dropdown:** "Blizzard's icons (picked in /cdm)": What happens to them: Take
+   them in / Hide them / Leave them. Space between, grow from, vertical, icons per row change
+   the place at once. "Open /cdm" opens Blizzard's window.
+4. **Hide them:** gone, and still gone after `/reload` and a loading screen; the raid warning on
+   a drop still comes. **Leave them:** back where Blizzard puts them (at its next layout, or
+   `/reload`).
+
 ## To check (buffs, part 1, 2026-11-21)
 
 New files: install, then fully restart the game.
@@ -19,9 +35,6 @@ New files: install, then fully restart the game.
 5. **Move.** `/lecdm move`: the buff group shows its name on a blue shade with the icon bars.
 6. **Bag items** (Icon bars tab): "Items you have none of: Show them greyed": a potion you've
    run out of stays, greyed, with a 0.
-6b. **Blizzard's buff icons and timer bars** (Buffs tab, bottom): tick "Hide Blizzard's buff
-    icons and timer bars": they vanish, and stay gone after `/reload`, a restart and a loading
-    screen. The raid warning on a drop still comes. Untick: they're back.
 7. Any Lua errors?
 8. **Test messages** (Test build tab, "Show them in"): make a chat tab named Lecdm (right-click
    a chat tab, Create New Window), pick it: the applied / removed lines go there, `/lecdm help`

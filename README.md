@@ -4,8 +4,9 @@ Lecdm is a WoW: Forever addon that makes Blizzard's Cooldown Manager better and 
 manage: bars of your cooldowns, buffs and procs, laid out and styled your way from one window,
 with sounds and glows that work in combat. The plan is in [ROADMAP.md](ROADMAP.md).
 
-**Status:** 0.1.0-dev, not released. The icon bars are in (tried in game 2026-11-21) and the
-first part of the buffs (not tried in game yet); alerts come after the buffs. Test build 1's checks are still on the Test build tab.
+**Status:** 0.1.0-dev, not released. The icon bars are in (tried in game 2026-11-21), and the
+buffs' parts 1 and 3: buff groups, and Blizzard's icons and timer bars taken in (not tried in
+game yet); then "keep up" buffs, looks and alerts. Test build 1's checks are still on the Test build tab.
 [TESTING.md](TESTING.md) has what to try.
 
 ## Getting started
@@ -55,9 +56,15 @@ Lecdm opens the options window:
   time left), its look, Delete, and its buffs: tick them from your buffs in Blizzard's list or
   from the buffs on you now (out of combat), and order them with the arrows. Every rank of a
   buff, whoever cast it, is learned the first time Lecdm sees it on you out of combat.
-  Changes made in combat apply when it ends. "Hide Blizzard's buff icons and timer bars" (off
-  at first) makes Blizzard's own ones invisible at every login and `/reload`; your debuffs on
-  the target only show there until Lecdm's buff groups take them in.
+  Changes made in combat apply when it ends.
+
+  The dropdown also has **Blizzard's icons** and **Blizzard's timer bars**: what Blizzard's
+  Cooldown Manager tracks in its Buffs tab, your debuffs on the target among them (only Blizzard
+  can time those). For each: **take them into Lecdm** (the default: they sit in Lecdm's own
+  place, which you drag with the rest, spaced and grown your way, gaps closed, following each
+  target), **hide them**, or **leave them** where Blizzard shows them. Which ones, and their
+  order, are picked in `/cdm` (Tracked Buffs for icons, Tracked Bars for timer bars; "Open
+  /cdm" is right there); their size is Edit Mode's.
 - **Alerts:** not built yet; it says what's coming.
 - **Test build:** test build 1's settings and tools (the same as its chat commands below), and
   where its debug lines go: "Show them in" the main chat window, a chat tab you've made (say
@@ -82,7 +89,6 @@ Chat commands:
 | `/lecdm check` | What an addon can read about your spells right now (try it in combat) |
 | `/lecdm sound` | Sound on/off when a tracked buff drops (on by default: raid warning) |
 | `/lecdm blizz hide` / `show` | Make Blizzard's cooldown viewers invisible, or bring them back (a test) |
-| `/lecdm host on` / `off` | Place Blizzard's buff icons and bars in a row Lecdm controls (a test; `/reload` after off) |
 | `/lecdm log` | The log in a window, ready to copy; `/lecdm log clear` empties it |
 
 What it does on its own:

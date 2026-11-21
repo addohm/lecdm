@@ -385,6 +385,7 @@ function M.AddItem(global, cooldownID)
 	item:SetSize(40, 40)
 	item.alerts = 0
 	function item:TriggerAlertEvent() self.alerts = self.alerts + 1 end
+	function item:UpdateShownState() end
 	v:OnAcquireItemFrame(item)
 	v.itemFramePool.active[item] = true
 	item.cooldownID = cooldownID

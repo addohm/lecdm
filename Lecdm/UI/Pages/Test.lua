@@ -70,10 +70,6 @@ ns.Window.Page({
 			return ns.Blizz.IsHidden() and "Bring them back" or "Make invisible"
 		end, function() ns.Blizz.Set(ns.Blizz.IsHidden() and "show" or "hide") end,
 			{ "Invisible viewers", "A test: are changes still heard while Blizzard's viewers are invisible? Not kept after /reload." }))
-		stack:Add(UI.OptionButton(stack.inner, "Blizzard's buff icons in a Lecdm row", function()
-			return ns.Blizz.IsHosting() and "Stop (then /reload)" or "Start"
-		end, function() ns.Blizz.Host(ns.Blizz.IsHosting() and "off" or "on") end,
-			{ "Host test", "Places Blizzard's own buff icons and bars (buffs on you, your debuffs on the target) in a row under the middle of the screen, and keeps them there after each of Blizzard's layouts. Do they stay put, in combat too?" }))
 		stack:Add(UI.OptionButton(stack.inner, "Status, in chat", "Show", function() ns.Check.Status() end))
 		stack:Add(UI.OptionButton(stack.inner, "Blizzard's list, in chat", "Show", function() ns.Catalogue.PrintAll() end))
 		stack:Add(UI.OptionButton(stack.inner, "What's readable now, in chat", "Check", function() ns.Check.Run() end,

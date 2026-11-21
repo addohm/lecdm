@@ -101,9 +101,12 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
    - Part 1, done 2026-11-21: buff groups, icons or timer bars, any buff on you (anyone's)
      while it's up, every rank learned by name.
    - Part 2: "keep up" buffs with a missing state (a fixed place, dimmed red while down).
-   - Part 3: the target's debuffs (step 5).
+   - Part 3, done 2026-11-21: Blizzard's icons and timer bars (the target's debuffs among
+     them) taken into Lecdm's own places, or hidden, or left; picked in `/cdm`.
    - Then: thresholds and ticks on timer bars, bar colours.
-5. **Effects on the target:** the player's debuffs, DoTs and HoTs, as icons or timer bars.
+5. **Effects on the target:** covered by Buffs part 3 (Blizzard's icons and timer bars, picked
+   in `/cdm`). Left: their size from Lecdm instead of Edit Mode, if it can be done without
+   fighting Blizzard's scale.
 6. **Alerts and effects:** sounds and glows on ready, applied, removed, charges; per-spell
    glow styles; keybind text; visibility rules (combat, group, instance, target, mounted ...).
 7. **The rest of EllesmereUI's list:** action-bar button glows on buff state, focus interrupt

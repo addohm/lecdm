@@ -16,6 +16,7 @@ Listen.lua
 Check.lua
 Bars.lua
 Auras.lua
+Hosted.lua
 Blizz.lua
 
 UI\Theme.lua

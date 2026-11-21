@@ -210,17 +210,45 @@ check(ns.Bars.IsUnlocked() and cooldowns.mouse and cooldowns.shade.shown and coo
 M.Slash("move")
 check(not ns.Bars.IsUnlocked() and not cooldowns.mouse, "move didn't lock")
 
--- Blizzard's buff icons and timer bars: left alone, unless that setting is on.
-local buffViewer = M.viewers.BuffBarCooldownViewer
-check(buffViewer.alpha == 1, "Blizzard's timer bars hidden by default")
-ns.db.bars.hideBlizzardBuffs = true
+-- Blizzard's icons and timer bars, taken in (the default): each sits in Lecdm's place, again
+-- after each of Blizzard's layouts (in combat too); a hidden one's gap closes; "hide" makes the
+-- viewer invisible; "leave" lets Blizzard keep them.
+local iconViewer, barViewer = M.viewers.BuffIconCooldownViewer, M.viewers.BuffBarCooldownViewer
+local function PlaceOf(item) return item.points[1] and item.points[1][2] end
+local sunderBar = M.AddItem("BuffBarCooldownViewer", 16)
+local second = M.AddItem("BuffIconCooldownViewer", 14)
+second.layoutIndex, shout.layoutIndex = 2, 1
 ns.Refresh()
-check(buffViewer.alpha == 0 and M.viewers.BuffIconCooldownViewer.alpha == 0, "Blizzard's buff viewers not invisible with the setting")
+check(PlaceOf(shout) and PlaceOf(shout).kindKey == "icons", "Blizzard's icon not in Lecdm's place")
+check(PlaceOf(sunderBar) and PlaceOf(sunderBar).kindKey == "bars", "Blizzard's timer bar not in Lecdm's place")
+check(iconViewer.alpha == 1 and barViewer.alpha == 1, "a taken-in viewer was made invisible")
+M.combat = true
+iconViewer:RefreshLayout()
+check(PlaceOf(shout).kindKey == "icons" and PlaceOf(second).kindKey == "icons", "Blizzard's layout took the icons back")
+M.combat = false
+ns.db.buffs.blizzard.icons.grow = "LEFT"
+ns.Refresh()
+check(second.points[1][4] == 44, "second icon not after the first: " .. tostring(second.points[1][4]))
+shout.shown = false
+shout:UpdateShownState()
+check(second.points[1][4] == 0, "a hidden icon's gap didn't close")
+shout.shown = true
+shout:UpdateShownState()
+ns.db.buffs.blizzard.icons.grow = "CENTER"
+ns.db.buffs.blizzard.bars.mode = "hide"
+ns.Refresh()
+check(barViewer.alpha == 0, "hide didn't make the timer bars invisible")
 M.Fire("PLAYER_ENTERING_WORLD")
-check(buffViewer.alpha == 0, "not kept after a loading screen")
-ns.db.bars.hideBlizzardBuffs = false
+check(barViewer.alpha == 0, "hide not kept after a loading screen")
+ns.db.buffs.blizzard.bars.mode = "leave"
 ns.Refresh()
-check(buffViewer.alpha == 1, "Blizzard's buff viewers not given back")
+barViewer:RefreshLayout()
+check(barViewer.alpha == 1 and PlaceOf(sunderBar) == barViewer, "leave didn't give Blizzard its bars back")
+ns.db.buffs.blizzard.bars.mode = "take"
+ns.Refresh()
+check(PlaceOf(sunderBar).kindKey == "bars", "take didn't take the bars back")
+iconViewer.itemFramePool.active[second] = nil
+ns.Refresh()
 
 -- Blizzard's icons back when the setting is off.
 ns.db.bars.hideBlizzard = false
@@ -387,26 +415,6 @@ local swingLines = 0
 for _, l in ipairs(LecdmDB.log) do if l:find("swing %d of this fight: duration 2.6") then swingLines = swingLines + 1 end end
 check(swingLines == 3, "logged " .. swingLines .. " swings, not 3")
 
--- The host test: Blizzard's buff icons placed in Lecdm's row, and again after Blizzard's layout.
-M.Slash("blizz hide")
-local buffs = M.viewers.BuffIconCooldownViewer
-shout.cooldownID = 14
-M.Slash("host on")
-check(ns.Blizz.IsHosting(), "host test not on")
-check(buffs.alpha == 1, "the buff viewer wasn't made visible for the host test")
-check(M.viewers.EssentialCooldownViewer.alpha == 0, "Essential lost its invisibility")
-local hostFrame = shout.points[1][2]
-check(hostFrame and hostFrame ~= buffs, "buff icon not placed in Lecdm's row")
-M.combat = true
-buffs:RefreshLayout()
-check(shout.points[1][2] == hostFrame, "Blizzard's layout took the icon back")
-M.combat = false
-M.Slash("status")
-check(M.Printed("host test on: Buffs placed %d+ times %(1 in combat%)"), "host counts missing")
-M.Slash("host off")
-check(not ns.Blizz.IsHosting(), "host test not off")
-M.Slash("blizz show")
-
 -- The options window: /lecdm opens it; every tab builds; the Test build tab's Defaults.
 M.Slash("")
 check(ns.Window.IsShown(), "/lecdm didn't open the window")
@@ -519,6 +527,16 @@ buffPanel.parts.checklist.dropdown.generator(nil, buffMenu)
 buffMenu.children[2].children[3].setSelected()
 check(ns.Auras.GroupOf("Rallying Cry of the Dragonslayer") == ns.db.buffs.list[1] and LecdmDB.auraIDs["Rallying Cry of the Dragonslayer"][22888], "ticking a buff on you didn't add and learn it")
 check(buffPanel.parts.style.box.text == "Icons", "show-as picker wrong")
+-- The dropdown's Blizzard places: picking one shows what happens to them, and its layout.
+local groupMenu = M.Menu()
+buffPanel.parts.picker.dropdown.generator(nil, groupMenu)
+local blizzIcons = groupMenu.children[2]
+check(blizzIcons.text:find("^Blizzard's icons") and groupMenu.children[3].text:find("^Blizzard's timer bars"), "Blizzard places not in the dropdown")
+blizzIcons.setSelected()
+check(buffPanel.parts.picker.dropdown.text == "Blizzard's icons" and buffPanel.parts.blizzMode.shown, "Blizzard's icons page not shown")
+check(buffPanel.parts.blizzMode.box.text == "Take them into Lecdm" and buffPanel.parts.blizzPerRow.shown, "Blizzard place rows wrong")
+check(not buffPanel.parts.style.shown, "a buff group's rows shown on a Blizzard page")
+groupMenu.children[1].setSelected()
 M.Slash("bars")
 
 -- No icon bars at all: only the dropdown and a note.

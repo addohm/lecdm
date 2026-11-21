@@ -1,14 +1,22 @@
 -- Lecdm: the Buffs tab. Laid out like the Icon bars tab: a dropdown picks the buff group (its
 -- last entry makes a new one, in a popup); everything below is about the group picked: its name,
 -- how it shows (icons or timer bars) and its look, Delete, then its buffs (a checklist of
--- Blizzard's list and the buffs on you now, and an ordered row per buff).
+-- Blizzard's list and the buffs on you now, and an ordered row per buff). The dropdown also has
+-- Blizzard's own icons and timer bars (Hosted.lua): take them into Lecdm, hide or leave them.
 local _, ns = ...
 local UI = ns.UI
 local Auras = ns.Auras
 
-local selected -- the group shown (its id)
+local selected -- the group shown (its id), or "blizz:icons" / "blizz:bars"
+
+-- The Blizzard place shown, if one is.
+local function CurrentKind()
+	local key = selected and selected:match("^blizz:(%a+)$")
+	return key and ns.Hosted.Kind(key)
+end
 
 local function Current()
+	if CurrentKind() then return nil end
 	local group = selected and Auras.Get(selected)
 	if not group then
 		group = ns.db.buffs.list[1]
@@ -137,6 +145,15 @@ local function BuildGroupMenu(_, root)
 			end)
 	end
 	root:CreateDivider()
+	for _, kind in ipairs(ns.Hosted.KINDS) do
+		root:CreateRadio(kind.name .. " (picked in /cdm)",
+			function() return selected == "blizz:" .. kind.key end,
+			function()
+				selected = "blizz:" .. kind.key
+				ns.Window.Refresh()
+			end)
+	end
+	root:CreateDivider()
 	root:CreateButton("New buff group...", function() StaticPopup_Show("LECDM_NEW_BUFFS") end)
 end
 
@@ -148,8 +165,8 @@ local function PickerRow(parent)
 	row.label:SetText("Buff group")
 	row.dropdown = Dropdown(row, BuildGroupMenu)
 	row.Sync = function()
-		local group = Current()
-		row.dropdown:SetText(group and group.name or "None: make one")
+		local kind, group = CurrentKind(), Current()
+		row.dropdown:SetText(kind and kind.name or group and group.name or "None: make one")
 	end
 	return row
 end
@@ -210,6 +227,20 @@ local function BuffRow(parent)
 	return row
 end
 
+-- A setting of the Blizzard place shown.
+local function BlizzField(key)
+	return function()
+		local kind = CurrentKind()
+		return kind and ns.Hosted.Settings(kind.key)[key]
+	end, function(v)
+		local kind = CurrentKind()
+		if kind then
+			ns.Hosted.Settings(kind.key)[key] = v
+			ns.Refresh()
+		end
+	end
+end
+
 ns.Window.Page({
 	id = "buffs",
 	label = "Buffs",
@@ -226,6 +257,25 @@ ns.Window.Page({
 		local vertGet, vertSet = Field("vertical")
 		local perGet, perSet = Field("perRow")
 		p.picker = PickerRow(stack.inner)
+		local modeGet, modeSet = BlizzField("mode")
+		local bGapGet, bGapSet = BlizzField("gap")
+		local bGrowGet, bGrowSet = BlizzField("grow")
+		local bVertGet, bVertSet = BlizzField("vertical")
+		local bPerGet, bPerSet = BlizzField("perRow")
+		p.blizzHead = UI.OptionHeading(stack.inner, "Blizzard's own")
+		p.blizzMode = UI.OptionSelect(stack.inner, "What happens to them", ns.Hosted.MODES, modeGet, modeSet,
+			{ boxWidth = 190, tooltip = { "Blizzard's icons and timer bars", "Take them into Lecdm: they sit in Lecdm's place, laid out your way, gaps closed. Hide them: invisible (they keep running, so Lecdm still hears them). Leave them: where and how Blizzard shows them." } })
+		p.blizzGap = UI.OptionSelect(stack.inner, "Space between", Numbers(0, 12, 1), bGapGet, bGapSet)
+		p.blizzGrow = UI.OptionSelect(stack.inner, "Grow from", GROW, bGrowGet, bGrowSet)
+		p.blizzVertical = UI.OptionCheck(stack.inner, "Vertical", bVertGet, bVertSet)
+		p.blizzPerRow = UI.OptionSelect(stack.inner, "Icons per row", Numbers(1, 20, 1), bPerGet, bPerSet)
+		p.blizzNote = UI.OptionText(stack.inner, function()
+			local kind = CurrentKind()
+			local section = kind and kind.key == "bars" and "Tracked Bars" or "Tracked Buffs"
+			return "Which buffs and debuffs show here, and their order: Blizzard's Cooldown Manager (/cdm), its Buffs tab, "
+				.. section .. ". Your debuffs on the target (Sunder Armor, Thunder Clap ...) can only be timed by Blizzard, so they're picked there. Their size: Edit Mode."
+		end, 44)
+		p.blizzOpen = UI.OptionButton(stack.inner, "", "Open /cdm", function() ns.Hosted.OpenBlizzard() end)
 		p.head = UI.OptionHeading(stack.inner, "This buff group")
 		p.name = UI.OptionEdit(stack.inner, "Name (press Enter to keep it)",
 			function() local group = Current() return group and group.name or "" end,
@@ -267,13 +317,6 @@ ns.Window.Page({
 				return ns.Bars.IsUnlocked() and "Lock" or "Unlock"
 			end, function() ns.Bars.SetUnlocked(not ns.Bars.IsUnlocked()) end,
 				{ "Move", "Unlocked, every icon bar and buff group shows its name and can be dragged. /lecdm move does the same." }),
-			UI.OptionCheck(stack.inner, "Hide Blizzard's buff icons and timer bars",
-				function() return ns.db.bars.hideBlizzardBuffs end,
-				function(v)
-					ns.db.bars.hideBlizzardBuffs = v
-					ns.Refresh()
-				end,
-				{ "Blizzard's buff icons and timer bars", "Made invisible, at every login and /reload; they keep running, so Lecdm still hears them. Your debuffs on the target (Sunder Armor, Thunder Clap ...) only show there for now: Lecdm's buff groups take them in later." }),
 			UI.OptionButton(stack.inner, "Every buff group", "Start over", function()
 				Confirm("Replace every buff group with one filled from Blizzard's list, as on a new profile?", function()
 					Auras.StartOver()
@@ -287,8 +330,21 @@ ns.Window.Page({
 		local p, stack = panel.parts, panel.stack
 		stack:Reset()
 		stack:Add(p.picker)
-		local group = Current()
-		if group then
+		local kind, group = CurrentKind(), Current()
+		if kind then
+			stack:Add(p.blizzHead)
+			stack:Add(p.blizzMode)
+			if ns.Hosted.Settings(kind.key).mode == "take" then
+				stack:Add(p.blizzGap)
+				stack:Add(p.blizzGrow)
+				if kind.key == "icons" then
+					stack:Add(p.blizzVertical)
+					stack:Add(p.blizzPerRow)
+				end
+			end
+			stack:Add(p.blizzNote)
+			stack:Add(p.blizzOpen)
+		elseif group then
 			local bars = group.style == "bars"
 			for _, row in ipairs({ p.head, p.name, p.style }) do stack:Add(row) end
 			if bars then

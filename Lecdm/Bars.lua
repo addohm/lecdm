@@ -527,13 +527,15 @@ local function Fade(globals, want)
 	end
 end
 
--- Blizzard's buff icons and timer bars: invisible while the player chose so (Buffs tab), until
--- Lecdm's buff groups take them in (Buffs part 3). They keep running, so the listener still
+-- Blizzard's buff icons and timer bars: invisible only in "hide" mode (Buffs tab, Hosted.lua);
+-- taken into Lecdm, they must stay visible. Hidden, they keep running, so the listener still
 -- hears them.
 function B.ApplyBlizzard()
 	local on = ns.Enabled()
 	Fade(B.BLIZZARD, on and ns.db.bars.hideBlizzard and #ns.db.bars.list > 0)
-	Fade(B.BLIZZARD_BUFFS, on and ns.db.bars.hideBlizzardBuffs)
+	for _, global in ipairs(B.BLIZZARD_BUFFS) do
+		Fade({ global }, on and ns.Hosted and ns.Hosted.WantsHidden(global))
+	end
 end
 
 -- Spellbook spells with a cooldown, by skill line: { name, spells = { spellID ... } }. Out of

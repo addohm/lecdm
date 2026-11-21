@@ -64,15 +64,21 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
     `A.ReadBuffs()` (out of combat only) and learning on `UNIT_AURA`; `A.Build()` waits for the
     end of combat (`pending`). `A.BlizzardBuffs()` (selfAura entries), `A.SetInGroup`,
     `A.MoveEntry`, `A.NewGroup`, `A.Delete`, `A.StartOver`.
+  - `Hosted.lua`: Blizzard's icons and timer bars taken in (`ns.db.buffs.blizzard.icons` /
+    `.bars`: `mode` "take" | "hide" | "leave", `gap`, `grow`, `vertical`, `perRow`, `pos`).
+    In "take", each item of the BuffIcon / BuffBar viewer is anchored into Lecdm's place
+    (`Layout`, in Blizzard's layoutIndex order, hidden ones skipped, offsets converted by
+    effective scale), after each `RefreshLayout` / `Layout` of the viewer and each item's
+    `UpdateShownState` (hooks). `H.WantsHidden(global)` for `B.ApplyBlizzard`,
+    `H.OpenBlizzard()` (CooldownViewerSettings:TogglePanel, out of combat).
   - `Listen.lua`: hooks `OnAcquireItemFrame` on the four viewers and `TriggerAlertEvent` on each
     icon (weak table of hooked icons), logs what the Cooldown Manager announces (with the
     target's state on "removed"), the raid warning on "removed"; proc glow events, blocked
     actions and the first swings of each fight. `L.ActiveItems(viewer)`.
   - `Check.lua`: `/lecdm check` (what's readable about the Essential/Utility spells and trinket
     slots now, into the log) and `/lecdm status`.
-  - `Blizz.lua`: `/lecdm blizz hide|show`, the invisible-viewers test, and `/lecdm host on|off`,
-    the hosting test (Blizzard's Buffs/Bars viewer icons re-placed into a Lecdm row after each
-    `RefreshLayout`/`Layout`, counted). Both are tests only: they move or fade Blizzard frames.
+  - `Blizz.lua`: `/lecdm blizz hide|show`, the invisible-viewers test (a test only: not kept
+    after a reload).
   - `UI/Theme.lua`, `UI/Widgets.lua` (option rows and `UI.Stack`), `UI/Window.lua` (the options
     window `LecdmFrame`: tabs, Defaults, resize grip; pages register with `ns.Window.Page`; the
     Options > AddOns entry), `UI/Minimap.lua` (`LecdmMinimapButton`, angle 350, the addon
@@ -127,10 +133,10 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
   `hooksecurefunc`; keep per-frame state in weak tables. Identify an icon by its cooldown ID read
   when needed: icons are pooled and reused. Two exceptions, both confirmed harmless in game:
   while Lecdm's bars are on, the Essential and Utility viewers get alpha 0, and the buff
-  viewers too when the player ticks "Hide Blizzard's buff icons and timer bars" (never
-  `Hide()`, which stops their events; set again after Edit Mode and loading screens, not
-  fought: `B.ApplyBlizzard`), and
-  the host test re-places Buffs/Bars viewer icons into a Lecdm row.
+  viewers too in "hide" mode (never `Hide()`, which stops their events; set again after Edit
+  Mode and loading screens, not fought: `B.ApplyBlizzard`); and in "take" mode the buff
+  viewers' icons are anchored into Lecdm's places after each of Blizzard's layouts
+  (`Hosted.lua`; the host test proved it in the open world and a dungeon).
 - **A two-value call only passes both values when it's last** in an argument list: give
   getter/setter pairs their own locals (UI/Pages/Bars.lua).
 - Events, not timers or retry ladders.

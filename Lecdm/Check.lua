@@ -93,6 +93,5 @@ function C.Status()
 		.. ", profile " .. ns.Profiles.Current())
 	ns.Catalogue.PrintCounts()
 	ns.Listen.PrintStatus()
-	ns.Blizz.PrintStatus()
 	ns.Print(#LecdmDB.log .. " lines in the log (/lecdm log to copy it)")
 end

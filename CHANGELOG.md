@@ -55,11 +55,18 @@ All notable changes to lecdm. The format follows
 - Test build tab: "Show them in": the test build's debug lines (applied, removed, procs,
   checks) go to the main chat window, a chat tab you've made, or nowhere (the log keeps them).
   Replies to commands and Lecdm's errors stay in the main chat.
-- Buffs tab: "Hide Blizzard's buff icons and timer bars" (off at first): Blizzard's own buff
-  viewers made invisible at every login and `/reload`, still running, so Lecdm hears them
-  (the test command `/lecdm blizz hide` wasn't kept after a reload).
+- Buffs, part 3 (2026-11-21): Blizzard's icons and timer bars (what its Cooldown Manager
+  tracks in its Buffs tab: your debuffs on the target among them) taken into Lecdm. Each has a
+  place on the Buffs tab's dropdown: take them into Lecdm (the default: Lecdm's own movable
+  place, spacing, grow from, vertical and per row for icons, gaps closed, re-placed after each
+  of Blizzard's layouts, in combat too), hide them (invisible at every login and `/reload`,
+  still running), or leave them. Which ones and their order are picked in `/cdm` ("Open /cdm").
 
 ### Changed
+
+- "Hide Blizzard's buff icons and timer bars" (added earlier on 2026-11-21) is replaced by
+  part 3's "What happens to them", which can still hide them. The host test
+  (`/lecdm host`) is gone: taking Blizzard's icons in replaces it.
 
 - The Bars tab is now **Icon bars** (owner's naming, 2026-11-21: "timer bars" will be the
   other kind). A dropdown picks the icon bar, and its "New icon bar..." entry opens a popup

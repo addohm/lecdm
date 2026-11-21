@@ -16,9 +16,15 @@ local DEFAULTS = {
 	                                    -- where its debug lines go (Log.lua: ns.Debug)
 	-- the cooldown bars (Bars.lua): list = { bar ... } (B.NewBar has a bar's fields), seeded once
 	-- from Blizzard's list, and whether Blizzard's Essential and Utility viewers are made invisible
-	bars = { list = {}, seeded = false, nextID = 1, hideBlizzard = true, hideBlizzardBuffs = false },
+	bars = { list = {}, seeded = false, nextID = 1, hideBlizzard = true },
 	-- the buff groups (Auras.lua): list = { group ... } (A.NewGroup has a group's fields), seeded once
-	buffs = { list = {}, seeded = false, nextID = 1 },
+	buffs = { list = {}, seeded = false, nextID = 1,
+		-- Blizzard's two buff viewers (Hosted.lua): "take" (into Lecdm's place), "hide" or "leave"
+		blizzard = {
+			icons = { mode = "take", gap = 4, grow = "CENTER", vertical = false, perRow = 12 },
+			bars = { mode = "take", gap = 2, grow = "LEFT" },
+		},
+	},
 }
 ns.DEFAULTS = DEFAULTS
 
@@ -84,6 +90,7 @@ end
 function ns.Refresh()
 	if ns.Bars then ns.Bars.Build() end
 	if ns.Auras then ns.Auras.Build() end
+	if ns.Hosted then ns.Hosted.Build() end
 	if ns.Theme then ns.Theme.Apply() end
 	if ns.Minimap then ns.Minimap.Apply() end
 	if ns.Window then ns.Window.Apply() end
@@ -167,7 +174,6 @@ local function Help()
 	ns.Print("/lecdm check - what an addon can read about your spells right now (try it in combat)")
 	ns.Print("/lecdm sound - the raid warning when a tracked buff drops, on or off")
 	ns.Print("/lecdm blizz hide | show - make Blizzard's cooldown viewers invisible, or bring them back")
-	ns.Print("/lecdm host on | off - Blizzard's buff icons and bars in a row Lecdm places (off: then /reload)")
 	ns.Print("/lecdm log - the log, ready to copy; /lecdm log clear empties it")
 end
 
@@ -204,8 +210,6 @@ SlashCmdList.LECDM = function(msg)
 		ns.Bars.SetUnlocked(not ns.Bars.IsUnlocked())
 	elseif cmd == "blizz" then
 		ns.Blizz.Set(rest)
-	elseif cmd == "host" then
-		ns.Blizz.Host(rest)
 	elseif cmd == "log" then
 		if rest == "clear" then ns.LogWindow.Clear() else ns.LogWindow.Show() end
 	else
