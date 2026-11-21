@@ -57,10 +57,6 @@ ns.Window.Page({
 		stack:Add(UI.OptionText(stack.inner,
 			"Lecdm listens to Blizzard's Cooldown Manager: when it notices a tracked buff applied or removed, or a spell "
 			.. "going on cooldown, the log says so (buffs in chat too). It only listens; it changes nothing there.", 44))
-		stack:Add(UI.OptionCheck(stack.inner, "Raid warning when a tracked buff drops",
-			function() return ns.db.test.sound end,
-			function(v) ns.db.test.sound = v end,
-			{ "Raid warning", "Played the moment Blizzard's Cooldown Manager says a buff it tracks was removed. Does it match the icon, in combat too?" }))
 
 		stack:Add(UI.OptionHeading(stack.inner, "Test messages"))
 		stack:Add(ChatRow(stack.inner))
@@ -78,7 +74,6 @@ ns.Window.Page({
 		stack:Add(UI.OptionButton(stack.inner, "", "Clear the log", function() ns.LogWindow.Clear() end))
 	end,
 	defaults = function()
-		ns.db.test.sound = ns.DEFAULTS.test.sound
 		ns.db.test.chat = ns.DEFAULTS.test.chat
 	end,
 })

@@ -62,8 +62,19 @@ All notable changes to lecdm. The format follows
   of Blizzard's layouts, in combat too), hide them (invisible at every login and `/reload`,
   still running), or leave them. Which ones and their order are picked in `/cdm` ("Open /cdm").
 
+- Alerts (2026-11-21): the Alerts tab sets the sounds and glows every spell and buff gets; a
+  ⚙ on each row on the Icon bars and Buffs tabs sets its own. Icon bars: sound when ready,
+  glow while ready (and usable), glow on a proc, colour. Buff groups: sounds when applied and
+  when it drops (in combat for buffs Blizzard's `/cdm` also tracks, from its announcement; out
+  of combat for any buff on you, read directly), glow while up, time red under a few seconds,
+  a warning glow then (timed by the game from the buff's duration, learned out of combat),
+  colour. Blizzard's icons and timer bars: sounds when applied and when it drops, quiet when
+  the target died. Sounds: the game's, or "Say it" (text to speech). Glow styles: pulse,
+  pixel, action button, auto-cast, GCD, modern, classic.
+
 ### Changed
 
+- The test build's raid warning on a drop (and `/lecdm sound`) is gone: the alerts replace it.
 - "Hide Blizzard's buff icons and timer bars" (added earlier on 2026-11-21) is replaced by
   part 3's "What happens to them", which can still hide them. The host test
   (`/lecdm host`) is gone: taking Blizzard's icons in replaces it.

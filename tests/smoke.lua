@@ -34,7 +34,7 @@ ns.db.test.sound = true
 shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
 check(shout.alerts == 1, "Blizzard's own TriggerAlertEvent didn't run")
 check(Logged("removed: Battle Shout %(Buffs%)"), "removal not logged")
-check(M.sounds[#M.sounds] == SOUNDKIT.RAID_WARNING, "no sound on removal")
+check(#M.sounds == 0, "a sound played with no alert set")
 
 -- In combat, in an instance, with a secret aura ID: still named, tagged, and the attempt to time
 -- the aura ourselves is reported as refused.
@@ -77,13 +77,34 @@ late:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnCooldown)
 check(#LecdmDB.log == before + 1, "a late icon logged " .. (#LecdmDB.log - before) .. " times, not once")
 check(Logged("on cooldown: Charge %(Essential%)"), "late icon not heard")
 
--- Sound toggle.
-M.Slash("sound")
-check(ns.db.test.sound == false, "sound didn't turn off")
-local sounds = #M.sounds
+-- Alerts on Blizzard's announcements: a buff in a buff group goes by the buff groups' settings,
+-- anything else by Blizzard's icons'; its own setting wins; a target debuff that went with its
+-- target is quiet.
+local D = ns.db.alerts.defaults
+D.buffs.removed = "RAID_WARNING"
+D.blizzard.removed = "MAP_PING"
+shout.cooldownID = 14
 shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
-check(#M.sounds == sounds, "sound played while off")
-M.Slash("sound")
+check(M.sounds[#M.sounds] == SOUNDKIT.RAID_WARNING, "no sound for a removal")
+ns.Alerts.Set("buffs", "Battle Shout", "removed", "READY_CHECK")
+shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
+check(M.sounds[#M.sounds] == SOUNDKIT.READY_CHECK, "a buff's own sound didn't win")
+ns.Alerts.Set("buffs", "Battle Shout", "removed", nil)
+D.buffs.removed = "none"
+local sunderItem = M.AddItem("BuffIconCooldownViewer", 16)
+M.target = { dead = false }
+local before = #M.sounds
+sunderItem:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
+M.target = nil
+M.RunTimers()
+check(#M.sounds == before and Logged("quiet: Sunder Armor went with its target"), "a kill wasn't quiet")
+M.target = { dead = false }
+sunderItem:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
+M.RunTimers()
+check(#M.sounds == before + 1 and M.sounds[#M.sounds] == SOUNDKIT.MAP_PING, "an expiry on a live target was quiet")
+M.target = nil
+D.blizzard.removed = "none"
+M.viewers.BuffIconCooldownViewer.itemFramePool.active[sunderItem] = nil
 
 -- The test build's chat lines go where the Test build tab says: a chat tab by name, or nowhere;
 -- replies to commands stay in the main chat.
@@ -262,6 +283,59 @@ check(M.viewers.EssentialCooldownViewer.alpha == 0, "Blizzard's Essential not in
 local lines = ns.Bars.Spellbook()
 check(#lines == 1 and lines[1].name == "Protection" and #lines[1].spells == 1 and lines[1].spells[1] == 2565, "spellbook wrong")
 
+-- Icon bar alerts: a sound when a spell comes off cooldown (once, not the GCD), a glow while
+-- it's ready and usable, a proc glow while the game highlights it; a spell's own choice wins.
+local function Glowing(frame)
+	for _, built in pairs(frame.glows or {}) do
+		for _, g in ipairs(built.groups) do
+			if g.playing then return true end
+		end
+	end
+	return false
+end
+M.Fire("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE", 6572) -- the proc from earlier ends
+local SD = ns.db.alerts.defaults.spells
+SD.ready = "READY_CHECK"
+M.spells[100].active = true
+M.Fire("SPELL_UPDATE_COOLDOWN")
+local heard = #M.sounds
+M.spells[100].active = false
+M.Fire("SPELL_UPDATE_COOLDOWN")
+check(#M.sounds == heard + 1 and M.sounds[#M.sounds] == SOUNDKIT.READY_CHECK, "no ready sound")
+M.Fire("SPELL_UPDATE_COOLDOWN")
+check(#M.sounds == heard + 1, "the ready sound repeated")
+M.spells[100].gcd = true
+M.Fire("SPELL_UPDATE_COOLDOWN")
+M.spells[100].gcd = nil
+M.Fire("SPELL_UPDATE_COOLDOWN")
+check(#M.sounds == heard + 1, "the end of a GCD played the ready sound")
+SD.ready = "none"
+SD.readyGlow = "pixel"
+ns.Refresh()
+check(Glowing(charge.glow) and not Glowing(revenge.glow), "glow while ready wrong (ready and usable only)")
+SD.readyGlow = "none"
+ns.Alerts.Set("spells", 100, "readyGlow", "action")
+check(Glowing(charge.glow) and charge.glow.glows["action:gold:40"], "a spell's own glow didn't win")
+ns.Alerts.Set("spells", 100, "readyGlow", nil)
+check(not Glowing(charge.glow), "glow not cleared")
+M.Fire("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW", 6572)
+check(Glowing(revenge.glow) and revenge.glow.glows["modern:gold:40"], "no proc glow")
+M.Fire("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE", 6572)
+check(not Glowing(revenge.glow), "proc glow not cleared")
+M.spells[100].active = true
+M.Fire("SPELL_UPDATE_COOLDOWN")
+
+-- A spell's ⚙ menu: a submenu per setting, Default first; picking sets its own, Default clears.
+local alertMenu = M.Menu()
+ns.AlertsMenu("spells", 100, "Charge", alertMenu)
+check(#alertMenu.children == 4 and alertMenu.children[1].text == "Sound when it's ready", "alert menu wrong")
+local soundSub = alertMenu.children[1]
+check(soundSub.children[1].text == "Default (None)" and soundSub.children[1].isSelected(), "Default not first and ticked")
+soundSub.children[4].setSelected()
+check(ns.Alerts.HasOwn("spells", 100) and ns.Alerts.Get("spells", 100, "ready") == "RAID_WARNING", "picking in the menu didn't set it")
+soundSub.children[1].setSelected()
+check(not ns.Alerts.HasOwn("spells", 100), "Default didn't clear it")
+
 -- Items: the trinket slots go on the Utility bar. A slot shows what's equipped there while it has
 -- a use effect, its cooldown drawn with SetCooldown (grey past 1.5 s); a bag item shows its count
 -- and hides when you have none; a secret item cooldown is cleared, not an error.
@@ -318,8 +392,15 @@ check(ns.db.buffs.seeded and #buffs == 1 and buffs[1].name == "Buffs", "buff gro
 check(#buffs[1].entries == 1 and buffs[1].entries[1] == "Battle Shout", "seeded buffs wrong: " .. table.concat(buffs[1].entries, ", "))
 local container = BuffContainer()
 check(container and container.unit == "player", "no container for the buff group")
-local shoutGroup = container.groups["Battle Shout/icons:32:0"]
-check(shoutGroup and shoutGroup.enabled and shoutGroup.ids[6673], "Battle Shout's aura group missing")
+local function G(prefix)
+	for key, g in pairs(container.groups) do
+		if key:sub(1, #prefix) == prefix and g.enabled then return g, key end
+	end
+end
+local keys = {}
+for key, g in pairs(container.groups) do keys[#keys + 1] = key .. "=" .. tostring(g.enabled) end
+local shoutGroup = G("Battle Shout/icons:32:0/")
+check(shoutGroup and shoutGroup.enabled and shoutGroup.ids[6673], "Battle Shout's aura group missing: " .. table.concat(keys, ", ") .. tostring(M.Printed("set up")))
 local bound = shoutGroup.button.bound
 check(bound.SetIcon and bound.SetDurationCooldown and bound.SetDurationText and bound.SetApplicationCount, "icon parts not bound")
 check(shoutGroup.layout.layoutIndex == 1 and shoutGroup.layout.elementWidth == 32, "aura group layout wrong")
@@ -333,15 +414,15 @@ check(not LecdmDB.auraIDs["Power Word: Fortitude"], "a buff in no group was lear
 -- Adding a buff from the ones on you; a change in combat waits for the end of combat.
 ns.Auras.Learn("Power Word: Fortitude", 1243)
 ns.Auras.SetInGroup(buffs[1], "Power Word: Fortitude", true)
-check(container.groups["Power Word: Fortitude/icons:32:0"].layout.layoutIndex == 2, "added buff not second")
+check(G("Power Word: Fortitude/icons:32:0/").layout.layoutIndex == 2, "added buff not second")
 M.combat = true
 buffs[1].style = "bars"
 ns.Refresh()
-check(ns.Auras.IsPending() and not container.groups["Battle Shout/bars:32:200"], "a buff group was changed in combat")
+check(ns.Auras.IsPending() and not G("Battle Shout/bars:32:200/"), "a buff group was changed in combat")
 M.combat = false
 M.Fire("PLAYER_REGEN_ENABLED")
-local barGroup = container.groups["Battle Shout/bars:32:200"]
-check(barGroup and barGroup.enabled and not container.groups["Battle Shout/icons:32:0"].enabled, "the timer bar look didn't replace the icons after combat")
+local barGroup = G("Battle Shout/bars:32:200/")
+check(barGroup and not G("Battle Shout/icons:32:0/"), "the timer bar look didn't replace the icons after combat")
 check(barGroup.button.bound.SetDurationBar and barGroup.button.bound.SetSpellName and barGroup.layout.elementWidth == 200, "timer bar parts wrong")
 check(container.axis == AnchorUtil.FlowLayoutAxis.Vertical, "timer bars not stacked")
 buffs[1].style = "icons"
@@ -349,9 +430,9 @@ ns.Refresh()
 
 -- A buff with no ID known yet waits; moving and taking out.
 ns.Auras.SetInGroup(buffs[1], "Unheard Of", true)
-check(not container.groups["Unheard Of/icons:32:0"], "a buff with no IDs got an aura group")
+check(not G("Unheard Of/"), "a buff with no IDs got an aura group")
 ns.Auras.MoveEntry(buffs[1], 2, -1)
-check(buffs[1].entries[1] == "Power Word: Fortitude" and container.groups["Power Word: Fortitude/icons:32:0"].layout.layoutIndex == 1, "move up didn't reorder")
+check(buffs[1].entries[1] == "Power Word: Fortitude" and G("Power Word: Fortitude/icons:32:0/").layout.layoutIndex == 1, "move up didn't reorder")
 ns.Auras.SetInGroup(buffs[1], "Unheard Of", false)
 check(#buffs[1].entries == 2, "taking a buff out didn't")
 
@@ -360,9 +441,42 @@ M.Slash("move")
 check(container.parent.shade.shown and container.parent.mouse, "buff group not unlocked with the bars")
 M.Slash("move")
 M.Slash("off")
-check(not container.parent.shown and not container.groups["Battle Shout/icons:32:0"].enabled, "buff group shown while off")
+check(not container.parent.shown and not G("Battle Shout/icons:32:0/"), "buff group shown while off")
 M.Slash("on")
-check(container.parent.shown and container.groups["Battle Shout/icons:32:0"].enabled, "buff group not back")
+check(container.parent.shown and G("Battle Shout/icons:32:0/"), "buff group not back")
+
+-- Buff alerts: out of combat, a buff in a group coming or going on you plays its sounds; its
+-- full duration is learned; the glow while up and the warning glow are part of the game's
+-- button (so its aura group's key changes with them).
+local BD = ns.db.alerts.defaults.buffs
+BD.applied, BD.removed = "MAP_PING", "RAID_WARNING"
+M.now = M.now + 10
+M.buffsOnMe = {}
+M.Fire("UNIT_AURA", "player")
+M.buffsOnMe = { { name = "Battle Shout", spellId = 6673, icon = 1, duration = 120 } }
+heard = #M.sounds
+M.Fire("UNIT_AURA", "player")
+check(#M.sounds == heard + 1 and M.sounds[#M.sounds] == SOUNDKIT.MAP_PING, "no applied sound out of combat")
+check(LecdmDB.auraDur["Battle Shout"] == 120, "duration not learned")
+M.buffsOnMe = {}
+M.Fire("UNIT_AURA", "player")
+check(M.sounds[#M.sounds] == SOUNDKIT.RAID_WARNING, "no removed sound out of combat")
+M.now = M.now + 10
+M.buffsOnMe = { { name = "Battle Shout", spellId = 6673, icon = 1, duration = 120 } }
+shout.cooldownID = 14
+heard = #M.sounds
+shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraApplied)
+M.Fire("UNIT_AURA", "player")
+check(#M.sounds == heard + 1, "Blizzard's announcement and Lecdm's own reading both played")
+BD.applied, BD.removed = "none", "none"
+BD.warnGlow, BD.upGlow = "pixel", "autocast"
+ns.Refresh()
+local warned = G("Battle Shout/icons:32:0/autocast:gold:5:pixel:120")
+check(warned and warned.button.bound.SetDurationBar, "the warning glow isn't timed on the button")
+check(warned.button.bound.SetDurationText, "no time text")
+BD.warnGlow, BD.upGlow = "none", "none"
+ns.Refresh()
+M.buffsOnMe = { { name = "Battle Shout", spellId = 25289, icon = 1 }, { name = "Power Word: Fortitude", spellId = 1243, icon = 8 } }
 
 -- /lecdm check, in combat with secret cooldown times: SECRET shown, nothing compared.
 M.combat, M.secretCooldowns = true, true
@@ -427,9 +541,13 @@ for _, word in ipairs({ "general", "bars", "buffs", "alerts", "test", "profiles"
 	M.Slash(word)
 end
 M.Slash("test")
-ns.db.test.sound = false
+ns.db.test.chat = "off"
 ns.Window.RunDefaults()
-check(ns.db.test.sound == true, "Test build Defaults didn't reset")
+check(ns.db.test.chat == "main", "Test build Defaults didn't reset")
+M.Slash("alerts")
+ns.db.alerts.defaults.spells.ready = "RAID_WARNING"
+ns.Window.RunDefaults()
+check(ns.db.alerts.defaults.spells.ready == "none", "Alerts Defaults didn't reset")
 M.Slash("")
 check(not ns.Window.IsShown(), "/lecdm didn't close the window")
 Lecdm_OnAddonCompartmentClick()
@@ -549,11 +667,12 @@ ns.Refresh()
 ns.Window.Hide()
 
 -- Profiles: a new one starts at the defaults; switching back brings the old settings back.
-ns.db.test.sound = false
+ns.db.test.chat = "off"
 check(ns.Profiles.New("Tank"), "couldn't make a profile")
-check(ns.Profiles.Current() == "Tank" and ns.db.test.sound == true, "new profile not at the defaults")
+check(ns.Profiles.Current() == "Tank" and ns.db.test.chat == "main", "new profile not at the defaults")
 check(ns.Profiles.Switch("Brenna Ashford"), "couldn't switch back")
-check(ns.db.test.sound == false and ns.db.test.pos[2] == 10, "old profile's settings lost")
+check(ns.db.test.chat == "off" and ns.db.test.pos[2] == 10, "old profile's settings lost")
+ns.db.test.chat = "main"
 check(ns.Profiles.Delete("Tank"), "couldn't delete")
 M.Slash("profile")
 check(M.Printed("profile: Brenna Ashford"), "/lecdm profile wrong")

@@ -65,7 +65,18 @@ Lecdm opens the options window:
   target), **hide them**, or **leave them** where Blizzard shows them. Which ones, and their
   order, are picked in `/cdm` (Tracked Buffs for icons, Tracked Bars for timer bars; "Open
   /cdm" is right there); their size is Edit Mode's.
-- **Alerts:** not built yet; it says what's coming.
+- **Alerts:** the sounds and glows every spell and buff gets, unless it has its own (the ⚙ on
+  its row on the Icon bars and Buffs tabs: a submenu per setting, "Default (...)" first).
+  Sounds are the game's (raid warning, ready check, alarm clock ...) or "Say it", which speaks
+  the name.
+  - Icon bars: a sound when it's ready (off cooldown, not the GCD), a glow while it's ready and
+    usable, a glow while the game highlights it (a proc); glow colour.
+  - Buff groups: sounds when it's applied and when it drops (in combat only for buffs Blizzard's
+    `/cdm` also tracks; out of combat for every buff on you), a glow while it's up, the time
+    turning red under a few seconds, and a warning glow then (icons; it needs the buff's full
+    duration, learned the first time Lecdm sees it on you out of combat).
+  - Blizzard's icons and timer bars: sounds when it's applied and when it drops, quiet when your
+    target dies unless "Also when your target dies".
 - **Test build:** test build 1's settings and tools (the same as its chat commands below), and
   where its debug lines go: "Show them in" the main chat window, a chat tab you've made (say
   one named Lecdm: right-click a chat tab, Create New Window), or nowhere (the log keeps them).
@@ -87,15 +98,14 @@ Chat commands:
 | `/lecdm status` | Is Blizzard's Cooldown Manager available, what it lists, what's listened to |
 | `/lecdm list` | Every entry Blizzard's Cooldown Manager lists for you, by section |
 | `/lecdm check` | What an addon can read about your spells right now (try it in combat) |
-| `/lecdm sound` | Sound on/off when a tracked buff drops (on by default: raid warning) |
 | `/lecdm blizz hide` / `show` | Make Blizzard's cooldown viewers invisible, or bring them back (a test) |
 | `/lecdm log` | The log in a window, ready to copy; `/lecdm log clear` empties it |
 
 What it does on its own:
 
 - **Listens to Blizzard's Cooldown Manager.** Whenever it notices a tracked buff applied or
-  removed, or a spell going on cooldown, the log says so (buffs in chat too), and a raid warning
-  plays when a tracked buff drops. It only listens; it changes nothing in the Cooldown Manager.
+  removed, or a spell going on cooldown, the log says so (and the alerts hear it). It only
+  listens; it changes nothing in the Cooldown Manager.
 - **Logs proc glows** (Overpower, Revenge, Clearcasting ...).
 
 ## Docs

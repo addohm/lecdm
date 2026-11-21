@@ -41,6 +41,16 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
   - `Catalogue.lua`: Blizzard's list through `C_CooldownViewer` (`ns.Catalogue.byID` by cooldown
     ID, `.bySpell`, `.sections`, `.Spells(sections, all)`, `.Name(cooldownID)`), `/lecdm list`.
     It gives Blizzard's default sections, not where the player put things in `/cdm`.
+  - `Glow.lua`: the owner's glow styles (`Glow.STYLES`, `Glow.COLORS`, `Glow.Build`, `Glow.Show`):
+    textures and Alpha/Translation/Rotation/FlipBook animations only.
+  - `Alerts.lua`: sounds (`A.SOUNDS`, `A.Play`: SOUNDKIT names or "say", text to speech) and
+    when they play; `ns.db.alerts`: `defaults.spells / .buffs / .blizzard` and each spell's
+    (`spells[key]`) or buff's (`buffs[name]`, `blizzard[name]`) own (`A.Get`, `A.Set`,
+    `A.HasOwn`). `A.OnIcon` (Bars.lua calls it per icon: the ready sound on the change off
+    cooldown, the ready / proc glow on `b.glow`), `A.OnAnnounced` (Listen.lua: Blizzard's
+    applied / removed; a target aura's removal waits a frame and is quiet if the target is
+    gone), `A.OnBuffsRead` (Auras.lua, out of combat: buffs that came or went, unless Blizzard
+    announced them within a second).
   - `Bars.lua`: the icon bars (`ns.db.bars`: `list` of bars, each `{ id, name, spells =
     { key ... }, show = { [key] = "ready" | "cooldown" }, size, gap, grow, vertical, perRow,
     gcd, pos }`; `seeded`, `nextID`, `hideBlizzard`). A key is a spellID (number), `"slot:N"`
@@ -83,12 +93,13 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
     window `LecdmFrame`: tabs, Defaults, resize grip; pages register with `ns.Window.Page`; the
     Options > AddOns entry), `UI/Minimap.lua` (`LecdmMinimapButton`, angle 350, the addon
     compartment): the owner's house code, from leproc.
-  - `UI/Pages/`: `General.lua`, `Buffs.lua` (the Buffs tab, laid out like Icon bars:
+  - `UI/Pages/`: `General.lua`, `Alerts.lua` (the Alerts tab's defaults, `ns.AlertsMenu` and
+    `ns.AlertsGear`: a row's ⚙ context menu, `ns.ALERT_FIELDS`), `Buffs.lua` (the Buffs tab, laid out like Icon bars:
     `LECDM_NEW_BUFFS` popup, Show as, look rows shown by style, the checklist of Blizzard's
     buffs and the buffs on you now, a row per buff), `Bars.lua` (the Icon bars tab: a `DropdownButton` picks the
     bar, its "New icon bar..." entry opens the `LECDM_NEW_BAR` popup with a name box; below,
     only the bar picked: name field, look, Delete, then the spell checklist (MenuUtil) and a
-    row per spell rebuilt each refresh with `UI.Stack` Reset/Add/Done), `Soon.lua` (Buffs, Alerts: what's coming), `Test.lua` (test
+    row per spell rebuilt each refresh with `UI.Stack` Reset/Add/Done), `Test.lua` (test
     build 1's settings and tools), `Profiles.lua`.
 - `tools/install_forever.cmd`: pulls (and explains a rewritten history), copies the addon into
   the Windows client, stamps the build, packs `Lecdm-<version>.zip` on the desktop. Keep it CRLF
@@ -142,8 +153,10 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
 - Events, not timers or retry ladders.
 - The version alone in any UI; the build only in chat (login line, `/lecdm help`).
 - New settings go in `ns.DEFAULTS` (so in every profile). Account-wide, not settings: the log,
-  `welcomed`, and what's learned about buffs (`LecdmDB.auraIDs[name]`, `LecdmDB.auraIcons`). A
-  setting change calls `ns.Refresh()`.
+  `welcomed`, and what's learned about buffs (`LecdmDB.auraIDs[name]`, `LecdmDB.auraIcons`,
+  `LecdmDB.auraDur`: full durations). A setting change calls `ns.Refresh()`.
+- A buff group button's parts are fixed when the game makes it, so its aura group key carries
+  everything they depend on: the look and the alerts (`A.AlertLook(name)`).
 - **Aura containers are touched only out of combat** (their buttons are closed to addons
   while auras are secret): `ns.Auras.Build()` waits for `PLAYER_REGEN_ENABLED`.
 - Example names in docs and tests are made up ("Brenna Ashford").

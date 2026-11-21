@@ -107,7 +107,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 5. **Effects on the target:** covered by Buffs part 3 (Blizzard's icons and timer bars, picked
    in `/cdm`). Left: their size from Lecdm instead of Edit Mode, if it can be done without
    fighting Blizzard's scale.
-6. **Alerts and effects:** sounds and glows on ready, applied, removed, charges; per-spell
+6. **Alerts and effects** (first build done 2026-11-21: sounds, "Say it", glows on ready,
+   procs, while up and at the warning time, defaults and per spell or buff): sounds and glows on ready, applied, removed, charges; per-spell
    glow styles; keybind text; visibility rules (combat, group, instance, target, mounted ...).
 7. **The rest of EllesmereUI's list:** action-bar button glows on buff state, focus interrupt
    bar, swing-timer sweep for on-next-swing attacks, queued-attack highlight, key-press mirror,

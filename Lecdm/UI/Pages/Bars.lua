@@ -174,7 +174,10 @@ local function SpellRow(parent)
 			return { row.key and Bars.EntryName(row.key) or "",
 				"Always: the icon is always there. Only when ready: hidden while it's on cooldown. Only on cooldown: hidden while it's ready. A hidden icon's place closes up." }
 		end,
-		sync = function(r) r.label:SetText(r.key and EntryText(r.key, 20) or "") end,
+		sync = function(r)
+			local own = r.key and ns.Alerts.HasOwn("spells", r.key) and " |cff999999(own alerts)|r" or ""
+			r.label:SetText(r.key and (EntryText(r.key, 20) .. own) or "")
+		end,
 	})
 	local x = row.right + 4
 	SmallButton(row, "Interface\\Buttons\\Arrow-Up", x, "Move up", function()
@@ -189,6 +192,8 @@ local function SpellRow(parent)
 		local bar = Current()
 		if bar and row.key then Bars.SetOnBar(bar, row.key, false) end
 	end)
+	ns.AlertsGear(row, x + 80, "spells", function() return row.key end,
+		function() return row.key and Bars.EntryName(row.key) end)
 	return row
 end
 

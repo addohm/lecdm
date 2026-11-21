@@ -223,7 +223,11 @@ local function BuffRow(parent)
 		local group = Current()
 		if group and row.name then Auras.SetInGroup(group, row.name, false) end
 	end)
-	row.Sync = function() row.label:SetText(row.name and BuffText(row.name, 20) or "") end
+	ns.AlertsGear(row, 414, "buffs", function() return row.name end, function() return row.name end)
+	row.Sync = function()
+		local own = row.name and ns.Alerts.HasOwn("buffs", row.name) and " |cff999999(own alerts)|r" or ""
+		row.label:SetText(row.name and (BuffText(row.name, 20) .. own) or "")
+	end
 	return row
 end
 

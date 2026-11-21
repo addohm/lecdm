@@ -62,6 +62,18 @@ local function NewRegion(kind, name, parent)
 	function f:SetBackdropBorderColor(r, g, b) self.border = { r, g, b } end
 	function f:EnableMouse(v) self.mouse = v end
 	function f:CreateTexture() return NewRegion("Texture", nil, self) end
+	function f:CreateAnimationGroup()
+		local g = Permissive({ animations = {}, playing = false })
+		function g:CreateAnimation(kind)
+			local a = Permissive({ kind = kind })
+			table.insert(self.animations, a)
+			return a
+		end
+		function g:Play() self.playing = true end
+		function g:Stop() self.playing = false end
+		function g:IsPlaying() return self.playing end
+		return g
+	end
 	function f:CreateFontString() return NewRegion("FontString", nil, self) end
 	function f:SetupMenu(generator) self.generator = generator end
 	function f:EnableMouse(v) self.mouse = v end
@@ -167,7 +179,7 @@ SettingsPanel = CreateFrame("Frame", "SettingsPanel")
 ChatFontNormal = {}
 UISpecialFrames = {}
 SlashCmdList = {}
-SOUNDKIT = { RAID_WARNING = 8959 }
+SOUNDKIT = { RAID_WARNING = 8959, READY_CHECK = 8960, MAP_PING = 3175, ALARM_CLOCK_WARNING_3 = 12889 }
 tinsert = table.insert
 function wipe(t) for k in pairs(t) do t[k] = nil end return t end
 function date() return "12:00:00" end
@@ -236,6 +248,8 @@ function M.Accept(text)
 	local dialog = { GetEditBox = function() return { GetText = function() return text end } end }
 	StaticPopupDialogs[p.which].OnAccept(dialog, p.data)
 end
+M.now = 1000
+function GetTime() return M.now end
 M.timers = {}
 C_Timer = { After = function(_, fn) table.insert(M.timers, fn) end }
 function M.RunTimers()
@@ -258,9 +272,21 @@ C_Secrets = {
 C_SpellActivationOverlay = { IsSpellOverlayed = function() return false end }
 
 AuraContainerSortMethod = { Default = 0, Expiration = 2 }
+C_CurveUtil = {
+	CreateColorCurve = function()
+		local c = { points = {} }
+		function c:SetType(kind) self.kind = kind end
+		function c:AddPoint(x, color) table.insert(self.points, { x, color }) end
+		return c
+	end,
+}
+function CreateColor(r, g, b, a) return { r = r, g = g, b = b, a = a } end
 AnchorUtil = { FlowLayoutAxis = { Horizontal = 1, Vertical = 2 }, FlowDirection = { Right = 1, Left = 2, Down = 3, Up = 4 } }
 Enum = {
 	StatusBarTimerDirection = { RemainingTime = 1, ElapsedTime = 0 },
+	LuaCurveType = { Linear = 0, Step = 1 },
+	DurationTextBindingProperty = { RemainingDuration = 1 },
+	TtsVoiceType = { Standard = 0 },
 	StatusBarInterpolation = { Immediate = 0, ExponentialEaseOut = 1 },
 	SpellBookSpellBank = { Player = 0 },
 	SpellBookItemType = { None = 0, Spell = 1 },
@@ -352,7 +378,7 @@ C_UnitAuras = {
 		local b = M.buffsOnMe[i]
 		if not b then return nil end
 		if M.combat then return { name = SECRET, spellId = SECRET, icon = SECRET } end
-		return { name = b.name, spellId = b.spellId, icon = b.icon }
+		return { name = b.name, spellId = b.spellId, icon = b.icon, duration = b.duration }
 	end,
 	GetAuraDuration = function(_, id)
 		if id == SECRET then error("secret aura instance refused") end

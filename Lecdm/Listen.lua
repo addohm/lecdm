@@ -97,9 +97,15 @@ local function OnAlertEvent(item, event)
 	end
 	eventCount = eventCount + 1
 	ns.Log(text, isAura)
-	if name == "OnAuraRemoved" then
-		if ns.db.test.sound then PlaySound(SOUNDKIT.RAID_WARNING, "Master") end
-		LookAgain()
+	if isAura then
+		-- The alerts (Alerts.lua): named through the icon's cooldown ID; an aura Blizzard doesn't
+		-- list as on you is on the target.
+		local id = item.cooldownID
+		if not ns.IsSecret(id) and ns.Alerts then
+			local entry = ns.Catalogue.byID[id]
+			ns.Alerts.OnAnnounced(name, ns.Catalogue.Name(id), entry ~= nil and entry.selfAura == false)
+		end
+		if name == "OnAuraRemoved" then LookAgain() end
 	end
 end
 

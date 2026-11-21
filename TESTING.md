@@ -3,6 +3,24 @@
 What to check in game, and what's been confirmed. Results go under Confirmed or Problems, with
 the build and date.
 
+## To check (alerts, 2026-11-21)
+
+New files: install, then fully restart the game.
+
+1. **Icon bars.** Alerts tab: "Sound when it's ready: Ready check". Use Charge: the sound comes
+   when it's ready again (not after a GCD). "Glow while it's ready": pick Pixel glow: ready,
+   usable spells glow; using one stops it. A proc (Overpower, Revenge, if the game highlights
+   them on Forever) glows Modern by default.
+2. **A spell's own:** its ⚙ on the Icon bars tab: "Sound when it's ready: Say it": it speaks
+   the name. Default puts it back; the row says "(own alerts)" while it has its own.
+3. **Buffs.** "Sound when it drops: Raid warning": Battle Shout dropping out of combat plays it;
+   in combat only if Battle Shout is also tracked in /cdm (Buffs tab). "Time turns red under
+   5 s"; "Warning glow: Pixel": at 5 s left the icon glows (after Lecdm has seen Battle Shout on
+   you once out of combat). "Glow while it's up" glows the whole time.
+4. **Blizzard's icons and timer bars.** "Sound when it drops": Sunder Armor expiring plays it;
+   killing the mob doesn't, unless "Also when your target dies".
+5. In combat, in a dungeon: any of it missing, late, or doubled? Lua errors?
+
 ## To check (buffs, part 3, 2026-11-21)
 
 New files: install, then fully restart the game.

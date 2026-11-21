@@ -254,11 +254,17 @@ local function Button(frame, i)
 	b.over:SetFrameLevel(b.cd:GetFrameLevel() + 1)
 	b.count = b.over:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
 	b.count:SetPoint("BOTTOMRIGHT", -2, 2)
+	-- The alerts' glow (Alerts.lua), above the swipe, below the text.
+	b.glow = CreateFrame("Frame", nil, b)
+	b.glow:SetAllPoints()
+	b.glow:SetFrameLevel(b.cd:GetFrameLevel() + 1)
+	b.over:SetFrameLevel(b.cd:GetFrameLevel() + 2)
 	frame.buttons[i] = b
 	return b
 end
 
--- A spell's state on its icon; returns whether it's on a real cooldown.
+-- A spell's state on its icon; returns whether it's on a real cooldown, and whether it's usable
+-- (nil: the game didn't say).
 local function SpellState(b, bar)
 	local id = b.spellID
 	local onCooldown, onGCD = false, false
@@ -281,14 +287,15 @@ local function SpellState(b, bar)
 	local r, g, bl = 1, 1, 1
 	local okRange, inRange = pcall(C_Spell.IsSpellInRange, id)
 	local okUse, usable = pcall(C_Spell.IsSpellUsable, id)
+	if not okUse or ns.IsSecret(usable) then usable = nil end
 	if okRange and not ns.IsSecret(inRange) and inRange == false then
 		r, g, bl = 1, 0.3, 0.3
-	elseif okUse and not ns.IsSecret(usable) and not usable then
+	elseif usable == false then
 		r, g, bl = 0.4, 0.4, 0.4
 	end
 	b.icon:SetVertexColor(r, g, bl)
 	b.count:SetText("")
-	return onCooldown
+	return onCooldown, usable
 end
 
 -- An equipment slot's or a bag item's state on its icon; returns whether it's on a real cooldown
@@ -316,7 +323,8 @@ local function ItemState(b, bar)
 		b.cd:Clear()
 	end
 	local okUse, usable = pcall(C_Item.IsUsableItem, B.ItemOf(b.key))
-	local v = (okUse and not ns.IsSecret(usable) and not usable) and 0.4 or 1
+	if not okUse or ns.IsSecret(usable) then usable = nil end
+	local v = usable == false and 0.4 or 1
 	b.icon:SetVertexColor(v, v, v)
 	local n = kind == "item" and B.ItemCount(id) or 0
 	if kind == "item" and n == 0 then
@@ -326,13 +334,15 @@ local function ItemState(b, bar)
 	else
 		b.count:SetText(n > 1 and tostring(n) or "")
 	end
-	return onCooldown
+	if kind == "item" and n == 0 then usable = false end
+	return onCooldown, usable
 end
 
 -- Reads an entry's state and shows it. Returns whether the icon should be shown.
 local function Update(b, bar)
 	if not b.known then return false end
-	local onCooldown = (b.spellID and SpellState or ItemState)(b, bar)
+	local onCooldown, usable = (b.spellID and SpellState or ItemState)(b, bar)
+	if ns.Alerts then ns.Alerts.OnIcon(b, bar, onCooldown, usable) end
 	local show = bar.show[b.key] or "always"
 	if show == "ready" then return not onCooldown end
 	if show == "cooldown" then return onCooldown end
@@ -472,6 +482,7 @@ function B.Build()
 			local kind, id = B.Kind(key)
 			b.key = key
 			b.spellID = kind == "spell" and id or nil
+			b.name = kind == "spell" and B.SpellName(id) or B.EntryName(key)
 			-- A bag item you have none of: hidden, or shown greyed with "0" (the bar's choice).
 			b.known = B.EntryKnown(key) or (kind == "item" and bar.emptyItems == "grey")
 			b.wanted = nil

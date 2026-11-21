@@ -12,8 +12,16 @@ local DEFAULTS = {
 	classColour = false,                -- the options window in your class colour
 	window = {},                        -- the options window: pos, size, tab
 	minimap = { angle = 350, hide = false }, -- clear of the owner's other addons (200-325)
-	test = { sound = true, chat = "main" }, -- test build 1: the raid warning when a tracked buff drops;
-	                                    -- where its debug lines go (Log.lua: ns.Debug)
+	test = { chat = "main" },           -- where the test build's debug lines go (Log.lua: ns.Debug)
+	-- the alerts (Alerts.lua): defaults, and spells' and buffs' own settings by key or name
+	alerts = {
+		defaults = {
+			spells = { ready = "none", readyGlow = "none", procGlow = "modern", glowColor = "gold" },
+			buffs = { applied = "none", removed = "none", upGlow = "none", warn = 5, warnGlow = "none", glowColor = "gold" },
+			blizzard = { applied = "none", removed = "none", deaths = false },
+		},
+		spells = {}, buffs = {}, blizzard = {},
+	},
 	-- the cooldown bars (Bars.lua): list = { bar ... } (B.NewBar has a bar's fields), seeded once
 	-- from Blizzard's list, and whether Blizzard's Essential and Utility viewers are made invisible
 	bars = { list = {}, seeded = false, nextID = 1, hideBlizzard = true },
@@ -157,7 +165,7 @@ local PAGE_WORDS = {
 	general = "general", settings = "general",
 	bars = "bars", iconbars = "bars", icons = "bars", cooldowns = "bars",
 	buffs = "buffs", auras = "buffs",
-	alerts = "alerts", sounds = "alerts", glows = "alerts",
+	alerts = "alerts", sounds = "alerts", glows = "alerts", sound = "alerts",
 	test = "test",
 	profiles = "profiles",
 }
@@ -172,7 +180,6 @@ local function Help()
 	ns.Print("Test build: /lecdm status - Blizzard's Cooldown Manager, its list, what's listened to")
 	ns.Print("/lecdm list - every spell Blizzard's Cooldown Manager lists for you, by section")
 	ns.Print("/lecdm check - what an addon can read about your spells right now (try it in combat)")
-	ns.Print("/lecdm sound - the raid warning when a tracked buff drops, on or off")
 	ns.Print("/lecdm blizz hide | show - make Blizzard's cooldown viewers invisible, or bring them back")
 	ns.Print("/lecdm log - the log, ready to copy; /lecdm log clear empties it")
 end
@@ -202,10 +209,6 @@ SlashCmdList.LECDM = function(msg)
 		ns.Catalogue.PrintAll()
 	elseif cmd == "check" then
 		ns.Check.Run()
-	elseif cmd == "sound" then
-		ns.db.test.sound = not ns.db.test.sound
-		ns.Print("raid warning when a tracked buff drops: " .. (ns.db.test.sound and "on" or "off"))
-		if ns.Window then ns.Window.Refresh() end
 	elseif cmd == "move" then
 		ns.Bars.SetUnlocked(not ns.Bars.IsUnlocked())
 	elseif cmd == "blizz" then

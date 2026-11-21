@@ -165,34 +165,114 @@ function A.ReadBuffs()
 	for i = 1, 40 do
 		local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, "player", i, "HELPFUL")
 		if not ok or type(aura) ~= "table" then break end
-		local name, id, icon = aura.name, aura.spellId, aura.icon
+		local name, id, icon, duration = aura.name, aura.spellId, aura.icon, aura.duration
 		if not (ns.IsSecret(name) or ns.IsSecret(id) or ns.IsSecret(icon)) and name and id and not seen[name] then
 			seen[name] = true
-			list[#list + 1] = { name = name, spellID = id, icon = icon }
+			if ns.IsSecret(duration) or type(duration) ~= "number" then duration = nil end
+			list[#list + 1] = { name = name, spellID = id, icon = icon, duration = duration }
 		end
 	end
 	return list
 end
 
+-- A buff's full duration, learned out of combat (for the warning glow's timing).
+function A.Duration(name)
+	return LecdmDB.auraDur and LecdmDB.auraDur[name]
+end
+
 -- Out of combat, each buff on you that's in a group teaches its ID (another rank, another
--- caster's); the containers are set again when one is new.
+-- caster's) and its full duration; the containers are set again when one is new. The alerts
+-- hear what came and went.
 local function LearnFromBuffs()
 	local changed = false
 	LecdmDB.auraIcons = LecdmDB.auraIcons or {}
-	for _, b in ipairs(A.ReadBuffs()) do
+	LecdmDB.auraDur = LecdmDB.auraDur or {}
+	local buffs = A.ReadBuffs()
+	for _, b in ipairs(buffs) do
 		if A.GroupOf(b.name) then
 			if A.Learn(b.name, b.spellID) then changed = true end
 			LecdmDB.auraIcons[b.name] = b.icon
+			if b.duration and b.duration > 0 and LecdmDB.auraDur[b.name] ~= b.duration then
+				LecdmDB.auraDur[b.name] = b.duration
+				changed = true
+			end
 		end
 	end
+	if ns.Alerts then ns.Alerts.OnBuffsRead(buffs) end
 	return changed
 end
 
 -- The display -----------------------------------------------------------------------------
 
+-- The time text's colour: red under `warn` seconds, white above (the game applies the curve in
+-- combat too).
+local function WarnCurve(warn)
+	local curve = C_CurveUtil.CreateColorCurve()
+	curve:SetType(Enum.LuaCurveType.Step)
+	curve:AddPoint(0, CreateColor(1, 0.25, 0.25, 1))
+	curve:AddPoint(warn, CreateColor(1, 1, 1, 1))
+	return curve
+end
+
+local function Margin(size)
+	return math.ceil(size * 0.25) + 3 -- how far any glow style reaches past the icon
+end
+
+-- The warning glow, at the warning time, in combat too (the owner's own technique, proven on
+-- Forever): the game drives an invisible bar from the buff's time left (SetDurationBar,
+-- RemainingTime), its fill shrinking k px a second, placed so the fill's end crosses the glow's
+-- area as the time left goes from warn + T to warn. A window frame runs from the fill's end to
+-- the bar's end inside a frame clipped to the glow's area, so what's in it shows only under the
+-- warning time. Lecdm never learns the time left: the game does the sizing. total: the buff's
+-- full duration (learned out of combat); without one there's no warning glow.
+local function AddTimedGlow(button, glow, color, size, warn, total)
+	if glow == "none" or not total or warn <= 0 or total - warn < 2 then return end
+	local margin = Margin(size)
+	local span = size + 2 * margin
+	local k = math.min(span / 0.5, 100000 / total) -- px per second; caps the bar near 100000 px
+	local bar = CreateFrame("StatusBar", nil, button)
+	bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8X8")
+	bar:SetStatusBarColor(1, 1, 1, 0)
+	bar:SetMinMaxValues(0, total)
+	bar:SetSize(k * total, 1)
+	bar:SetPoint("LEFT", button, "LEFT", -margin - k * warn, 0)
+	button:SetDurationBar(bar, {
+		direction = Enum.StatusBarTimerDirection.RemainingTime,
+		interpolation = Enum.StatusBarInterpolation.Immediate,
+	})
+	local area = CreateFrame("Frame", nil, button)
+	area:SetFrameLevel(button:GetFrameLevel() + 3)
+	area:SetPoint("TOPLEFT", button, "TOPLEFT", -margin, margin)
+	area:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", margin, -margin)
+	area:SetClipsChildren(true)
+	local window = CreateFrame("Frame", nil, area, "DisableUntrustedLayoutScriptsTemplate")
+	window:SetHeight(span)
+	window:SetPoint("LEFT", bar:GetStatusBarTexture(), "RIGHT")
+	window:SetPoint("RIGHT", bar, "RIGHT", 1, 0)
+	window:SetClipsChildren(true)
+	local host = CreateFrame("Frame", nil, window)
+	host:SetAllPoints(button)
+	local built = ns.Glow.Build(host, glow, color, size)
+	-- Its animations start with the buff; the clipping keeps them out of sight until the warning.
+	for _, g in ipairs(built.groups) do button:AddAuraShownAnimation(g) end
+end
+
+-- A buff entry's alert look: what its button's parts depend on (part of its aura group's key).
+function A.AlertLook(name)
+	local Get = ns.Alerts.Get
+	local total = A.Duration(name) or 0
+	return Get("buffs", name, "upGlow") .. ":" .. Get("buffs", name, "glowColor") .. ":" .. Get("buffs", name, "warn")
+		.. ":" .. Get("buffs", name, "warnGlow") .. ":" .. total
+end
+
 -- The parts of one of the game's aura buttons, built once when the game makes it.
-local function Styler(group)
+local function Styler(group, name)
 	local size, bars, width = group.size, group.style == "bars", group.barWidth
+	local Get = ns.Alerts.Get
+	local upGlow, color = Get("buffs", name, "upGlow"), Get("buffs", name, "glowColor")
+	local warn, warnGlow = Get("buffs", name, "warn"), Get("buffs", name, "warnGlow")
+	local total = A.Duration(name)
+	local timeOptions = warn > 0 and { textColor = { curve = WarnCurve(warn), property = Enum.DurationTextBindingProperty.RemainingDuration } } or nil
 	return function(button)
 		local edge = button:CreateTexture(nil, "BACKGROUND")
 		local icon = button:CreateTexture(nil, "ARTWORK")
@@ -231,7 +311,7 @@ local function Styler(group)
 			button:SetSpellName(name)
 			local time = barTop:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
 			time:SetPoint("RIGHT", -4, 0)
-			button:SetDurationText(time)
+			button:SetDurationText(time, timeOptions)
 			count:SetPoint("BOTTOMRIGHT", icon, -1, 1)
 		else
 			button:SetSize(size, size)
@@ -247,8 +327,18 @@ local function Styler(group)
 			button:SetDurationCooldown(cooldown)
 			local time = top:CreateFontString(nil, "OVERLAY", "NumberFontNormalSmall")
 			time:SetPoint("BOTTOM", 0, 1)
-			button:SetDurationText(time)
+			button:SetDurationText(time, timeOptions)
 			count:SetPoint("TOPRIGHT", -1, -1)
+			AddTimedGlow(button, warnGlow, color, size, warn, total)
+		end
+		-- The glow while it's up: part of the button, so it shows with it; its animations play
+		-- when the game shows the button.
+		if upGlow ~= "none" then
+			local holder = CreateFrame("Frame", nil, button)
+			holder:SetAllPoints(button)
+			holder:SetFrameLevel(button:GetFrameLevel() + 2)
+			local built = ns.Glow.Build(holder, upGlow, color, bars and size or size)
+			for _, g in ipairs(built.groups) do button:AddAuraShownAnimation(g) end
 		end
 	end
 end
@@ -360,12 +450,12 @@ local function PlaceGroup(f, group, i)
 	for j, name in ipairs(group.entries) do
 		local ids, count = A.IDs(name)
 		if count > 0 then
-			local key = name .. "/" .. look
+			local key = name .. "/" .. look .. "/" .. A.AlertLook(name)
 			wanted[key] = true
 			if not f.made[key] then
 				c:AddAuraGroup(key, "HELPFUL", {
 					candidateFilters = { includeSpellIDs = ids },
-					initializeFrame = Styler(group),
+					initializeFrame = Styler(group, name),
 					sortMethod = AuraContainerSortMethod and AuraContainerSortMethod.Expiration or nil,
 				})
 				f.made[key] = true

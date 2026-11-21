@@ -14,6 +14,8 @@ Log.lua
 Catalogue.lua
 Listen.lua
 Check.lua
+Glow.lua
+Alerts.lua
 Bars.lua
 Auras.lua
 Hosted.lua
@@ -26,6 +28,6 @@ UI\Minimap.lua
 UI\Pages\General.lua
 UI\Pages\Bars.lua
 UI\Pages\Buffs.lua
-UI\Pages\Soon.lua
+UI\Pages\Alerts.lua
 UI\Pages\Test.lua
 UI\Pages\Profiles.lua
