@@ -94,7 +94,12 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
    target, its timers; an addon can't time them in combat): settled 2026-11-20 in the host
    test. Blizzard's own buff icons and bars live in Lecdm's bars, re-placed after each of
    Blizzard's layouts, and follow each target. Confirmed in the open world and in a dungeon.
-4. **Buffs:** the Cooldown Manager's tracked buffs and procs, buffs from others (aura
+4. **Buffs** (owner's pick 2026-11-21: buffs on you come from aura containers, picked in
+   Lecdm; your debuffs on the target from Blizzard's own icons and bars). Part 1 done
+   2026-11-21: buff groups, icons or timer bars, any buff on you while it's up, IDs learned by
+   name. Part 2: "keep up" buffs with a missing state (a fixed place, dimmed red while down).
+   Part 3: the target's debuffs (step 5). Then: thresholds and ticks on timer bars, bar
+   colours. The Cooldown Manager's tracked buffs and procs, buffs from others (aura
    containers), missing state; each buff shown as an icon or a **timer bar** (moved here from
    its own step on 2026-11-21: timer bars mostly show buffs and target debuffs, and the host
    test showed Blizzard's own timer bars can live in Lecdm), with groups, thresholds and ticks.

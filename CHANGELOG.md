@@ -43,6 +43,16 @@ All notable changes to lecdm. The format follows
   cooldown swipe, grey on cooldown and dark when unusable. New profiles get both trinket slots
   on the Utility bar; the checklist has "Equipped" and "In your bags" sections.
 
+- Buffs, first part (2026-11-21): buff groups on the Buffs tab, showing buffs on you from
+  anyone while they're up, as icons (swipe, time left, stacks) or timer bars (icon, a draining
+  bar with the name and time left, stacks), through Blizzard's aura containers (in combat
+  too). Each group: name, show as, icon size or bar height and width, spacing, grow from,
+  vertical, icons per row. Buffs are ticked from your buffs in Blizzard's list or the buffs on
+  you now, and ordered; every rank and caster of a buff is learned the first time it's seen on
+  you out of combat. The first group is filled from Blizzard's list. Unlock moves buff groups
+  with the icon bars.
+- Icon bars: "Items you have none of": hide them (as before), or show them greyed with a 0.
+
 ### Changed
 
 - The Bars tab is now **Icon bars** (owner's naming, 2026-11-21: "timer bars" will be the

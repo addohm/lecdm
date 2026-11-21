@@ -52,6 +52,16 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
     `B.UpdateSpell` on events, `B.SetOnBar`, `B.MoveSpell`, `B.NewBar`, `B.Delete`,
     `B.StartOver`, `B.SetUnlocked`, `B.ApplyBlizzard`, `B.Spellbook()` (spells with a cooldown,
     by skill line, for the checklist), `B.Known`.
+  - `Auras.lua`: the buff groups (`ns.db.buffs`: `list` of groups `{ id, name, style =
+    "icons" | "bars", entries = { buff name ... }, size, gap, grow, vertical, perRow, barWidth,
+    pos }`; `seeded`, `nextID`). One aura container per group (`CustomAuraContainerTemplate`,
+    unit player), one aura group per entry (key `"<name>/<style>:<size>:<width>"`, layoutIndex =
+    its place; a changed look makes new keys, old ones disabled). `Styler(group)` builds a
+    button's parts (icons: swipe, time, stacks; bars: icon, StatusBar via `SetDurationBar`,
+    `SetSpellName`, time, stacks). `A.IDs(name)`: learned + Blizzard's list + the spell's own;
+    `A.ReadBuffs()` (out of combat only) and learning on `UNIT_AURA`; `A.Build()` waits for the
+    end of combat (`pending`). `A.BlizzardBuffs()` (selfAura entries), `A.SetInGroup`,
+    `A.MoveEntry`, `A.NewGroup`, `A.Delete`, `A.StartOver`.
   - `Listen.lua`: hooks `OnAcquireItemFrame` on the four viewers and `TriggerAlertEvent` on each
     icon (weak table of hooked icons), logs what the Cooldown Manager announces (with the
     target's state on "removed"), the raid warning on "removed"; proc glow events, blocked
@@ -65,7 +75,9 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
     window `LecdmFrame`: tabs, Defaults, resize grip; pages register with `ns.Window.Page`; the
     Options > AddOns entry), `UI/Minimap.lua` (`LecdmMinimapButton`, angle 350, the addon
     compartment): the owner's house code, from leproc.
-  - `UI/Pages/`: `General.lua`, `Bars.lua` (the Icon bars tab: a `DropdownButton` picks the
+  - `UI/Pages/`: `General.lua`, `Buffs.lua` (the Buffs tab, laid out like Icon bars:
+    `LECDM_NEW_BUFFS` popup, Show as, look rows shown by style, the checklist of Blizzard's
+    buffs and the buffs on you now, a row per buff), `Bars.lua` (the Icon bars tab: a `DropdownButton` picks the
     bar, its "New icon bar..." entry opens the `LECDM_NEW_BAR` popup with a name box; below,
     only the bar picked: name field, look, Delete, then the spell checklist (MenuUtil) and a
     row per spell rebuilt each refresh with `UI.Stack` Reset/Add/Done), `Soon.lua` (Buffs, Alerts: what's coming), `Test.lua` (test
@@ -119,8 +131,11 @@ Now: 0.1.0-dev. Test build 1 (in game, 2026-11-20) confirmed what the plan relie
   getter/setter pairs their own locals (UI/Pages/Bars.lua).
 - Events, not timers or retry ladders.
 - The version alone in any UI; the build only in chat (login line, `/lecdm help`).
-- New settings go in `ns.DEFAULTS` (so in every profile); only the log and `welcomed` are
-  account-wide. A setting change calls `ns.Refresh()`.
+- New settings go in `ns.DEFAULTS` (so in every profile). Account-wide, not settings: the log,
+  `welcomed`, and what's learned about buffs (`LecdmDB.auraIDs[name]`, `LecdmDB.auraIcons`). A
+  setting change calls `ns.Refresh()`.
+- **Aura containers are touched only out of combat** (their buttons are closed to addons
+  while auras are secret): `ns.Auras.Build()` waits for `PLAYER_REGEN_ENABLED`.
 - Example names in docs and tests are made up ("Brenna Ashford").
 - **Words players see:** ours are "icon bars" (the code and settings say `bars`); Blizzard's
   tracked bars are "timer bars". Don't put two look-alike controls side by side (the owner

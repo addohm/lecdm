@@ -14,5 +14,4 @@ local function Soon(id, label, order, text)
 	})
 end
 
-Soon("buffs", "Buffs", 3, "Your buffs and procs, buffs from others (Fortitude, Battle Shout, world buffs), what's missing, and your debuffs, DoTs and HoTs on your target, each as an icon or a timer bar (Blizzard's \"tracked bars\").")
 Soon("alerts", "Alerts", 4, "Sounds and glows when a spell is ready, a buff is applied or drops, a charge comes back: set per spell, in combat too.")

@@ -16,6 +16,8 @@ local DEFAULTS = {
 	-- the cooldown bars (Bars.lua): list = { bar ... } (B.NewBar has a bar's fields), seeded once
 	-- from Blizzard's list, and whether Blizzard's Essential and Utility viewers are made invisible
 	bars = { list = {}, seeded = false, nextID = 1, hideBlizzard = true },
+	-- the buff groups (Auras.lua): list = { group ... } (A.NewGroup has a group's fields), seeded once
+	buffs = { list = {}, seeded = false, nextID = 1 },
 }
 ns.DEFAULTS = DEFAULTS
 
@@ -80,6 +82,7 @@ end
 -- After any setting changes, and when the profile changes: everything shown follows ns.db.
 function ns.Refresh()
 	if ns.Bars then ns.Bars.Build() end
+	if ns.Auras then ns.Auras.Build() end
 	if ns.Theme then ns.Theme.Apply() end
 	if ns.Minimap then ns.Minimap.Apply() end
 	if ns.Window then ns.Window.Apply() end
@@ -157,7 +160,7 @@ local function Help()
 	ns.Print("/lecdm general | bars | buffs | alerts | test | profiles - open that tab")
 	ns.Print("/lecdm profile - the profile in use, and the Profiles tab (where they're managed)")
 	ns.Print("/lecdm minimap - show or hide the minimap button; /lecdm on | off - turn Lecdm on or off")
-	ns.Print("/lecdm move - unlock the icon bars to drag them; again to lock them")
+	ns.Print("/lecdm move - unlock the icon bars and buff groups to drag them; again to lock them")
 	ns.Print("Test build: /lecdm status - Blizzard's Cooldown Manager, its list, what's listened to")
 	ns.Print("/lecdm list - every spell Blizzard's Cooldown Manager lists for you, by section")
 	ns.Print("/lecdm check - what an addon can read about your spells right now (try it in combat)")

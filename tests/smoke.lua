@@ -234,6 +234,75 @@ local equipped, bags = ns.Bars.Equipped(), ns.Bars.BagItems()
 check(#equipped == 2 and equipped[1] == "slot:13" and equipped[2] == "slot:14", "equipped list wrong")
 check(#bags == 1 and bags[1] == "item:5512", "bag list wrong (once each, usable only)")
 
+-- A bag item you have none of can show greyed with a 0 instead of hiding (the bar's choice).
+list[2].emptyItems = "grey"
+M.bag[5512] = 0
+M.Fire("BAG_UPDATE_DELAYED")
+stone = Button(utility, "item:5512")
+check(stone.shown and stone.icon.desaturated and stone.count.text == "0", "an empty item isn't shown greyed with 0")
+list[2].emptyItems = "hide"
+M.bag[5512] = 2
+M.Fire("BAG_UPDATE_DELAYED")
+
+-- Buff groups: the first one is filled with your learned buffs from Blizzard's list (on you:
+-- Battle Shout; not Sunder Armor, a debuff on the target). Each buff is an aura group in the
+-- group's container, with every ID known for it, and an icon's parts bound.
+local function BuffContainer()
+	for _, c in ipairs(M.containers or {}) do
+		if c.parent and c.parent.groupID == ns.db.buffs.list[1].id then return c end
+	end
+end
+local buffs = ns.db.buffs.list
+check(ns.db.buffs.seeded and #buffs == 1 and buffs[1].name == "Buffs", "buff group not seeded")
+check(#buffs[1].entries == 1 and buffs[1].entries[1] == "Battle Shout", "seeded buffs wrong: " .. table.concat(buffs[1].entries, ", "))
+local container = BuffContainer()
+check(container and container.unit == "player", "no container for the buff group")
+local shoutGroup = container.groups["Battle Shout/icons:32:0"]
+check(shoutGroup and shoutGroup.enabled and shoutGroup.ids[6673], "Battle Shout's aura group missing")
+local bound = shoutGroup.button.bound
+check(bound.SetIcon and bound.SetDurationCooldown and bound.SetDurationText and bound.SetApplicationCount, "icon parts not bound")
+check(shoutGroup.layout.layoutIndex == 1 and shoutGroup.layout.elementWidth == 32, "aura group layout wrong")
+
+-- Out of combat, a buff seen on you teaches its ID (another rank, another caster's).
+M.buffsOnMe = { { name = "Battle Shout", spellId = 25289, icon = 1 }, { name = "Power Word: Fortitude", spellId = 1243, icon = 8 } }
+M.Fire("UNIT_AURA", "player")
+check(shoutGroup.ids[25289], "a rank seen on you wasn't learned")
+check(not LecdmDB.auraIDs["Power Word: Fortitude"], "a buff in no group was learned")
+
+-- Adding a buff from the ones on you; a change in combat waits for the end of combat.
+ns.Auras.Learn("Power Word: Fortitude", 1243)
+ns.Auras.SetInGroup(buffs[1], "Power Word: Fortitude", true)
+check(container.groups["Power Word: Fortitude/icons:32:0"].layout.layoutIndex == 2, "added buff not second")
+M.combat = true
+buffs[1].style = "bars"
+ns.Refresh()
+check(ns.Auras.IsPending() and not container.groups["Battle Shout/bars:32:200"], "a buff group was changed in combat")
+M.combat = false
+M.Fire("PLAYER_REGEN_ENABLED")
+local barGroup = container.groups["Battle Shout/bars:32:200"]
+check(barGroup and barGroup.enabled and not container.groups["Battle Shout/icons:32:0"].enabled, "the timer bar look didn't replace the icons after combat")
+check(barGroup.button.bound.SetDurationBar and barGroup.button.bound.SetSpellName and barGroup.layout.elementWidth == 200, "timer bar parts wrong")
+check(container.axis == AnchorUtil.FlowLayoutAxis.Vertical, "timer bars not stacked")
+buffs[1].style = "icons"
+ns.Refresh()
+
+-- A buff with no ID known yet waits; moving and taking out.
+ns.Auras.SetInGroup(buffs[1], "Unheard Of", true)
+check(not container.groups["Unheard Of/icons:32:0"], "a buff with no IDs got an aura group")
+ns.Auras.MoveEntry(buffs[1], 2, -1)
+check(buffs[1].entries[1] == "Power Word: Fortitude" and container.groups["Power Word: Fortitude/icons:32:0"].layout.layoutIndex == 1, "move up didn't reorder")
+ns.Auras.SetInGroup(buffs[1], "Unheard Of", false)
+check(#buffs[1].entries == 2, "taking a buff out didn't")
+
+-- Unlocked, buff groups show their shade too; off, they're hidden and their groups disabled.
+M.Slash("move")
+check(container.parent.shade.shown and container.parent.mouse, "buff group not unlocked with the bars")
+M.Slash("move")
+M.Slash("off")
+check(not container.parent.shown and not container.groups["Battle Shout/icons:32:0"].enabled, "buff group shown while off")
+M.Slash("on")
+check(container.parent.shown and container.groups["Battle Shout/icons:32:0"].enabled, "buff group not back")
+
 -- /lecdm check, in combat with secret cooldown times: SECRET shown, nothing compared.
 M.combat, M.secretCooldowns = true, true
 M.Slash("check")
@@ -261,7 +330,7 @@ check(M.Printed("listening to %d+ Blizzard icons"), "status missing listener cou
 M.Slash("help")
 check(M.Printed("/lecdm general | bars"), "help missing the tabs")
 M.Slash("list")
-check(Logged("TrackedBuff %(2%): Battle Shout, equipment slot 13"), "list wrong")
+check(Logged("TrackedBuff %(3%): Battle Shout, equipment slot 13, Sunder Armor"), "list wrong")
 check(Logged("Utility %(1%): %*Death Wish"), "unlearned entry not marked")
 M.Slash("nonsense")
 check(M.Printed("unknown command"), "unknown command not reported")
@@ -379,12 +448,31 @@ local nameRow = panel.parts.top[3]
 nameRow.box.text = "Big ones"
 nameRow.box.scripts.OnEnterPressed(nameRow.box)
 check(ns.db.bars.list[4].name == "Big ones" and picker.dropdown.text == "Big ones", "rename didn't")
-local deleteRow = panel.parts.top[10]
+local deleteRow = panel.parts.top[11]
 check(deleteRow.button.text == "Delete this icon bar", "delete button not where expected: " .. tostring(deleteRow.button.text))
 deleteRow.button.scripts.OnClick()
 M.Accept()
 check(#ns.db.bars.list == 3 and picker.dropdown.text == "Cooldowns", "delete didn't, or didn't show the first bar")
 ns.Bars.Delete(ns.db.bars.list[3].id)
+
+-- The Buffs tab: the group picker, a row per buff, the checklist from Blizzard's list and the
+-- buffs on you now (ticking one adds it, and learns its ID).
+M.Slash("buffs")
+local buffPanel = ns.Window.CurrentPanel()
+check(buffPanel.parts.picker.dropdown.text == "Buffs", "buff group picker wrong")
+check(buffPanel.parts.buffRows[1].name == ns.db.buffs.list[1].entries[1], "buff rows missing")
+local buffMenu = M.Menu()
+buffPanel.parts.checklist.dropdown.generator(nil, buffMenu)
+check(buffMenu.children[1].text == "Yours, from Blizzard's list" and #buffMenu.children[1].children == 1, "Blizzard's buffs section wrong")
+local onYou = buffMenu.children[2]
+check(onYou.text:find("^On you now") and #onYou.children == 2, "on-you section wrong")
+M.buffsOnMe[3] = { name = "Rallying Cry of the Dragonslayer", spellId = 22888, icon = 9 }
+buffMenu = M.Menu()
+buffPanel.parts.checklist.dropdown.generator(nil, buffMenu)
+buffMenu.children[2].children[3].setSelected()
+check(ns.Auras.GroupOf("Rallying Cry of the Dragonslayer") == ns.db.buffs.list[1] and LecdmDB.auraIDs["Rallying Cry of the Dragonslayer"][22888], "ticking a buff on you didn't add and learn it")
+check(buffPanel.parts.style.box.text == "Icons", "show-as picker wrong")
+M.Slash("bars")
 
 -- No icon bars at all: only the dropdown and a note.
 local saved = ns.db.bars.list

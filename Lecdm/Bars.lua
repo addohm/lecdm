@@ -35,7 +35,7 @@ function B.NewBar(name)
 	local bars = ns.db.bars
 	bars.nextID = (bars.nextID or 1) + 1
 	local bar = { id = "bar" .. bars.nextID, name = name, spells = {}, show = {},
-		size = 40, gap = 4, grow = "CENTER", vertical = false, perRow = 12, gcd = true }
+		size = 40, gap = 4, grow = "CENTER", vertical = false, perRow = 12, gcd = true, emptyItems = "hide" }
 	table.insert(bars.list, bar)
 	return bar
 end
@@ -318,7 +318,13 @@ local function ItemState(b, bar)
 	local v = (okUse and not ns.IsSecret(usable) and not usable) and 0.4 or 1
 	b.icon:SetVertexColor(v, v, v)
 	local n = kind == "item" and B.ItemCount(id) or 0
-	b.count:SetText(n > 1 and tostring(n) or "")
+	if kind == "item" and n == 0 then
+		b.icon:SetDesaturated(true)
+		b.icon:SetVertexColor(0.4, 0.4, 0.4)
+		b.count:SetText("0")
+	else
+		b.count:SetText(n > 1 and tostring(n) or "")
+	end
 	return onCooldown
 end
 
@@ -449,6 +455,7 @@ function B.Build()
 	local live = {}
 	for i, bar in ipairs(ns.Enabled() and ns.db.bars.list or {}) do
 		live[bar.id] = true
+		bar.emptyItems = bar.emptyItems or "hide" -- bars made before the setting
 		local frame = Frame(bar)
 		local step = bar.size + bar.gap
 		local per = math.max(1, bar.perRow)
@@ -464,7 +471,8 @@ function B.Build()
 			local kind, id = B.Kind(key)
 			b.key = key
 			b.spellID = kind == "spell" and id or nil
-			b.known = B.EntryKnown(key)
+			-- A bag item you have none of: hidden, or shown greyed with "0" (the bar's choice).
+			b.known = B.EntryKnown(key) or (kind == "item" and bar.emptyItems == "grey")
 			b.wanted = nil
 			b.icon:SetTexture(B.EntryIcon(key))
 			if b.spellID then pcall(C_Spell.EnableSpellRangeCheck, id, true) end
@@ -490,9 +498,9 @@ end
 -- Unlock: every bar shows its name and a shade, and can be dragged; lock again to keep it.
 function B.SetUnlocked(on)
 	unlocked = on and true or false
-	B.Build()
-	ns.Print(unlocked and "icon bars unlocked: drag them, then /lecdm move (or Lock on the Icon bars tab) to lock them."
-		or "icon bars locked.")
+	ns.Refresh()
+	ns.Print(unlocked and "icon bars and buff groups unlocked: drag them, then /lecdm move (or Lock on their tab) to lock them."
+		or "icon bars and buff groups locked.")
 	if ns.Window then ns.Window.Refresh() end
 end
 
@@ -562,6 +570,8 @@ events:SetScript("OnEvent", function(_, event, arg)
 	if event == "SPELLS_CHANGED" or event == "COOLDOWN_VIEWER_DATA_LOADED" then
 		ns.Catalogue.Build()
 		B.Build()
+		-- The buff groups seed from Blizzard's list too, and learn a spell's highest rank.
+		if ns.Auras then ns.Auras.Build() end
 	elseif event == "BAG_UPDATE_DELAYED" or event == "PLAYER_EQUIPMENT_CHANGED" then
 		B.Build()
 	elseif event == "PLAYER_ENTERING_WORLD" or event == "EDIT_MODE_LAYOUTS_UPDATED" then

@@ -263,6 +263,7 @@ ns.Window.Page({
 		local vertGet, vertSet = Field("vertical")
 		local perGet, perSet = Field("perRow")
 		local gcdGet, gcdSet = Field("gcd")
+		local emptyGet, emptySet = Field("emptyItems")
 		panel.parts = p
 		p.picker = BarPickerRow(stack.inner)
 		p.top = {
@@ -288,6 +289,9 @@ ns.Window.Page({
 				{ tooltip = { "Icons per row", "More start a new row (a new column, on a vertical bar)." } }),
 			UI.OptionCheck(stack.inner, "Show the GCD sweep", gcdGet, gcdSet,
 				{ "GCD sweep", "A short sweep on every icon after a spell that triggers the global cooldown." }),
+			UI.OptionSelect(stack.inner, "Items you have none of", { { "hide", "Hide them" }, { "grey", "Show them greyed" } },
+				emptyGet, emptySet,
+				{ tooltip = { "Items you have none of", "A potion or healthstone on this bar when your bags have none: hidden (its place closes up), or shown greyed with a 0." } }),
 			UI.OptionButton(stack.inner, "", "Delete this icon bar", function()
 				local bar = Current()
 				if not bar then return end

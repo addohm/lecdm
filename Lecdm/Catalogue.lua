@@ -7,7 +7,8 @@ local _, ns = ...
 local Cat = {}
 ns.Catalogue = Cat
 
-Cat.byID = {}     -- cooldownID -> { cooldownID, spellID, name, category, known, aura, charges }
+Cat.byID = {}     -- cooldownID -> { cooldownID, spellID, name, category, known, aura, selfAura,
+                  --   charges, ids = { every spell ID the entry names: base, override, linked } }
 Cat.bySpell = {}  -- spellID -> the same entry
 Cat.sections = {} -- { value, name, ids }, by section value
 
@@ -39,10 +40,16 @@ function Cat.Build()
 				local okInfo, info = pcall(C_CooldownViewer.GetCooldownViewerCooldownInfo, id)
 				if okInfo and type(info) == "table" then
 					local spellID = Plain(info.overrideSpellID) or Plain(info.spellID)
+					local ids = {}
+					for _, v in ipairs({ Plain(info.spellID), Plain(info.overrideSpellID) }) do ids[#ids + 1] = v end
+					for _, v in ipairs(Plain(info.linkedSpellIDs) or {}) do
+						if Plain(v) then ids[#ids + 1] = v end
+					end
 					Cat.byID[id] = {
 						cooldownID = id, spellID = spellID, name = EntryName(info, spellID),
 						category = value, known = Plain(info.isKnown),
-						aura = Plain(info.hasAura) or Plain(info.selfAura), charges = Plain(info.charges),
+						aura = Plain(info.hasAura) or Plain(info.selfAura), selfAura = Plain(info.selfAura),
+						charges = Plain(info.charges), ids = ids,
 					}
 					if spellID then Cat.bySpell[spellID] = Cat.byID[id] end
 					table.insert(section.ids, id)

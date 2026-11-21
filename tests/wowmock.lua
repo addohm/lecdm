@@ -51,6 +51,7 @@ local function NewRegion(kind, name, parent)
 	function f:SetScript(event, fn) self.scripts[event] = fn end
 	function f:GetScript(event) return self.scripts[event] end
 	function f:RegisterEvent(e) self.events[e] = true end
+	function f:RegisterUnitEvent(e) self.events[e] = true end
 	function f:SetText(t) self.text = t end
 	function f:GetText() return self.text end
 	function f:SetChecked(v) self.checked = v end
@@ -78,8 +79,55 @@ local function NewRegion(kind, name, parent)
 	return f
 end
 
-function CreateFrame(kind, name, parent, _template)
+-- Blizzard's aura containers, as CustomAuraContainer checks them: unique group keys, a filter
+-- string, spell IDs required; touching one in combat is an error (its buttons are closed to
+-- addons then). A group's button records what the addon bound to it.
+local BINDERS = { "SetIcon", "SetDurationCooldown", "SetDurationText", "SetApplicationCount", "SetDurationBar", "SetSpellName" }
+local function Container(c)
+	c.groups = {}
+	local function Open()
+		if M.combat then error("aura container touched in combat", 3) end
+	end
+	function c:SetUnit(u) self.unit = u end
+	function c:AddAuraGroup(key, filter, options)
+		Open()
+		assert(not self.groups[key], "aura group '" .. key .. "' already exists")
+		assert(filter == "HELPFUL" or filter == "HARMFUL", "bad filter string")
+		local ids = options.candidateFilters and options.candidateFilters.includeSpellIDs
+		assert(ids and next(ids), "includeSpellIDs required")
+		local b = NewRegion("Button", nil, self)
+		b.bound = {}
+		for _, binder in ipairs(BINDERS) do b[binder] = function(btn, x) btn.bound[binder] = x end end
+		if options.initializeFrame then options.initializeFrame(b) end
+		self.groups[key] = { ids = ids, enabled = true, button = b, sort = options.sortMethod }
+	end
+	function c:SetAuraGroupCandidateFilters(key, filters)
+		Open()
+		self.groups[key].ids = filters.includeSpellIDs
+	end
+	function c:SetAuraGroupLayout(key, layout)
+		Open()
+		self.groups[key].layout = layout
+	end
+	function c:SetAuraGroupEnabled(key, on)
+		Open()
+		self.groups[key].enabled = on
+	end
+	function c:SetFlowLayoutAxis(axis) self.axis = axis end
+	function c:SetFlowLayoutGrowthDirection(h, v) self.growth = { h, v } end
+	function c:SetFlowLayoutAnchorPoint(point) self.flowPoint = point end
+	function c:SetFlowLayoutMaximumLineSize(n) self.lineSize = n end
+	return c
+end
+
+function CreateFrame(kind, name, parent, template)
 	local f = NewRegion(kind, name, parent)
+	if kind == "AuraContainer" then
+		assert(template == "CustomAuraContainerTemplate", "aura containers need CustomAuraContainerTemplate")
+		Container(f)
+		M.containers = M.containers or {}
+		table.insert(M.containers, f)
+	end
 	table.insert(M.frames, f)
 	if name then _G[name] = f end
 	return f
@@ -195,7 +243,11 @@ C_Secrets = {
 }
 C_SpellActivationOverlay = { IsSpellOverlayed = function() return false end }
 
+AuraContainerSortMethod = { Default = 0, Expiration = 2 }
+AnchorUtil = { FlowLayoutAxis = { Horizontal = 1, Vertical = 2 }, FlowDirection = { Right = 1, Left = 2, Down = 3, Up = 4 } }
 Enum = {
+	StatusBarTimerDirection = { RemainingTime = 1, ElapsedTime = 0 },
+	StatusBarInterpolation = { Immediate = 0, ExponentialEaseOut = 1 },
 	SpellBookSpellBank = { Player = 0 },
 	SpellBookItemType = { None = 0, Spell = 1 },
 	CooldownViewerCategory = { Essential = 0, Utility = 1, TrackedBuff = 2, TrackedBar = 3, GroupBuff = 4 },
@@ -229,13 +281,15 @@ M.spells = {
 	[6572] = { name = "Revenge", texture = 3, usable = false },
 	[12292] = { name = "Death Wish", texture = 4 },
 	[2565] = { name = "Shield Block", texture = 5 },
+	[7386] = { name = "Sunder Armor", texture = 6 },
 }
-M.sections = { [0] = { 11, 12 }, [1] = { 13 }, [2] = { 14, 15 }, [3] = {} }
+M.sections = { [0] = { 11, 12 }, [1] = { 13 }, [2] = { 14, 15, 16 }, [3] = {} }
 M.info = {
 	[11] = { cooldownID = 11, spellID = 100, isKnown = true, category = 0, linkedSpellIDs = {} },
 	[12] = { cooldownID = 12, spellID = 6572, isKnown = true, category = 0, linkedSpellIDs = {} },
 	[13] = { cooldownID = 13, spellID = 12292, isKnown = false, category = 1, linkedSpellIDs = {} },
-	[14] = { cooldownID = 14, spellID = 6673, isKnown = true, hasAura = true, category = 2, linkedSpellIDs = {} },
+	[14] = { cooldownID = 14, spellID = 6673, isKnown = true, hasAura = true, selfAura = true, category = 2, linkedSpellIDs = {} },
+	[16] = { cooldownID = 16, spellID = 7386, isKnown = true, hasAura = true, selfAura = false, category = 2, linkedSpellIDs = {} },
 	[15] = { cooldownID = 15, equipSlot = 13, isKnown = true, category = 2, linkedSpellIDs = {} },
 }
 
@@ -249,6 +303,11 @@ C_CooldownViewer = {
 }
 
 C_Spell = {
+	GetSpellInfo = function(name)
+		for id, s in pairs(M.spells) do
+			if s.name == name then return { spellID = id, iconID = s.texture, name = name } end
+		end
+	end,
 	GetSpellName = function(id) return M.spells[id] and M.spells[id].name end,
 	GetSpellTexture = function(id) return M.spells[id] and M.spells[id].texture end,
 	GetSpellCooldown = function(id)
@@ -273,7 +332,14 @@ C_Spell = {
 	EnableSpellRangeCheck = function(id, on) M.rangeChecked[id] = on end,
 }
 
+M.buffsOnMe = {}
 C_UnitAuras = {
+	GetAuraDataByIndex = function(_, i)
+		local b = M.buffsOnMe[i]
+		if not b then return nil end
+		if M.combat then return { name = SECRET, spellId = SECRET, icon = SECRET } end
+		return { name = b.name, spellId = b.spellId, icon = b.icon }
+	end,
 	GetAuraDuration = function(_, id)
 		if id == SECRET then error("secret aura instance refused") end
 		return {}

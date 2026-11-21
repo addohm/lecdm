@@ -3,6 +3,24 @@
 What to check in game, and what's been confirmed. Results go under Confirmed or Problems, with
 the build and date.
 
+## To check (buffs, part 1, 2026-11-21)
+
+New files: install, then fully restart the game.
+
+1. **First look.** A buff group "Buffs" above the middle of the screen with your buffs from
+   Blizzard's list (Battle Shout, Bloodrage, Berserker Rage ...): each shows while it's on you,
+   with a swipe and the time left, and the others close up. In combat too, in a dungeon too.
+2. **Learning ranks.** Cast Battle Shout out of combat (or get one from another warrior): from
+   then on it shows whoever cast it. A buff from someone else (Fortitude, Mark of the Wild):
+   Buffs tab, "Add or remove buffs", "On you now", tick it.
+3. **Timer bars.** Show as: Timer bars. Each buff is a bar with its icon, name and time left,
+   draining to the right, stacked top to bottom. Bar height, bar width, spacing, grow from.
+4. **A change in combat** (tick a buff, switch Show as) applies when combat ends.
+5. **Move.** `/lecdm move`: the buff group shows its name on a blue shade with the icon bars.
+6. **Bag items** (Icon bars tab): "Items you have none of: Show them greyed": a potion you've
+   run out of stays, greyed, with a 0.
+7. Any Lua errors?
+
 ## To check (cooldown bars, 0.1.0-dev)
 
 New files: run `tools\install_forever.cmd`, then fully restart the game. `/lecdm help` shows the
