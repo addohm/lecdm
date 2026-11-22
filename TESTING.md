@@ -101,7 +101,9 @@ the build and date.
 29. "Show it pressed when you press its key": pressing a spell's key (or clicking its action
     button) flashes its icon pressed, on cooldown too, with Blizzard's bars and with a bar
     addon. Say if a bar addon's presses don't show.
-30. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+30. "Copy to every bar" on one icon bar (after changing its shape and size): every other bar
+    takes its look, keeping its own spells and place. The same for buff groups.
+31. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

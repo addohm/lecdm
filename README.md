@@ -55,7 +55,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     opacity then, red out of range, dark when unusable; for spells with charges the count (the
     game's, in combat too) and the recharge swipe, 0 shown or not;
   - when it shows: always, only in combat, or in combat or with a target; opacity; out of
-    combat the same, faded or hidden; and Delete;
+    combat the same, faded or hidden; "Copy to every bar" (its look and layout, not its spells
+    or place); and Delete;
   - its spells and items: tick them in the checklist (Blizzard's Essential and Utility lists,
     your spellbook, racials among it, your equipped trinkets and on-use gear, **best in your
     bags** (one icon for healing potions, mana potions, healthstones or runes: the best you

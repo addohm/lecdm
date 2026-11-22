@@ -149,7 +149,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - [x] Item count never, always or out of combat; item quality; trinkets without a use
       (2026-11-22)
 - [x] Key-press mirror (the pressed look when you press its key) (2026-11-22)
-- [ ] Copy a setting to all bars
+- [x] Copy a setting to all bars (the whole look; 2026-11-22)
 
 **Timer bars**
 

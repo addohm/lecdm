@@ -482,6 +482,19 @@ function B.AddByID(bar, text)
 	return true
 end
 
+-- Copies a bar's look and layout (everything in B.LOOK) to every other icon bar.
+function B.CopyLook(from)
+	for _, bar in ipairs(ns.db.bars.list) do
+		if bar ~= from then
+			for k in pairs(B.LOOK) do
+				local v = from[k]
+				bar[k] = type(v) == "table" and ns.DeepCopy(v) or v
+			end
+		end
+	end
+	ns.Refresh()
+end
+
 -- Moves an entry to another place on its bar (the preview's drag).
 function B.MoveTo(bar, from, to)
 	if from == to or not bar.spells[from] or to < 1 or to > #bar.spells then return end
@@ -630,7 +643,7 @@ end
 function B.EntryIcon(key)
 	local kind, id = B.Kind(key)
 	if kind == "spell" then return B.SpellIcon(id) end
-	if kind == "space" then return nil end
+	if kind == "space" then return "Interface\\Buttons\\UI-EmptySlot" end
 	local itemID = B.ItemOf(key)
 	if not itemID then return 134400 end
 	local ok, icon = pcall(C_Item.GetItemIconByID, itemID)
@@ -1196,7 +1209,7 @@ function B.Build()
 			-- A bag item you have none of: hidden, or shown greyed with "0" (the bar's choice).
 			b.known = B.EntryKnown(key) or ((kind == "item" or kind == "best") and bar.emptyItems == "grey")
 			b.wanted = nil
-			b.icon:SetTexture(B.Own(bar, key).icon or B.EntryIcon(key))
+			b.icon:SetTexture(kind ~= "space" and (B.Own(bar, key).icon or B.EntryIcon(key)) or nil)
 			if b.spellID then pcall(C_Spell.EnableSpellRangeCheck, id, true) end
 			B.ApplyLook(b, bar)
 			b.bar = bar

@@ -220,6 +220,12 @@ check(ns.Bars.AddByID(cdBar, "item:5512") and ns.Bars.BarOf("item:5512") == cdBa
 ns.Bars.SetOnBar(cdBar, "item:5512", false)
 ns.Bars.SetOnBar(cdBar, spaceKey, false)
 check(#cdBar.spells == spellsBefore, "the space or the item stayed")
+-- Copying a bar's look to every bar: the look, not the spells or place.
+cdBar.size, cdBar.shape = 36, "Round"
+ns.Bars.CopyLook(cdBar)
+check(ns.db.bars.list[2].size == 36 and ns.db.bars.list[2].shape == "Round" and ns.db.bars.list[2].spells ~= cdBar.spells, "copying the look wrong")
+for _, bar in ipairs(ns.db.bars.list) do bar.size, bar.shape = 40, "square" end
+ns.Refresh()
 -- Best in your bags: one entry showing the best you carry (a Healthstone in the bags here), in
 -- the bar's order for it.
 ns.Bars.SetOnBar(cdBar, "best:3", true)
@@ -1086,6 +1092,12 @@ M.Slash("bars")
 local panel = ns.Window.CurrentPanel()
 local first = ns.db.bars.list[1]
 check(panel.parts.spellRows[#first.spells] and panel.parts.spellRows[1].key == first.spells[1], "spell rows missing")
+-- An empty space on the bar shows in the tab's rows and the preview.
+ns.Bars.AddSpace(first)
+ns.Window.Refresh()
+local spaceRow = panel.parts.spellRows[#first.spells]
+check(spaceRow and spaceRow.key == first.spells[#first.spells] and spaceRow.label.text:find("Empty space"), "an empty space's row wrong")
+ns.Bars.SetOnBar(first, first.spells[#first.spells], false)
 -- The preview: an icon per entry; drag one onto another moves it there; right-click opens its ⚙;
 -- middle-click takes it off.
 local preview = panel.parts.preview

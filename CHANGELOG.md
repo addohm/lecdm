@@ -25,6 +25,8 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- "Copy to every bar" / "Copy to every group": a bar's or buff group's look and layout to the
+  others.
 - Icon bars: an icon shows pressed when you use its action (its key or a click, on any bar
   addon's buttons, on cooldown too).
 - Icon bars: items' count always, out of combat only or never; items' border in their quality

@@ -510,6 +510,16 @@ A.LOOK = {
 	shape = "square", background = 0, anchorSide = "below", strata = "MEDIUM",
 	fontFace = "default", fontOutline = "OUTLINE", countPos = "TOPRIGHT",
 }
+-- Copies a group's look and layout (everything in A.LOOK) to every other buff group.
+function A.CopyLook(from)
+	for _, group in ipairs(ns.db.buffs.list) do
+		if group ~= from then
+			for k in pairs(A.LOOK) do group[k] = from[k] end
+		end
+	end
+	ns.Refresh()
+end
+
 function A.FillLook(group)
 	for k, v in pairs(A.LOOK) do
 		if group[k] == nil then group[k] = v end

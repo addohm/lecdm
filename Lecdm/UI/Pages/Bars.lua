@@ -678,6 +678,13 @@ ns.Window.Page({
 			UI.OptionSelect(stack.inner, "Opacity", V.ALPHAS, alphaGet, alphaSet),
 			UI.OptionSelect(stack.inner, "Out of combat", V.OOC, oocGet, oocSet,
 				{ tooltip = { "Out of combat", "Its opacity out of combat, as a share of the opacity above: fade it, or hide it, while you're not fighting." } }),
+			UI.OptionButton(stack.inner, "Its look and layout", "Copy to every bar", function()
+				local bar = Current()
+				if not bar then return end
+				Confirm("Give every other icon bar " .. bar.name .. "'s look and layout (not its spells or place)?", function()
+					Bars.CopyLook(bar)
+				end)
+			end),
 			UI.OptionButton(stack.inner, "", "Delete this icon bar", function()
 				local bar = Current()
 				if not bar then return end

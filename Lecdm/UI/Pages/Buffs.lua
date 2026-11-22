@@ -414,6 +414,13 @@ ns.Window.Page({
 			{ tooltip = { "Grow from", "Where the buffs start, so that edge stays put as buffs come and go. Vertical groups and timer bars: left is the top, right the bottom." } })
 		p.vertical = UI.OptionCheck(stack.inner, "Vertical", vertGet, vertSet)
 		p.perRow = UI.OptionSelect(stack.inner, "Icons per row", Numbers(1, 20, 1), perGet, perSet)
+		p.copy = UI.OptionButton(stack.inner, "Its look and layout", "Copy to every group", function()
+			local group = Current()
+			if not group then return end
+			Confirm("Give every other buff group " .. group.name .. "'s look and layout (not its buffs or place)?", function()
+				Auras.CopyLook(group)
+			end)
+		end)
 		p.delete = UI.OptionButton(stack.inner, "", "Delete this buff group", function()
 			local group = Current()
 			if not group then return end
@@ -504,6 +511,7 @@ ns.Window.Page({
 			stack:Add(p.showWhen)
 			stack:Add(p.alpha)
 			stack:Add(p.ooc)
+			stack:Add(p.copy)
 			stack:Add(p.delete)
 			stack:Add(p.buffsHead)
 			stack:Add(p.checklist)
