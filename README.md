@@ -96,7 +96,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
 - **Buffs:** laid out like Icon bars, for buff groups: buffs on you from anyone (your own,
   another priest's Fortitude, world buffs, procs). For the group picked: its name, **Show as**
   icons (a swipe, the time left, stacks) or **timer bars** (the icon, then a bar draining to the
-  right with the name and the time left), its layout (anchored to another buff group or icon
+  right with the name and the time left), the time with a decimal under a set time, its layout
+  (anchored to another buff group or icon
   bar, its strata too), look (icon shape, a background, border,
   zoom, time text, the swipe
   and its colour, the game's

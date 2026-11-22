@@ -160,7 +160,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
       takes one duration bar, the one it shows, so its fill can't be timed twice; its time
       text turns red already)
 - [x] Custom names; the name's size (time and stacks text: the look rows) (2026-11-22)
-- [ ] A decimal under a set time on buff timer bars (needs the game's number formatter)
+- [x] A decimal under a set time on buff timer bars (and icons; C_StringUtil's formatter)
+      (2026-11-22)
 - [x] Saved styles, applied to a bar or a group (2026-11-22)
 
 **Visibility**

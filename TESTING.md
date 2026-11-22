@@ -139,7 +139,9 @@ the build and date.
     go their own ways.
 42. Buffs tab, "Blizzard's icons": under "Their alerts", Sunder Armor's ⚙: a sound when it
     drops: it plays as it falls off the target (not when the target dies).
-43. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+43. A buff group "The time with a decimal under" 5 s: its last 5 s read 4.9, 4.8... (icons and
+    timer bars); an icon bar's countdown red with a decimal near the end, both at once.
+44. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

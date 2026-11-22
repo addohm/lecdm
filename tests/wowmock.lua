@@ -457,6 +457,14 @@ C_CurveUtil = {
 	end,
 }
 function CreateColor(r, g, b, a) return { r = r, g = g, b = b, a = a } end
+-- The game's number formatter: its breakpoints.
+C_StringUtil = {
+	CreateNumericRuleFormatter = function()
+		local f = {}
+		function f:SetBreakpoints(points) self.points = points end
+		return f
+	end,
+}
 -- The game's duration text bindings and durations: what they were given.
 C_DurationUtil = {
 	CreateDurationTextBinding = function()
@@ -465,6 +473,7 @@ C_DurationUtil = {
 		function t:SetTextColorCurve(curve, property) self.curve, self.property = curve, property end
 		function t:SetDuration(d) self.duration = d end
 		function t:SetEnabled(v) self.enabled = v end
+		function t:SetFormatter(f) self.formatter = f end
 		return t
 	end,
 	CreateDuration = function()
@@ -477,6 +486,7 @@ AnchorUtil = { FlowLayoutAxis = { Horizontal = 1, Vertical = 2 }, FlowDirection 
 Enum = {
 	StatusBarTimerDirection = { RemainingTime = 1, ElapsedTime = 0 },
 	LuaCurveType = { Linear = 0, Step = 1 },
+	NumericRuleFormatRounding = { Nearest = 0, Up = 1, Down = 2 },
 	DurationTextBindingProperty = { RemainingDuration = 1 },
 	TtsVoiceType = { Standard = 0 },
 	StatusBarInterpolation = { Immediate = 0, ExponentialEaseOut = 1 },

@@ -435,6 +435,8 @@ ns.Window.Page({
 		p.anchorSide = Row("select", "...on which side", Bars.ANCHOR_SIDES, "anchorSide")
 		p.strata = Row("select", "Strata (above or below other frames)", Bars.STRATAS, "strata")
 		p.background = Row("select", "Background behind it", Bars.BACKGROUNDS, "background")
+		p.decimals = Row("select", "The time with a decimal under", Bars.THRESHOLDS, "decimals",
+			{ "A decimal", "Under this time the time left shows tenths (4.7)." })
 		p.fontFace = Row("select", "Text font", Bars.FONT_FACES, "fontFace")
 		p.fontOutline = Row("select", "...its outline", Bars.OUTLINES, "fontOutline")
 		p.countPos = Row("select", "The stacks' place", Bars.CORNERS, "countPos")
@@ -627,6 +629,7 @@ ns.Window.Page({
 					p.barTime, p.barSpark, p.barGradient, p.barReverse }) do stack:Add(row) end
 			end
 			stack:Add(p.timeText)
+			stack:Add(p.decimals)
 			stack:Add(p.fontFace)
 			stack:Add(p.fontOutline)
 			if not bars then stack:Add(p.countPos) end

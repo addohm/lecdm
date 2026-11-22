@@ -178,6 +178,23 @@ function B.SwipeRGBA(color)
 	return c[1], c[2], c[3], c[4]
 end
 
+-- A time formatter for the game's duration texts: whole seconds (rounded up), minutes and hours,
+-- and one decimal under `decimals` seconds (the game's number formatter: C_StringUtil). Nil
+-- where the game has none.
+function B.TimeFormatter(decimals)
+	if not (C_StringUtil and C_StringUtil.CreateNumericRuleFormatter) then return nil end
+	local ok, f = pcall(C_StringUtil.CreateNumericRuleFormatter)
+	if not (ok and f) then return nil end
+	local up = Enum.NumericRuleFormatRounding and Enum.NumericRuleFormatRounding.Up or 1
+	local points = {}
+	if decimals and decimals > 0 then points[#points + 1] = { threshold = 0, format = "%.1f" } end
+	points[#points + 1] = { threshold = decimals and decimals > 0 and decimals or 0, step = 1, rounding = up, format = "%d" }
+	points[#points + 1] = { threshold = 60, format = "%dm", components = { { div = 60, step = 1, rounding = up } } }
+	points[#points + 1] = { threshold = 3600, format = "%dh", components = { { div = 3600, step = 1, rounding = up } } }
+	if not pcall(f.SetBreakpoints, f, points) then return nil end
+	return f
+end
+
 -- The countdown under a set time (threshold, seconds; 0: off): in a colour, and with a decimal.
 -- The colour is the game's duration text binding on Lecdm's own font string (its colour curve
 -- applies in combat too); the decimal is the game's countdown's (SetCountdownMillisecondsThreshold),
@@ -219,6 +236,9 @@ local function TimeBinding(b, bar)
 		curve:AddPoint(0, CreateColor(1, 1, 1, 1))
 	end
 	b.timeBinding:SetTextColorCurve(curve, Enum.DurationTextBindingProperty.RemainingDuration)
+	-- A decimal near the end, with the colour (the game's formatter).
+	local formatter = B.TimeFormatter(bar.thresholdDecimals and bar.threshold or 0)
+	if formatter then pcall(b.timeBinding.SetFormatter, b.timeBinding, formatter) end
 	b.useBinding = true
 end
 

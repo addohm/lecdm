@@ -198,7 +198,11 @@ cdBar.threshold, cdBar.thresholdColor = 5, "red"
 ns.Refresh()
 check(charge.useBinding and charge.timeBinding.enabled and charge.timeBinding.duration and charge.timeBinding.duration.spell == 100
 	and charge.cd.hideNumbers == true, "the countdown's colour near the end isn't the game's binding")
-cdBar.thresholdColor, cdBar.thresholdDecimals = "none", true
+cdBar.thresholdDecimals = true
+ns.Refresh()
+check(charge.timeBinding.formatter and charge.timeBinding.formatter.points[1].format == "%.1f"
+	and charge.timeBinding.formatter.points[2].threshold == 5, "a decimal with the colour wrong")
+cdBar.thresholdColor = "none"
 ns.Refresh()
 check(not charge.useBinding and charge.cd.msThreshold == 5 and charge.cd.hideNumbers == false, "the decimal near the end wrong")
 cdBar.threshold, cdBar.thresholdColor, cdBar.thresholdDecimals = 0, "red", false

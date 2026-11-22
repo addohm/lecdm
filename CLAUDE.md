@@ -100,7 +100,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     `B.SetForm`), `style` "icons" | "bars" (timer bars: `TimerParts`, `TimerState`:
     `StatusBar:SetTimerDuration` filling up, full when ready; `barWidth`, `barTexture`,
     `barColor`, `barName`), `looks[key]` (its own border, borderColor, icon: `B.Own`, `B.SetLook`, the
-    `LECDM_ICON` popup), the countdown near the end (`threshold`, `thresholdColor`: a
+    `LECDM_ICON` popup), `B.TimeFormatter(decimals)` (C_StringUtil's rule formatter: seconds, minutes, hours, tenths
+    at the end; for buff groups' `decimals` too), the countdown near the end (`threshold`,
+    `thresholdColor`: a
     `C_DurationUtil` text binding on `b.timeText`, `TimeBinding` / `Countdown`;
     `thresholdDecimals`: the Cooldown's own), `talents[key]` "with:<nodeID>" / "without:..." (`B.SetTalent`) and
     `active[key]` (the spell's own buff on its icon: an aura container parented to the icon, a

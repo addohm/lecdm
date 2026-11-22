@@ -575,7 +575,7 @@ A.LOOK = {
 	showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "on", swipe = "normal", swipeColor = "dark",
 	shape = "square", background = 0, anchorSide = "below", strata = "MEDIUM",
 	barSpark = true, barGradient = "none", barReverse = false, barIconRight = false, barNameSize = "small",
-	fontFace = "default", fontOutline = "OUTLINE", countPos = "TOPRIGHT",
+	fontFace = "default", fontOutline = "OUTLINE", countPos = "TOPRIGHT", decimals = 0,
 }
 -- Copies a group's look and layout (everything in A.LOOK) to every other buff group.
 function A.CopyLook(from)
@@ -623,6 +623,7 @@ function A.LookKey(group)
 	if not bars and group.shape and group.shape ~= "square" then parts[#parts + 1] = group.shape end
 	if group.fontFace and group.fontFace ~= "default" then parts[#parts + 1] = group.fontFace .. "-" .. tostring(group.fontOutline) end
 	if not bars and group.countPos and group.countPos ~= "TOPRIGHT" then parts[#parts + 1] = group.countPos end
+	if (group.decimals or 0) > 0 then parts[#parts + 1] = "d" .. group.decimals end
 	if bars then
 		for _, k in ipairs({ "barTexture", "barColor", "barBg", "barIcon", "barName", "barTime", "barSpark", "barGradient",
 			"barReverse", "barIconRight", "barNameSize" }) do
@@ -650,6 +651,14 @@ local function Styler(group, name)
 	local own = A.Own(group, name)
 	local timeRGB = TIME_RGB[own.timeColor or "white"] or TIME_RGB.white
 	local timeOptions = warn > 0 and { textColor = { curve = WarnCurve(warn, bars and 1 or alpha, timeRGB), property = Enum.DurationTextBindingProperty.RemainingDuration } } or nil
+	-- A decimal under the group's time (the game's number formatter).
+	if (group.decimals or 0) > 0 then
+		local formatter = ns.Bars.TimeFormatter(group.decimals)
+		if formatter then
+			timeOptions = timeOptions or {}
+			timeOptions.textFormatter = formatter
+		end
+	end
 	local font = ns.Bars.FONTS[own.timeText or group.timeText]
 	local z, n = group.zoom or 0.08, own.border or group.border or 1
 	local er, eg, eb = ns.Bars.BorderRGB(own.borderColor or group.borderColor)

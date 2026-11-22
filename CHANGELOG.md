@@ -25,6 +25,8 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- Decimals near the end: buff groups' time (icons and timer bars) under a set time, and icon
+  bars' countdowns with their colour, from the game's number formatter.
 - Blizzard's icons and timer bars: each tracked aura's own alerts, from its row on their page.
 - An icon bar or buff group can be the same in every profile, kept in step as you change it.
 - Import and export: a profile, an icon bar or a buff group as text to share; pasted text is
