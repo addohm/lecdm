@@ -79,7 +79,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   `/cdm` (Tracked Buffs for icons, Tracked Bars for timer bars; "Open /cdm" is right there);
   their size is Edit Mode's.
 - **Alerts:** the sounds and glows every spell and buff gets unless it has its own (the ⚙ on
-  its row: a submenu per setting, "Default (...)" first). Sounds are the game's (raid warning,
+  its row: a submenu per setting, "Default (...)" first). Each glow picker has a sample icon
+  showing the glow and colour picked; each sound picker a Test button. Sounds are the game's (raid warning,
   ready check, alarm clock ...) or "Say it", which speaks the name.
   - Icon bars: a sound when it's ready (off cooldown, not the GCD), a glow while it's ready and
     usable, a glow while the game highlights it (a proc); glow colour.
@@ -103,8 +104,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     your target dies, unless "Also when your target dies".
 - **Diagnostics:** where Lecdm's diagnostic lines go ("Show them in" the main chat window, a
   chat tab you've made, or nowhere: the log keeps them), and tools: Blizzard's viewers
-  invisible (a test, not kept), status, Blizzard's list, what's readable now, and the log,
-  ready to copy into a bug report.
+  invisible (a test, not kept), status, Blizzard's list, what's readable now, the sound log
+  (every sound any addon plays goes in the log, with the addon that played it and, for Lecdm's
+  own, why), and the log, ready to copy into a bug report.
 - **Profiles:** each character starts with its own ("First Last"); pick another to share it,
   copy, rename, delete, reset, or switch automatically by your talents or group role.
 
@@ -116,6 +118,7 @@ Chat commands:
 | `/lecdm general` ... `profiles` | Open that tab (`bars`, `buffs`, `alerts`, `diagnostics` too) |
 | `/lecdm move` | Unlock everything to drag it; again to lock |
 | `/lecdm profile` | The profile in use, and the Profiles tab |
+| `/lecdm buff` | Your buff groups' buffs; `/lecdm buff fort keep` (any part of a name; `keep`, `missing`, `up`, `out`) sets one |
 | `/lecdm minimap` | Show or hide the minimap button |
 | `/lecdm on` / `off` | Turn Lecdm on or off |
 | `/lecdm help` | The commands, and the build |
@@ -124,6 +127,7 @@ Chat commands:
 | `/lecdm check` | What an addon can read about your spells right now (try it in combat) |
 | `/lecdm blizz hide` / `show` | Make Blizzard's cooldown viewers invisible, or bring them back (a test) |
 | `/lecdm log` | The log in a window, ready to copy; `/lecdm log clear` empties it |
+| `/lecdm soundlog on` / `off` | Log every sound any addon plays, with the addon (and Lecdm's reason) |
 
 ## Docs
 

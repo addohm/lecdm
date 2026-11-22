@@ -11,7 +11,8 @@ local DEFAULTS = {
 	classColour = false,                -- the options window in your class colour
 	window = {},                        -- the options window: pos, size, tab
 	minimap = { angle = 350, hide = false }, -- clear of the owner's other addons (200-325)
-	test = { chat = "main" },           -- where the diagnostics' lines go (Log.lua: ns.Debug)
+	test = { chat = "main", sounds = false }, -- where the diagnostics' lines go (Log.lua: ns.Debug);
+	                                    -- the sound log (SoundLog.lua)
 	-- the alerts (Alerts.lua): defaults, and spells' and buffs' own settings by key or name
 	alerts = {
 		defaults = {
@@ -181,11 +182,13 @@ local function Help()
 	ns.Print("/lecdm profile - the profile in use, and the Profiles tab (where they're managed)")
 	ns.Print("/lecdm minimap - show or hide the minimap button; /lecdm on | off - turn Lecdm on or off")
 	ns.Print("/lecdm move - unlock the icon bars and buff groups to drag them; again to lock them")
+	ns.Print("/lecdm buff - your buff groups' buffs; /lecdm buff <name> keep | missing | up | out sets one")
 	ns.Print("Diagnostics: /lecdm status - Blizzard's Cooldown Manager, its list, what's listened to")
 	ns.Print("/lecdm list - every spell Blizzard's Cooldown Manager lists for you, by section")
 	ns.Print("/lecdm check - what an addon can read about your spells right now (try it in combat)")
 	ns.Print("/lecdm blizz hide | show - make Blizzard's cooldown viewers invisible, or bring them back")
 	ns.Print("/lecdm log - the log, ready to copy; /lecdm log clear empties it")
+	ns.Print("/lecdm soundlog on | off - log every sound any addon plays, and which addon")
 end
 
 SLASH_LECDM1 = "/lecdm"
@@ -219,6 +222,10 @@ SlashCmdList.LECDM = function(msg)
 		ns.Blizz.Set(rest)
 	elseif cmd == "log" then
 		if rest == "clear" then ns.LogWindow.Clear() else ns.LogWindow.Show() end
+	elseif cmd == "buff" then
+		ns.Auras.Slash(rest)
+	elseif cmd == "soundlog" then
+		ns.SoundLog.SetOn(rest == "on" or (rest ~= "off" and not ns.SoundLog.IsOn()))
 	else
 		ns.Print("unknown command '" .. cmd .. "'. /lecdm help lists the commands.")
 	end

@@ -89,7 +89,29 @@ function ns.AlertsGear(row, x, category, getKey, getWords)
 	return gear
 end
 
--- A default's row: a picker, and for sounds a Test button.
+-- A glow row's sample: an icon showing the glow picked, in its colour.
+local SAMPLE_ICON = { spells = 132337, buffs = 132333 } -- Charge, Battle Shout
+local function Sample(row, category, field)
+	local f = CreateFrame("Frame", nil, row)
+	f:SetSize(22, 22)
+	f:SetPoint("LEFT", row.right + 10, 0)
+	local icon = f:CreateTexture(nil, "ARTWORK")
+	icon:SetAllPoints()
+	icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+	icon:SetTexture(SAMPLE_ICON[category])
+	f.glow = CreateFrame("Frame", nil, f)
+	f.glow:SetAllPoints()
+	f.glow:SetFrameLevel(f:GetFrameLevel() + 2)
+	row.sample = f
+	local sync = row.Sync
+	row.Sync = function(...)
+		sync(...)
+		local d = ns.db.alerts.defaults[category]
+		ns.Glow.Show(f.glow, d[field], d[field == "missingGlow" and "missingColor" or "glowColor"], 22)
+	end
+end
+
+-- A default's row: a picker, for sounds a Test button, for glows a sample.
 local function DefaultRow(parent, category, f)
 	local field, label, list = f[1], f[2], f[3]
 	local row = UI.OptionSelect(parent, label, list,
@@ -105,6 +127,8 @@ local function DefaultRow(parent, category, f)
 		test:SetPoint("LEFT", row.right + 4, 0)
 		test:SetText("Test")
 		test:SetScript("OnClick", function() Alerts.Play(ns.db.alerts.defaults[category][field], "Battle Shout") end)
+	elseif list == ns.Glow.STYLES then
+		Sample(row, category, field)
 	end
 	return row
 end

@@ -52,7 +52,8 @@ ns.Window.Page({
 			.. GOLD .. "/lecdm general|r, " .. GOLD .. "bars|r (icon bars), " .. GOLD .. "buffs|r, " .. GOLD .. "alerts|r, "
 			.. GOLD .. "diagnostics|r, " .. GOLD .. "profiles|r open a tab.\n"
 			.. GOLD .. "/lecdm minimap|r shows or hides the minimap button; " .. GOLD .. "/lecdm on|r and " .. GOLD .. "off|r turn Lecdm on or off.\n"
-			.. GOLD .. "/lecdm help|r lists them all.", 80))
+			.. GOLD .. "/lecdm buff fort keep|r: a buff's place from chat (keep, missing, up, out).\n"
+			.. GOLD .. "/lecdm help|r lists them all.", 96))
 
 		stack:Add(UI.OptionHeading(stack.inner, "About"))
 		stack:Add(UI.OptionText(stack.inner, function()

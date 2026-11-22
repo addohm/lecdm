@@ -745,6 +745,34 @@ check(Logged("trinket slot 14: empty"), "empty trinket slot not reported")
 check(M.Printed("check: 2 spells and the trinket slots logged"), "check summary missing")
 M.combat, M.secretCooldowns = false, false
 
+-- /lecdm buff: the groups' buffs; a name (any part of it) and how it shows; out.
+M.Slash("buff")
+check(M.Printed("Buffs: .*Battle Shout %(while it's up%)"), "/lecdm buff didn't list the buffs")
+M.Slash("buff fort keep")
+check(ns.Auras.Mode(ns.db.buffs.list[1], "Power Word: Fortitude") == "keep" and M.Printed("Power Word: Fortitude: keep up, in Buffs"), "/lecdm buff fort keep didn't")
+M.Slash("buff arcane int up")
+check(ns.Auras.GroupOf("Arcane Intellect") == ns.db.buffs.list[1], "/lecdm buff didn't add a buff from Lecdm's list")
+M.Slash("buff arcane intellect out")
+M.Slash("buff fort up")
+check(not ns.Auras.GroupOf("Arcane Intellect") and ns.Auras.Mode(ns.db.buffs.list[1], "Power Word: Fortitude") == "up", "/lecdm buff out or up didn't")
+M.Slash("buff nothing like it")
+check(M.Printed("no buff called 'nothing like it'"), "an unknown buff not said")
+
+-- The sound log: every sound any addon plays, with the addon (from the call stack) and, for
+-- Lecdm's own, why; off, nothing more.
+function debugstack() return "Interface/AddOns/OtherAddon/Main.lua:10: in function <x>\n" end
+M.Slash("soundlog on")
+PlaySound(SOUNDKIT.READY_CHECK)
+check(Logged("sound: READY_CHECK %(8960%), from OtherAddon$"), "sound log line wrong: " .. tostring(Logged("sound: READY")))
+function debugstack() return "Interface/AddOns/Lecdm/Alerts.lua:80: in function <x>\n" end
+ns.Alerts.Play("MAP_PING", "Battle Shout", "ready: Battle Shout")
+check(Logged("sound: MAP_PING %(3175%), from Lecdm %(ready: Battle Shout%)"), "Lecdm's reason not in the sound log")
+M.Slash("soundlog off")
+before = #LecdmDB.log
+PlaySound(SOUNDKIT.READY_CHECK)
+check(#LecdmDB.log == before, "the sound log still logging when off")
+debugstack = nil
+
 -- Off: nothing heard, no icons; on again: back.
 M.Slash("off")
 before = #LecdmDB.log
@@ -802,6 +830,11 @@ ns.db.test.chat = "off"
 ns.Window.RunDefaults()
 check(ns.db.test.chat == "main", "Test build Defaults didn't reset")
 M.Slash("alerts")
+local sampled
+for _, f in ipairs(M.frames) do
+	if f.sample and f.sample.glow.glows and f.sample.glow.glows["modern:gold:22"] then sampled = true end
+end
+check(sampled, "no glow sample on the Alerts tab (the proc glow's Modern, gold)")
 ns.db.alerts.defaults.spells.ready = "RAID_WARNING"
 ns.Window.RunDefaults()
 check(ns.db.alerts.defaults.spells.ready == "none", "Alerts Defaults didn't reset")

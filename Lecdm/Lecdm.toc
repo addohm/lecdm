@@ -11,6 +11,7 @@ Build.lua
 Core.lua
 Profiles.lua
 Log.lua
+SoundLog.lua
 Catalogue.lua
 BuffList.lua
 BuffData.lua

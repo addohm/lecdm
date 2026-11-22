@@ -107,9 +107,9 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
       counts as Fortitude), world buffs (2026-11-22: all classes, racials and consumables too)
 - [x] Weapon enchants (oils, sharpening stones, poisons, shaman weapon spells) (2026-11-22)
 - [x] Tooltips on hover (buff groups, icon bars; on, out of combat only, off) (2026-11-22)
-- [ ] Glow previews on sample icons in the window
-- [ ] A sound log: every sound any addon plays, and why Lecdm played its own
-- [ ] Chat commands per buff (`/lecdm <buff> keep|missing|up`)
+- [x] Glow previews on sample icons in the window (2026-11-22)
+- [x] A sound log: every sound any addon plays, and why Lecdm played its own (2026-11-22)
+- [x] Chat commands per buff (`/lecdm buff fort keep`) (2026-11-22)
 
 **Cooldown icons**
 

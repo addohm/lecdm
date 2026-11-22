@@ -81,6 +81,79 @@ function A.SetMode(group, name, mode)
 	ns.Refresh()
 end
 
+-- /lecdm buff ----------------------------------------------------------------------------
+
+-- The buff a typed name means (any case): a buff group's or Lecdm's list's, exactly, else the
+-- first whose name has it in it (so "fort" is Power Word: Fortitude).
+function A.FindName(text)
+	text = (text or ""):lower()
+	if text == "" then return nil end
+	local candidates = {}
+	for _, group in ipairs(ns.db.buffs.list) do
+		for _, n in ipairs(group.entries) do candidates[#candidates + 1] = n end
+	end
+	for _, section in ipairs(ns.BuffList.sections) do
+		for _, e in ipairs(section.entries) do candidates[#candidates + 1] = e.name end
+	end
+	for _, n in ipairs(candidates) do
+		if n:lower() == text then return n end
+	end
+	for _, n in ipairs(candidates) do
+		if n:lower():find(text, 1, true) then return n end
+	end
+end
+
+local MODE_WORDS = { keep = true, missing = true, up = true, out = true }
+
+-- /lecdm buff: every group's buffs and how each shows. /lecdm buff <name> keep | missing | up:
+-- how it shows (a buff in no group goes in the first); out: takes it out.
+function A.Slash(rest)
+	local text, word = (rest or ""):match("^(.-)%s+(%S+)$")
+	if not (text and MODE_WORDS[word]) then text, word = rest or "", nil end
+	if text == "" then
+		for _, group in ipairs(ns.db.buffs.list) do
+			local parts = {}
+			for _, n in ipairs(group.entries) do parts[#parts + 1] = n .. " (" .. ns.Alerts.Label(A.MODES, A.Mode(group, n)):lower() .. ")" end
+			ns.Print(group.name .. ": " .. (#parts > 0 and table.concat(parts, ", ") or "no buffs"))
+		end
+		if #ns.db.buffs.list == 0 then ns.Print("no buff groups.") end
+		ns.Print("/lecdm buff <name> keep | missing | up | out, e.g. /lecdm buff fort keep")
+		return
+	end
+	local name = A.FindName(text)
+	if not name then
+		ns.Print("no buff called '" .. text .. "' in a buff group or Lecdm's list.")
+		return
+	end
+	local group = A.GroupOf(name)
+	if word == "out" then
+		if group then A.SetInGroup(group, name, false) end
+		ns.Print(name .. ": in no buff group.")
+		return
+	end
+	if word then
+		if not group then
+			group = ns.db.buffs.list[1]
+			if not group then
+				ns.Print("there's no buff group to put " .. name .. " in: make one on the Buffs tab.")
+				return
+			end
+			local _, count = A.IDs(name)
+			if count == 0 and not A.EnchantSlot(name) then
+				ns.Print("Lecdm doesn't know " .. name .. "'s spell yet: add it from the buffs on you (Buffs tab).")
+				return
+			end
+			A.SetInGroup(group, name, true)
+		end
+		A.SetMode(group, name, word)
+	end
+	if group then
+		ns.Print(name .. ": " .. ns.Alerts.Label(A.MODES, A.Mode(group, name)):lower() .. ", in " .. group.name .. ".")
+	else
+		ns.Print(name .. ": in no buff group.")
+	end
+end
+
 function A.Delete(id)
 	local _, i = A.Get(id)
 	if i then table.remove(ns.db.buffs.list, i) end

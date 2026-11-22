@@ -39,7 +39,13 @@ the build and date.
 6. Tooltips: on an icon bar, "Tooltip on hover: On": hovering an icon shows the spell's, the
    trinket's or the item's tooltip; "Out of combat only": none in combat; "Off": clicks go
    through to the world. A buff group's buffs show the game's buff tooltip (On, the default).
-7. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+7. The Alerts tab: each glow picker has a sample icon with that glow, in the colour picked;
+   change the style or colour and it follows.
+8. Sound log (Diagnostics, Start): play a sound (a ready check, an addon's alert): the log
+   (`/lecdm log`) names the sound and the addon; Lecdm's own say why. Stop: nothing more.
+9. `/lecdm buff` lists the groups' buffs; `/lecdm buff fort keep` (as a priest) gives Fortitude
+   a fixed place; `/lecdm buff fort out` takes it out.
+10. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

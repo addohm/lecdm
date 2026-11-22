@@ -43,6 +43,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     `.Names`, `.IsFor(e, class, race)`): entries `{ name, other names..., class, race, castBy,
     warn, note }`; `BuffData.lua` (generated: `ns.BuffIDs[name]`, every spell ID with that name,
     from `tools/gen_data.py`; run it after changing names in BuffList.lua).
+  - `SoundLog.lua`: the sound log (`ns.db.test.sounds`): hooks PlaySound, PlaySoundFile,
+    `C_Sound.PlaySoundWithOptions` and `C_VoiceChat.SpeakText` once turned on, logs each with
+    the addon from `debugstack` and Lecdm's reason (`S.Reason`, set by `Alerts.Play`).
   - `Catalogue.lua`: Blizzard's list through `C_CooldownViewer` (`ns.Catalogue.byID` by cooldown
     ID, `.bySpell`, `.sections`, `.Spells(sections, all)`, `.Name(cooldownID)`), `/lecdm list`.
     It gives Blizzard's default sections, not where the player put things in `/cdm`.
@@ -89,7 +92,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     `SetSpellName`, time, stacks). `A.IDs(name)`: learned + Blizzard's list + the spell's own;
     `A.ReadBuffs()` (out of combat only) and learning on `UNIT_AURA`; `A.Build()` waits for the
     end of combat (`pending`). `A.BlizzardBuffs()` (selfAura entries), `A.SetInGroup`,
-    `A.MoveEntry`, `A.NewGroup`, `A.Delete`, `A.StartOver`. Modes (`group.modes[name]`: "up",
+    `A.MoveEntry`, `A.NewGroup`, `A.Delete`, `A.StartOver`; `/lecdm buff` (`A.Slash`,
+    `A.FindName`: any part of a name). Modes (`group.modes[name]`: "up",
     "keep", "missing"; `A.Mode`, `A.SetMode`): keep-up buffs get an aura slot in the group's
     `keep` container at a fixed place, and keep / missing ones a presence container (one
     invisible 1 px button sized by the game) with the copy (`StyleCopy`: `missingLook` red,

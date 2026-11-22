@@ -108,7 +108,8 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 | `/lecdm` | Open or close the options window |
 | `/lecdm move` | Unlock everything to drag it; again to lock |
 | `/lecdm bars`, `buffs`, `alerts`, `profiles` | Open that tab |
-| `/lecdm status`, `check`, `log` | Diagnostics |
+| `/lecdm buff fort keep` | A buff's place from chat (`keep`, `missing`, `up`, `out`) |
+| `/lecdm status`, `check`, `log`, `soundlog` | Diagnostics |
 | `/lecdm help` | All commands |
 
 The minimap button and the game's addon menu by the minimap open the options too.

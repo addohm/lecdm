@@ -100,6 +100,7 @@ end
 function A.Play(sound, words, why)
 	if not sound or sound == "none" then return end
 	if why then ns.Log("sound: " .. why) end
+	if ns.SoundLog then ns.SoundLog.Reason(why or words) end
 	if sound == "say" then
 		Speak(words)
 		return

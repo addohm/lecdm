@@ -25,6 +25,11 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- A sample icon next to each glow picker on the Alerts tab, showing the glow and colour.
+- The sound log (Diagnostics, `/lecdm soundlog on`): every sound any addon plays goes in the
+  log, with the addon that played it and, for Lecdm's own, why.
+- `/lecdm buff`: your buff groups' buffs; `/lecdm buff <name> keep | missing | up | out` (any
+  part of a name: `fort`) sets one, putting a buff from Lecdm's list in the first group.
 - Weapon enchants in buff groups (main and off hand: oils, sharpening stones, poisons, shaman
   weapon spells), shown by the game in a place of their own, kept up or only while missing like
   a buff, with their sounds (applied, dropped, running out) out of combat.

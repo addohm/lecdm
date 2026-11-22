@@ -71,10 +71,15 @@ ns.Window.Page({
 		stack:Add(UI.OptionButton(stack.inner, "Blizzard's list, in chat", "Show", function() ns.Catalogue.PrintAll() end))
 		stack:Add(UI.OptionButton(stack.inner, "What's readable now, in chat", "Check", function() ns.Check.Run() end,
 			{ "Check", "Best in combat: make a macro with /lecdm check." }))
+		stack:Add(UI.OptionButton(stack.inner, "Log every sound any addon plays", function()
+			return ns.SoundLog.IsOn() and "Stop" or "Start"
+		end, function() ns.SoundLog.SetOn(not ns.SoundLog.IsOn()) ns.Window.Refresh() end,
+			{ "Sound log", "Every sound played goes in the log, with the addon that played it and, for Lecdm's own, why: for finding a sound you didn't expect. /lecdm soundlog does the same." }))
 		stack:Add(UI.OptionButton(stack.inner, "The log", "Open", function() ns.LogWindow.Show() end))
 		stack:Add(UI.OptionButton(stack.inner, "", "Clear the log", function() ns.LogWindow.Clear() end))
 	end,
 	defaults = function()
 		ns.db.test.chat = ns.DEFAULTS.test.chat
+		ns.db.test.sounds = ns.DEFAULTS.test.sounds
 	end,
 })
