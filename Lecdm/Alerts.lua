@@ -44,7 +44,7 @@ A.SOUNDS = {
 	{ "MAP_PING", "Map ping" },
 }
 A.ALPHAS = { { 1, "100%" }, { 0.9, "90%" }, { 0.75, "75%" }, { 0.6, "60%" }, { 0.5, "50%" }, { 0.4, "40%" }, { 0.25, "25%" } }
-A.WARNS = { { 0, "Off" }, { "auto", "A tenth of its duration" }, { 3, "3 s" }, { 5, "5 s" }, { 10, "10 s" }, { 15, "15 s" },
+A.WARNS = { { 0, "Off" }, { "auto", "Each buff's own" }, { 3, "3 s" }, { 5, "5 s" }, { 10, "10 s" }, { 15, "15 s" },
 	{ 30, "30 s" }, { 60, "1 min" }, { 120, "2 min" } }
 
 -- A setting: the spell's or buff's own, else the default.
@@ -63,11 +63,13 @@ function A.Set(category, key, field, value)
 	ns.Refresh()
 end
 
--- A buff's warning time in seconds. "auto": a tenth of its learned duration, 3 s to 2 min (5 s
--- until the duration is known).
+-- A buff's warning time in seconds. "auto": its own from Lecdm's list (BuffList.lua), else a
+-- tenth of its learned duration, 3 s to 2 min (5 s until the duration is known).
 function A.Warn(name)
 	local warn = A.Get("buffs", name, "warn")
 	if warn == "auto" then
+		local e = ns.BuffList and ns.BuffList.Entry(name)
+		if e and e.warn then return e.warn end
 		local total = ns.Auras and ns.Auras.Duration(name)
 		if not total then return 5 end
 		return math.max(3, math.min(120, math.floor(total / 10 + 0.5)))
@@ -179,15 +181,16 @@ end
 -- Running out: one sound at a buff's warning time. Out of combat its own timer is read; in
 -- combat nothing can be, so the time last read stands, and your own casts start it again with
 -- the duration learned out of combat. A shared buff may have been recast by someone else since,
--- so in combat it only plays when nobody else in the group is of your class (a class the game
--- won't tell counts as one: better quiet than wrong). Never twice for one cast.
+-- so in combat it only plays when nobody else in the group is of the class that casts it (Lecdm's
+-- list's castBy; a buff not on it counts as your class's; a class the game won't tell counts as
+-- one: better quiet than wrong). Never twice for one cast.
 local runOut = {}   -- buff name -> { ends = GetTime() at its end, timer }
 local playedFor = {} -- buff name -> the end it was played for
 local lastRead      -- the buffs from the last look out of combat (Auras.ReadBuffs)
 
-local function OtherOfMyClass()
+-- Whether someone else in the group is of this class.
+local function OtherOfClass(mine)
 	if not (IsInGroup and IsInGroup()) then return false end
-	local _, mine = UnitClass("player")
 	local raid = IsInRaid and IsInRaid()
 	local ok, count = pcall(raid and GetNumGroupMembers or GetNumSubgroupMembers)
 	if not ok or ns.IsSecret(count) or type(count) ~= "number" then return true end
@@ -206,7 +209,10 @@ local function Near(a, b) return a and b and math.abs(a - b) < 3 end
 
 local function PlayRunningOut(name, ends, why)
 	if Near(playedFor[name], ends) then return end
-	if InCombatLockdown() and OtherOfMyClass() then
+	local e = ns.BuffList and ns.BuffList.Entry(name)
+	local castBy = e and e.castBy
+	if not e then castBy = select(2, UnitClass("player")) end
+	if InCombatLockdown() and castBy and OtherOfClass(castBy) then
 		ns.Log("quiet: " .. name .. " running out (someone else could have recast it)")
 		return
 	end

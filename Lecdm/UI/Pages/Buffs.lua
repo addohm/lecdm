@@ -99,18 +99,55 @@ local function MenuText(name, group, icon, known)
 	return text
 end
 
--- The checklist: your buffs from Blizzard's list, and the buffs on you now (out of combat).
+-- Lecdm's list's submenus: which entries each shows (Lecdm/BuffList.lua's sections), for
+-- your class and race.
+local CLASS_SECTIONS = { ["Class buffs"] = true, ["Procs and cooldowns"] = true }
+local LIST_MENUS = {
+	{ "Your class's buffs", function(e, s, class, race) return s == "Class buffs" and ns.BuffList.IsFor(e, class, race) end },
+	{ "Your procs and cooldowns", function(e, s, class, race) return s == "Procs and cooldowns" and ns.BuffList.IsFor(e, class, race) end },
+	{ "From other classes", function(e, s, class) return CLASS_SECTIONS[s] and e.castBy ~= nil and e.castBy ~= class end },
+	{ "Your race's", function(e, s, _, race) return s == "Racials" and e.race == race end },
+	{ "World buffs", function(_, s) return s == "World buffs" end },
+	{ "Consumables", function(_, s) return s == "Consumables" end },
+}
+
+-- The checklist: Lecdm's list, your buffs from Blizzard's list, and the buffs on you now (out of
+-- combat).
 local function BuildMenu(_, root)
 	local group = Current()
 	if not group then return end
 	local function Check(sub, name, icon, known, spellID)
-		sub:CreateCheckbox(MenuText(name, group, icon, known),
+		return sub:CreateCheckbox(MenuText(name, group, icon, known),
 			function() return Auras.GroupOf(name) == group end,
 			function()
 				local on = Auras.GroupOf(name) ~= group
 				if on and spellID then Auras.Learn(name, spellID) end
 				Auras.SetInGroup(group, name, on)
 			end)
+	end
+	local _, class = UnitClass("player")
+	local _, race = UnitRace("player")
+	local list = root:CreateButton("Lecdm's list (every rank)")
+	for _, menu in ipairs(LIST_MENUS) do
+		local entries = {}
+		for _, section in ipairs(ns.BuffList.sections) do
+			for _, e in ipairs(section.entries) do
+				if ns.BuffIDs[e.name] and menu[2](e, section.name, class, race) then entries[#entries + 1] = e end
+			end
+		end
+		if #entries > 0 then
+			local sub = list:CreateButton(menu[1])
+			for _, e in ipairs(entries) do
+				local box = Check(sub, e.name)
+				if box.SetTooltip and (e.note or e[2]) then
+					box:SetTooltip(function(tooltip)
+						tooltip:SetText(e.name)
+						if e.note then tooltip:AddLine(e.note, 1, 1, 1, true) end
+						if e[2] then tooltip:AddLine("Counts too: " .. table.concat(ns.BuffList.Names(e.name), ", ", 2), 1, 1, 1, true) end
+					end)
+				end
+			end
+		end
 	end
 	local blizzard = Auras.BlizzardBuffs()
 	if #blizzard > 0 then

@@ -39,6 +39,10 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     window (`LecdmLog`). `toChat` lines are the test build's debug output: `ns.Debug(line)`
     sends them where `ns.db.test.chat` says ("main", a chat tab's name from `ns.ChatTabs()`,
     or "off"). Replies to commands and real errors use `ns.Print` (always the main chat).
+  - `BuffList.lua`: Lecdm's own list of buffs (`ns.BuffList.sections`, `.byName`, `.Entry`,
+    `.Names`, `.IsFor(e, class, race)`): entries `{ name, other names..., class, race, castBy,
+    warn, note }`; `BuffData.lua` (generated: `ns.BuffIDs[name]`, every spell ID with that name,
+    from `tools/gen_data.py`; run it after changing names in BuffList.lua).
   - `Catalogue.lua`: Blizzard's list through `C_CooldownViewer` (`ns.Catalogue.byID` by cooldown
     ID, `.bySpell`, `.sections`, `.Spells(sections, all)`, `.Name(cooldownID)`), `/lecdm list`.
     It gives Blizzard's default sections, not where the player put things in `/cdm`.
@@ -59,7 +63,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     announced them within a second). `A.Warn(name)` (the warning time; "auto" is a tenth of the
     learned duration). Running out: a `C_Timer.NewTimer` per buff to its warning time, from its
     expiration read out of combat or your own cast (`UNIT_SPELLCAST_SUCCEEDED`) with the learned
-    duration; quiet in combat when another of your class is grouped; stopped by Blizzard's
+    duration; quiet in combat when someone of the buff's `castBy` class (else yours) is grouped;
+    stopped by Blizzard's
     "removed"; `A.Reschedule()` on each `ns.Refresh()`. Going into combat: the keep-up buffs
     missing at the last look (`combatMissing`, `combatChat`).
   - `Bars.lua`: the icon bars (`ns.db.bars`: `list` of bars, each `{ id, name, spells =
@@ -129,6 +134,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
   the Windows client, stamps the build, packs `Lecdm-<version>.zip` on the desktop. Keep it CRLF
   (`.gitattributes`).
 - `tools/make_release.py`: `release/Lecdm-<version>.zip` from the committed `Lecdm/` folder.
+- `tools/gen_data.py`: `Lecdm/BuffData.lua` from wago.tools' SpellName table (product wowf,
+  cached in `.scratch/` for a day; reports names with no spell).
 - `tests/`: `wowmock.lua` (a fake client: viewers with item pools, a secret value that errors
   when misused, enough UI for the window), `smoke.lua` (scenarios), `run_tests.py`.
 - `TESTING.md`: what to check in game, and what's been confirmed.

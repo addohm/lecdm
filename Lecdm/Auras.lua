@@ -140,7 +140,9 @@ function A.Learn(name, spellID)
 	return true
 end
 
--- Every spell ID for a buff name (a set), and how many.
+-- Every spell ID for a buff name (a set), and how many: Lecdm's list's (every rank, and its
+-- other names: Prayer of Fortitude for Power Word: Fortitude), what's been seen on you,
+-- Blizzard's list's, and the spell's own.
 function A.IDs(name)
 	local ids, n = {}, 0
 	local function Add(id)
@@ -148,6 +150,9 @@ function A.IDs(name)
 			ids[id] = true
 			n = n + 1
 		end
+	end
+	for _, n in ipairs(ns.BuffList.Names(name)) do
+		for _, id in ipairs(ns.BuffIDs[n] or {}) do Add(id) end
 	end
 	for id in pairs(Learned()[name] or {}) do Add(id) end
 	for _, e in pairs(ns.Catalogue.byID) do
@@ -168,6 +173,8 @@ function A.Icon(name)
 	for _, e in pairs(ns.Catalogue.byID) do
 		if e.name == name and e.spellID then return ns.Bars.SpellIcon(e.spellID) end
 	end
+	local ids = ns.BuffIDs[name]
+	if ids and ids[1] then return ns.Bars.SpellIcon(ids[1]) end
 	return 134400
 end
 

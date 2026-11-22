@@ -26,7 +26,13 @@ the build and date.
    combat (the log says why). `/lecdm log`: "sound: running out: Battle Shout (timed from your
    cast)" for the in-combat one. If nothing is timed from casts in combat, the game hides your
    own casts there: say so.
-4. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+4. Lecdm's list (Buffs tab, "Add or remove buffs", the first submenu): your class's buffs and
+   procs are there, other classes' buffs they can put on you, your race's, world buffs and
+   consumables; a world buff's tooltip says where it comes from. Tick Power Word: Fortitude:
+   a priest's Prayer of Fortitude on you shows in its place, in combat too. Missing from
+   Forever's data, so left out: Blessing of Salvation and Sanctuary, Greater Blessing of Light,
+   Elemental Mastery; say if any of them do exist in game.
+5. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

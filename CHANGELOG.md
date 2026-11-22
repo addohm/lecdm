@@ -17,7 +17,12 @@ All notable changes to lecdm. The format follows
   combat from its time when the fight started or from your own cast with the duration learned
   out of combat; quiet in combat when another of your class is in the group; once per cast);
   going into combat without a keep-up buff, a sound and the missing ones in chat. The warning
-  time can be a tenth of the buff's duration (3 s to 2 min), and goes up to 2 min.
+  time can be each buff's own, and goes up to 2 min.
+- Lecdm's list of buffs in the Buffs tab's checklist: your class's buffs, your procs and
+  cooldowns, buffs other classes put on you, your race's, world buffs and consumables, for every
+  class, with every rank and their group versions (Prayer of Fortitude counts as Power Word:
+  Fortitude), each with its own warning time, and which class can recast it (the running-out
+  sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 
 ### Changed
 

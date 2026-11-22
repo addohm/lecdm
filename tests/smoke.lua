@@ -606,7 +606,10 @@ check(#M.sounds == heard + 3, "running out after Blizzard said it was gone")
 M.combat = false
 M.Fire("PLAYER_REGEN_ENABLED")
 BD.warn = "auto"
-check(ns.Alerts.Warn("Battle Shout") == 12 and ns.Alerts.Warn("Unheard Of") == 5, "auto warning time wrong")
+check(ns.Alerts.Warn("Power Word: Fortitude") == 120 and ns.Alerts.Warn("Unheard Of") == 5, "auto warning time wrong")
+LecdmDB.auraDur["Unheard Of"] = 600
+check(ns.Alerts.Warn("Unheard Of") == 60, "a tenth of the duration for a buff not on Lecdm's list wrong")
+LecdmDB.auraDur["Unheard Of"] = nil
 BD.warn, BD.runningOut = 5, "none"
 -- Going into combat without a keep-up buff (at the last look): a sound, and in chat.
 BD.combatMissing, BD.combatChat = "RAID_WARNING", true
@@ -838,13 +841,34 @@ check(buffPanel.parts.picker.dropdown.text == "Buffs", "buff group picker wrong"
 check(buffPanel.parts.buffRows[1].name == ns.db.buffs.list[1].entries[1], "buff rows missing")
 local buffMenu = M.Menu()
 buffPanel.parts.checklist.dropdown.generator(nil, buffMenu)
-check(buffMenu.children[1].text == "Yours, from Blizzard's list" and #buffMenu.children[1].children == 1, "Blizzard's buffs section wrong")
-local onYou = buffMenu.children[2]
+check(buffMenu.children[2].text == "Yours, from Blizzard's list" and #buffMenu.children[2].children == 1, "Blizzard's buffs section wrong")
+local onYou = buffMenu.children[3]
 check(onYou.text:find("^On you now") and #onYou.children == 2, "on-you section wrong")
+-- Lecdm's list, for a human warrior: your class's buffs and procs, other classes' buffs they can
+-- put on you, your race's; a buff's other names count as it (Prayer of Fortitude).
+local listMenu = buffMenu.children[1]
+local function MenuNamed(menu, text)
+	for _, c in ipairs(menu.children) do
+		if c.text:find(text, 1, true) then return c end
+	end
+end
+check(listMenu.text:find("^Lecdm's list") and MenuNamed(listMenu, "Your class's buffs") and MenuNamed(MenuNamed(listMenu, "Your class's buffs"), "Battle Shout"), "Lecdm's list: no Battle Shout for a warrior")
+check(MenuNamed(MenuNamed(listMenu, "Your procs and cooldowns"), "Flurry"), "Lecdm's list: no Flurry for a warrior")
+local others = MenuNamed(listMenu, "From other classes")
+check(MenuNamed(others, "Arcane Intellect") and not MenuNamed(others, "Inner Fire"), "Lecdm's list: other classes' buffs wrong")
+check(MenuNamed(MenuNamed(listMenu, "Your race's"), "Perception") and not MenuNamed(MenuNamed(listMenu, "Your race's"), "Berserking"), "Lecdm's list: racials wrong")
+check(MenuNamed(listMenu, "World buffs") and MenuNamed(listMenu, "Consumables"), "Lecdm's list: world buffs or consumables missing")
+check(ns.Auras.IDs("Power Word: Fortitude")[21562] and ns.Auras.IDs("Battle Shout")[11551], "every rank and the group version aren't the buff's IDs")
+MenuNamed(others, "Arcane Intellect").setSelected()
+check(ns.Auras.GroupOf("Arcane Intellect") == ns.db.buffs.list[1] and G("Arcane Intellect/") and G("Arcane Intellect/").ids[23028], "ticking Lecdm's list's Arcane Intellect didn't add it with Arcane Brilliance")
+ns.Auras.SetInGroup(ns.db.buffs.list[1], "Arcane Intellect", false)
+ns.db.alerts.defaults.buffs.warn = "auto"
+check(ns.Alerts.Warn("Battle Shout") == 15 and ns.Alerts.Warn("Unheard Of") == 5, "each buff's own warning time wrong")
+ns.db.alerts.defaults.buffs.warn = 5
 M.buffsOnMe[3] = { name = "Rallying Cry of the Dragonslayer", spellId = 22888, icon = 9 }
 buffMenu = M.Menu()
 buffPanel.parts.checklist.dropdown.generator(nil, buffMenu)
-buffMenu.children[2].children[3].setSelected()
+buffMenu.children[3].children[3].setSelected()
 check(ns.Auras.GroupOf("Rallying Cry of the Dragonslayer") == ns.db.buffs.list[1] and LecdmDB.auraIDs["Rallying Cry of the Dragonslayer"][22888], "ticking a buff on you didn't add and learn it")
 check(buffPanel.parts.style.box.text == "Icons", "show-as picker wrong")
 -- The dropdown's Blizzard places: picking one shows what happens to them, and its layout.

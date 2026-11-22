@@ -12,6 +12,8 @@ Core.lua
 Profiles.lua
 Log.lua
 Catalogue.lua
+BuffList.lua
+BuffData.lua
 Listen.lua
 Check.lua
 Glow.lua

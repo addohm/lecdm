@@ -254,6 +254,7 @@ function UnitClass(unit)
 	return "Warrior", "WARRIOR"
 end
 function IsInRaid() return false end
+function UnitRace() return "Human", "Human" end
 function GetNumSubgroupMembers() return #M.party end
 function GetNumGroupMembers() return #M.party + 1 end
 function UnitIsUnit(a, b) return a == b end

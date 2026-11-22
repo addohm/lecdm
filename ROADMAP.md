@@ -86,7 +86,10 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 2. **Parity** (the owner, 2026-11-22: everything leBoof and the feature reference can do): the
    checklist below, top to bottom, a push at a time with tests. Anything that turns out not to
    work on Forever moves to "Can't be done" above, with the reason, before it's dropped.
-3. **Release:** the first upload to CurseForge and Wago (LISTING.md), then a beta.
+3. **The update script** (`tools/update_data.cmd`, like leProfit's: pull, regenerate
+   `BuffData.lua`, test, commit, install), now that Lecdm has generated data: when the owner
+   asks for it.
+4. **Release:** the first upload to CurseForge and Wago (LISTING.md), then a beta.
 
 ## Parity checklist
 
@@ -100,8 +103,9 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
       (2026-11-22)
 - [x] Going into combat with a keep-up buff missing: a sound, and the missing ones in chat
       (2026-11-22)
-- [ ] Built-in buff lists per class, with every rank and group version (Prayer of Fortitude
-      counts as Fortitude), world buffs, weapon enchants (oils, sharpening stones)
+- [x] Built-in buff lists per class, with every rank and group version (Prayer of Fortitude
+      counts as Fortitude), world buffs (2026-11-22: all classes, racials and consumables too)
+- [ ] Weapon enchants (oils, sharpening stones; shaman weapon imbues)
 - [ ] Tooltips on hover (buff groups, icon bars)
 - [ ] Glow previews on sample icons in the window
 - [ ] A sound log: every sound any addon plays, and why Lecdm played its own

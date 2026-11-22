@@ -56,8 +56,10 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   icons (a swipe, the time left, stacks) or **timer bars** (the icon, then a bar draining to the
   right with the name and the time left), its layout, look (border, zoom, time text; for timer
   bars texture, colour, background, and icon, name and time each on or off), when it shows, and
-  its buffs: tick them from your buffs in Blizzard's list or from the buffs on you now (out of
-  combat), order them, choose how each shows (**while it's up**, **keep up**: a fixed place with
+  its buffs: tick them from **Lecdm's list** (your class's buffs, your procs and cooldowns,
+  buffs other classes put on you, your race's, world buffs, consumables: every rank, and group
+  versions count too, so Prayer of Fortitude is Power Word: Fortitude), from your buffs in
+  Blizzard's list, or from the buffs on you now (out of combat), order them, choose how each shows (**while it's up**, **keep up**: a fixed place with
   a copy of it and a glow while it's down, or **only while missing**), and its own alerts and
   looks.
   Every rank of a buff, whoever cast it, and its full duration are learned the first time Lecdm
@@ -81,10 +83,10 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     Blizzard's `/cdm` also tracks, from its announcement; out of combat for every buff on you);
     a sound as it **runs out**, at the warning time (out of combat from its own timer; in combat
     from its time when the fight started or from your own cast, once Lecdm has seen it out of
-    combat; quiet in combat when someone else in your group of your class could have recast
-    it); going into combat **without a keep-up buff**: a sound, and which ones in chat;
-    a glow while it's up, the warning time (the time turns red under it: 3 s to 2 min, or a
-    tenth of the buff's duration) and a warning glow then
+    combat; quiet in combat when someone else in your group could have recast it: another
+    priest for Fortitude); going into combat **without a keep-up buff**: a sound, and which ones in chat;
+    a glow while it's up, the warning time (the time turns red under it: 3 s to 2 min, or each
+    buff's own: Lecdm's list's, else a tenth of its duration) and a warning glow then
     (icons, timed by the game from the buff's learned duration), a glow while a keep-up buff is
     missing (red pixel glow by default); colours.
   - Buff groups, how a buff looks: **grey** and its **opacity** while it's up (so a missing one
