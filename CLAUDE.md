@@ -56,7 +56,12 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     cooldown, the ready / proc glow on `b.glow`), `A.OnAnnounced` (Listen.lua: Blizzard's
     applied / removed; a target aura's removal waits a frame and is quiet if the target is
     gone), `A.OnBuffsRead` (Auras.lua, out of combat: buffs that came or went, unless Blizzard
-    announced them within a second).
+    announced them within a second). `A.Warn(name)` (the warning time; "auto" is a tenth of the
+    learned duration). Running out: a `C_Timer.NewTimer` per buff to its warning time, from its
+    expiration read out of combat or your own cast (`UNIT_SPELLCAST_SUCCEEDED`) with the learned
+    duration; quiet in combat when another of your class is grouped; stopped by Blizzard's
+    "removed"; `A.Reschedule()` on each `ns.Refresh()`. Going into combat: the keep-up buffs
+    missing at the last look (`combatMissing`, `combatChat`).
   - `Bars.lua`: the icon bars (`ns.db.bars`: `list` of bars, each `{ id, name, spells =
     { key ... }, show = { [key] = "ready" | "cooldown" }, size, gap, grow, vertical, perRow,
     gcd, pos }`; `seeded`, `nextID`, `hideBlizzard`). A key is a spellID (number), `"slot:N"`

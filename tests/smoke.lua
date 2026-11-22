@@ -568,6 +568,63 @@ M.Fire("PLAYER_REGEN_ENABLED")
 check(M.viewers.BuffIconCooldownViewer.alpha == 1, "Blizzard's icons not back")
 M.buffsOnMe = { { name = "Battle Shout", spellId = 25289, icon = 1 }, { name = "Power Word: Fortitude", spellId = 1243, icon = 8 } }
 
+-- Running out: one sound at the warning time, out of combat from the buff's own timer; in combat
+-- from your own cast (its learned duration); quiet in combat when another warrior could have
+-- recast it; stopped when Blizzard says it's gone; never twice for one cast.
+BD.runningOut = "ALARM_CLOCK_WARNING_3"
+M.buffsOnMe = { { name = "Battle Shout", spellId = 6673, icon = 1, duration = 120, expires = M.now + 120 } }
+M.Fire("UNIT_AURA", "player")
+heard = #M.sounds
+M.Advance(114)
+check(#M.sounds == heard, "running out played early")
+M.Advance(1)
+check(#M.sounds == heard + 1 and M.sounds[#M.sounds] == SOUNDKIT.ALARM_CLOCK_WARNING_3, "no running-out sound at the warning time")
+M.Fire("UNIT_AURA", "player")
+M.Advance(1)
+check(#M.sounds == heard + 1, "running out played twice for one cast")
+M.combat = true
+M.Fire("PLAYER_REGEN_DISABLED")
+M.Fire("UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-1", 6673)
+M.Advance(114)
+check(#M.sounds == heard + 1, "running out (from a cast) played early")
+M.Advance(1)
+check(#M.sounds == heard + 2, "no running-out sound timed from your cast in combat")
+M.party = { "WARRIOR" }
+M.Fire("UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-2", 6673)
+M.Advance(115)
+check(#M.sounds == heard + 2, "running out played with another warrior along, who could have recast it")
+check(Logged("quiet: Battle Shout running out"), "the quiet running-out not logged")
+M.party = { "PRIEST" }
+M.Fire("UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-3", 6673)
+M.Advance(115)
+check(#M.sounds == heard + 3, "a priest along silenced Battle Shout's running out")
+M.party = {}
+M.Fire("UNIT_SPELLCAST_SUCCEEDED", "player", "Cast-4", 6673)
+shout:TriggerAlertEvent(Enum.CooldownViewerAlertEventType.OnAuraRemoved)
+M.Advance(115)
+check(#M.sounds == heard + 3, "running out after Blizzard said it was gone")
+M.combat = false
+M.Fire("PLAYER_REGEN_ENABLED")
+BD.warn = "auto"
+check(ns.Alerts.Warn("Battle Shout") == 12 and ns.Alerts.Warn("Unheard Of") == 5, "auto warning time wrong")
+BD.warn, BD.runningOut = 5, "none"
+-- Going into combat without a keep-up buff (at the last look): a sound, and in chat.
+BD.combatMissing, BD.combatChat = "RAID_WARNING", true
+ns.Auras.SetMode(buffs[1], "Power Word: Fortitude", "keep")
+M.buffsOnMe = { { name = "Battle Shout", spellId = 6673, icon = 1, duration = 120 } }
+M.Fire("UNIT_AURA", "player")
+heard = #M.sounds
+M.combat = true
+M.Fire("PLAYER_REGEN_DISABLED")
+check(#M.sounds == heard + 1 and M.sounds[#M.sounds] == SOUNDKIT.RAID_WARNING, "no sound going into combat without a keep-up buff")
+check(M.Printed("into combat without Power Word: Fortitude"), "the missing keep-up buff not said in chat")
+M.combat = false
+M.Fire("PLAYER_REGEN_ENABLED")
+ns.Auras.SetMode(buffs[1], "Power Word: Fortitude", "up")
+BD.combatMissing, BD.combatChat = "none", false
+M.buffsOnMe = { { name = "Battle Shout", spellId = 25289, icon = 1 }, { name = "Power Word: Fortitude", spellId = 1243, icon = 8 } }
+M.Fire("UNIT_AURA", "player")
+
 -- Keep up: a fixed place (an aura slot, first) and the missing look (a presence container the
 -- game sizes, and the red copy clipped to it); the others flow a line below. Only while
 -- missing: the presence alone. While it's up again: neither.
@@ -579,7 +636,7 @@ local function Keep()
 end
 local function PresenceOf()
 	for _, c in ipairs(M.containers) do
-		if c.parent == anchorFrame and c.groups.buff then return c end
+		if c.parent == anchorFrame and c.groups.buff and c.groups.buff.ids[6673] then return c end
 	end
 end
 ns.Auras.SetMode(buffs[1], "Battle Shout", "keep")

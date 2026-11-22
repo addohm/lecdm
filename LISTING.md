@@ -78,8 +78,9 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 
 #### Alerts
 
-- Sounds when a spell is ready, when a buff is applied, and when it drops; from the game's
-  sounds or "Say it" (the spell's name, spoken).
+- Sounds when a spell is ready, when a buff is applied, as it runs out, and when it drops; from
+  the game's sounds or "Say it" (the spell's name, spoken).
+- A warning as you go into combat without a buff you keep up, and which ones in chat.
 - Glows while a spell is ready, while the game highlights it (a proc), while a buff is up, as
   a buff runs out (timed by the game, in combat too), and while a keep-up buff is missing.
 - Seven glow styles in eleven colours or your class colour.

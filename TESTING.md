@@ -20,6 +20,15 @@ the build and date.
      the grey faded icon is back, the copy and glow gone.
    - Each buff's ⚙ (Buffs tab) has the same choices; as timer bars: grey bar and faded while
      up, the copy a full-colour bar while missing.
+3. Running out (Alerts tab: "Sound as it runs out", Warning time 15 s), Battle Shout in a buff
+   group: out of combat it plays once at 15 s left. Recast it in combat (after seeing it once
+   out of combat): it plays 15 s before the end, once. Grouped with another warrior: quiet in
+   combat (the log says why). `/lecdm log`: "sound: running out: Battle Shout (timed from your
+   cast)" for the in-combat one. If nothing is timed from casts in combat, the game hides your
+   own casts there: say so.
+4. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+   chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
+   without Battle Shout" in chat.
 
 ## To check (0.9.0-alpha, 2026-11-21)
 

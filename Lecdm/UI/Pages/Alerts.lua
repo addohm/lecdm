@@ -17,8 +17,11 @@ local FIELDS = {
 	buffs = {
 		{ "applied", "Sound when it's applied", Alerts.SOUNDS },
 		{ "removed", "Sound when it drops", Alerts.SOUNDS },
+		{ "runningOut", "Sound as it runs out (at the warning time)", Alerts.SOUNDS },
+		{ "combatMissing", "Sound going into combat without it (keep-up buffs)", Alerts.SOUNDS },
+		{ "combatChat", "Say in chat which ones are missing then", YESNO },
 		{ "upGlow", "Glow while it's up", ns.Glow.STYLES },
-		{ "warn", "Time turns red under", Alerts.WARNS },
+		{ "warn", "Warning time: the time turns red under", Alerts.WARNS },
 		{ "warnGlow", "Warning glow (icons, at that time)", ns.Glow.STYLES },
 		{ "glowColor", "Glow colour", ns.Glow.COLORS },
 		{ "upGrey", "Grey while it's up", YESNO, "Buff groups: how a buff looks" },
@@ -120,7 +123,7 @@ ns.Window.Page({
 		for _, f in ipairs(FIELDS.buffs) do
 			if f[4] then
 				stack:Add(UI.OptionText(stack.inner,
-					"In combat the game tells an addon when a buff comes or goes only for buffs Blizzard's Cooldown Manager also tracks (/cdm, Buffs tab): track them there for in-combat sounds. Out of combat Lecdm sees every buff on you. The warning glow needs the buff's full duration, learned the first time Lecdm sees it on you out of combat.", 56))
+					"In combat the game tells an addon when a buff comes or goes only for buffs Blizzard's Cooldown Manager also tracks (/cdm, Buffs tab): track them there for in-combat sounds. Out of combat Lecdm sees every buff on you. Running out: in combat from its time when the fight started, or from your own cast; quiet in combat when someone else in your group could have recast it (your class). The warning glow and the timing from your cast need the buff's full duration, learned the first time Lecdm sees it on you out of combat.", 70))
 				stack:Add(UI.OptionHeading(stack.inner, f[4]))
 			end
 			stack:Add(DefaultRow(stack.inner, "buffs", f))

@@ -13,6 +13,11 @@ All notable changes to lecdm. The format follows
   combat too, timed by the game once the buff's duration is known); and a keep-up buff's place
   while it's missing: the copy in full colour, grey or dimmed red (the default), at its own
   opacity. Glows stay at full strength.
+- Buff sounds: as a buff runs out, at the warning time (out of combat from its own timer; in
+  combat from its time when the fight started or from your own cast with the duration learned
+  out of combat; quiet in combat when another of your class is in the group; once per cast);
+  going into combat without a keep-up buff, a sound and the missing ones in chat. The warning
+  time can be a tenth of the buff's duration (3 s to 2 min), and goes up to 2 min.
 
 ### Changed
 

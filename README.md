@@ -78,8 +78,13 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   - Icon bars: a sound when it's ready (off cooldown, not the GCD), a glow while it's ready and
     usable, a glow while the game highlights it (a proc); glow colour.
   - Buff groups: sounds when it's applied and when it drops (in combat only for buffs
-    Blizzard's `/cdm` also tracks, from its announcement; out of combat for every buff on you),
-    a glow while it's up, the time turning red under a few seconds and a warning glow then
+    Blizzard's `/cdm` also tracks, from its announcement; out of combat for every buff on you);
+    a sound as it **runs out**, at the warning time (out of combat from its own timer; in combat
+    from its time when the fight started or from your own cast, once Lecdm has seen it out of
+    combat; quiet in combat when someone else in your group of your class could have recast
+    it); going into combat **without a keep-up buff**: a sound, and which ones in chat;
+    a glow while it's up, the warning time (the time turns red under it: 3 s to 2 min, or a
+    tenth of the buff's duration) and a warning glow then
     (icons, timed by the game from the buff's learned duration), a glow while a keep-up buff is
     missing (red pixel glow by default); colours.
   - Buff groups, how a buff looks: **grey** and its **opacity** while it's up (so a missing one

@@ -243,10 +243,23 @@ end
 function PlaySound(kit) table.insert(M.sounds, kit) end
 function InCombatLockdown() return M.combat end
 function IsInInstance() return M.instance, M.instance and "party" or "none" end
-function UnitClass() return "Warrior", "WARRIOR" end
+-- The group: M.party = { class file name ... } for party1, party2 ...
+M.party = {}
+function UnitClass(unit)
+	local n = unit and unit:match("^party(%d)$")
+	if n then
+		local c = M.party[tonumber(n)]
+		return c, c
+	end
+	return "Warrior", "WARRIOR"
+end
+function IsInRaid() return false end
+function GetNumSubgroupMembers() return #M.party end
+function GetNumGroupMembers() return #M.party + 1 end
+function UnitIsUnit(a, b) return a == b end
 M.name, M.surname = "Brenna", "Ashford"
 function UnitName() return M.name, M.surname end
-function IsInGroup() return false end
+function IsInGroup() return #M.party > 0 end
 M.target = nil -- nil: no target; { dead = true/false }
 function UnitExists(unit) return unit == "target" and M.target ~= nil end
 function UnitIsDead(unit) return unit == "target" and M.target ~= nil and M.target.dead == true end
@@ -303,7 +316,25 @@ end
 M.now = 1000
 function GetTime() return M.now end
 M.timers = {}
+-- C_Timer.NewTimer: due at M.now + seconds; M.Advance moves the clock and runs what's due.
+M.delayed = {}
 C_Timer = { After = function(_, fn) table.insert(M.timers, fn) end }
+function C_Timer.NewTimer(seconds, fn)
+	local t = { due = M.now + seconds, fn = fn }
+	function t:Cancel() self.cancelled = true end
+	table.insert(M.delayed, t)
+	return t
+end
+function M.Advance(seconds)
+	M.now = M.now + seconds
+	local due, keep = {}, {}
+	for _, t in ipairs(M.delayed) do
+		if not t.cancelled then table.insert(t.due <= M.now and due or keep, t) end
+	end
+	M.delayed = keep
+	table.sort(due, function(a, b) return a.due < b.due end)
+	for _, t in ipairs(due) do t.fn() end
+end
 function M.RunTimers()
 	local list = M.timers
 	M.timers = {}
@@ -430,7 +461,7 @@ C_UnitAuras = {
 		local b = M.buffsOnMe[i]
 		if not b then return nil end
 		if M.combat then return { name = SECRET, spellId = SECRET, icon = SECRET } end
-		return { name = b.name, spellId = b.spellId, icon = b.icon, duration = b.duration }
+		return { name = b.name, spellId = b.spellId, icon = b.icon, duration = b.duration, expirationTime = b.expires }
 	end,
 	GetAuraDuration = function(_, id)
 		if id == SECRET then error("secret aura instance refused") end

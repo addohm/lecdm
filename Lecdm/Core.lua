@@ -17,6 +17,7 @@ local DEFAULTS = {
 		defaults = {
 			spells = { ready = "none", readyGlow = "none", procGlow = "modern", glowColor = "gold" },
 			buffs = { applied = "none", removed = "none", upGlow = "none", warn = 5, warnGlow = "none", glowColor = "gold",
+				runningOut = "none", combatMissing = "none", combatChat = false,
 				upAlpha = 1, upGrey = false, missingLook = "red", missingAlpha = 1,
 				missingGlow = "pixel", missingColor = "red" },
 			blizzard = { applied = "none", removed = "none", deaths = false },
@@ -101,6 +102,7 @@ function ns.Refresh()
 	if ns.Bars then ns.Bars.Build() end
 	if ns.Auras then ns.Auras.Build() end
 	if ns.Hosted then ns.Hosted.Build() end
+	if ns.Alerts then ns.Alerts.Reschedule() end
 	if ns.Theme then ns.Theme.Apply() end
 	if ns.Minimap then ns.Minimap.Apply() end
 	if ns.Window then ns.Window.Apply() end

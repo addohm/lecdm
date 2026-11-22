@@ -12,6 +12,13 @@
 --     upGlow             a glow while it's up (part of the game's button);
 --     warn, warnGlow     the time turns red under `warn` seconds, and the glow comes then (timed
 --                        by the game from the buff's duration, learned out of combat);
+--     runningOut         a sound at the warning time: out of combat from the buff's own timer;
+--                        in combat from that, or from your own cast with the learned duration,
+--                        unless someone else in the group could have recast it (your class);
+--                        once per cast;
+--     combatMissing, combatChat
+--                        going into combat without a keep-up buff (from the last look out of
+--                        combat): a sound, and the missing ones in chat;
 --     upAlpha, upGrey    how it looks while it's up: its opacity, greyed or not (icons come back
 --                        to full strength at the warning time);
 --     missingLook, missingAlpha, missingGlow, missingColor
@@ -37,7 +44,8 @@ A.SOUNDS = {
 	{ "MAP_PING", "Map ping" },
 }
 A.ALPHAS = { { 1, "100%" }, { 0.9, "90%" }, { 0.75, "75%" }, { 0.6, "60%" }, { 0.5, "50%" }, { 0.4, "40%" }, { 0.25, "25%" } }
-A.WARNS = { { 0, "Off" }, { 3, "3 s" }, { 5, "5 s" }, { 10, "10 s" }, { 15, "15 s" }, { 30, "30 s" }, { 60, "1 min" } }
+A.WARNS = { { 0, "Off" }, { "auto", "A tenth of its duration" }, { 3, "3 s" }, { 5, "5 s" }, { 10, "10 s" }, { 15, "15 s" },
+	{ 30, "30 s" }, { 60, "1 min" }, { 120, "2 min" } }
 
 -- A setting: the spell's or buff's own, else the default.
 function A.Get(category, key, field)
@@ -53,6 +61,18 @@ function A.Set(category, key, field, value)
 	all[key][field] = value
 	if next(all[key]) == nil then all[key] = nil end
 	ns.Refresh()
+end
+
+-- A buff's warning time in seconds. "auto": a tenth of its learned duration, 3 s to 2 min (5 s
+-- until the duration is known).
+function A.Warn(name)
+	local warn = A.Get("buffs", name, "warn")
+	if warn == "auto" then
+		local total = ns.Auras and ns.Auras.Duration(name)
+		if not total then return 5 end
+		return math.max(3, math.min(120, math.floor(total / 10 + 0.5)))
+	end
+	return tonumber(warn) or 0
 end
 
 function A.HasOwn(category, key)
@@ -137,6 +157,7 @@ function A.OnAnnounced(event, name, onTarget)
 	if event == "OnAuraApplied" then
 		A.Play(A.Get(category, name, "applied"), name, "applied: " .. name)
 	elseif event == "OnAuraRemoved" then
+		if category == "buffs" and not onTarget then A.StopRunningOut(name) end
 		local sound = A.Get(category, name, "removed")
 		if sound == "none" then return end
 		if onTarget and not (category == "blizzard" and A.Get(category, name, "deaths")) then
@@ -155,14 +176,130 @@ function A.OnAnnounced(event, name, onTarget)
 	end
 end
 
+-- Running out: one sound at a buff's warning time. Out of combat its own timer is read; in
+-- combat nothing can be, so the time last read stands, and your own casts start it again with
+-- the duration learned out of combat. A shared buff may have been recast by someone else since,
+-- so in combat it only plays when nobody else in the group is of your class (a class the game
+-- won't tell counts as one: better quiet than wrong). Never twice for one cast.
+local runOut = {}   -- buff name -> { ends = GetTime() at its end, timer }
+local playedFor = {} -- buff name -> the end it was played for
+local lastRead      -- the buffs from the last look out of combat (Auras.ReadBuffs)
+
+local function OtherOfMyClass()
+	if not (IsInGroup and IsInGroup()) then return false end
+	local _, mine = UnitClass("player")
+	local raid = IsInRaid and IsInRaid()
+	local ok, count = pcall(raid and GetNumGroupMembers or GetNumSubgroupMembers)
+	if not ok or ns.IsSecret(count) or type(count) ~= "number" then return true end
+	for i = 1, count do
+		local unit = (raid and "raid" or "party") .. i
+		local okSelf, isSelf = pcall(UnitIsUnit, unit, "player")
+		if not (okSelf and isSelf == true) then
+			local okClass, _, class = pcall(UnitClass, unit)
+			if not okClass or ns.IsSecret(class) or class == mine then return true end
+		end
+	end
+	return false
+end
+
+local function Near(a, b) return a and b and math.abs(a - b) < 3 end
+
+local function PlayRunningOut(name, ends, why)
+	if Near(playedFor[name], ends) then return end
+	if InCombatLockdown() and OtherOfMyClass() then
+		ns.Log("quiet: " .. name .. " running out (someone else could have recast it)")
+		return
+	end
+	playedFor[name] = ends
+	A.Play(A.Get("buffs", name, "runningOut"), name, "running out: " .. name .. why)
+end
+
+function A.StopRunningOut(name)
+	local r = runOut[name]
+	if r then r.timer:Cancel() end
+	runOut[name] = nil
+end
+
+-- Times the sound for a buff ending at `ends` (GetTime()); why: for the log.
+local function RunOut(name, ends, why)
+	local r = runOut[name]
+	if r and math.abs(r.ends - ends) < 1 then return end
+	A.StopRunningOut(name)
+	if A.Get("buffs", name, "runningOut") == "none" then return end
+	local warn = A.Warn(name)
+	local left = ends - GetTime()
+	if warn <= 0 or left <= 0 then return end
+	if left <= warn then
+		PlayRunningOut(name, ends, why)
+		return
+	end
+	runOut[name] = { ends = ends, timer = C_Timer.NewTimer(left - warn, function()
+		runOut[name] = nil
+		PlayRunningOut(name, ends, why)
+	end) }
+end
+
+-- Times every buff of the last look again (after a setting changed, out of combat: in combat
+-- your casts since the last look would be lost).
+function A.Reschedule()
+	if not (lastRead and ns.Auras) or InCombatLockdown() then return end
+	for _, b in ipairs(lastRead) do
+		if b.expires and b.expires > 0 and ns.Auras.GroupOf(b.name) then
+			A.StopRunningOut(b.name)
+			RunOut(b.name, b.expires, "")
+		end
+	end
+end
+
+-- Your own cast of a buff in a group: it runs from now for its learned duration.
+local function OnCast(spellID)
+	local name = SpellName(spellID)
+	if not (name and ns.Auras and ns.Auras.GroupOf(name)) then return end
+	local total = ns.Auras.Duration(name)
+	if total then RunOut(name, GetTime() + total, " (timed from your cast)") end
+end
+
+-- Going into combat: the keep-up buffs that weren't on you at the last look.
+local function CombatStarted()
+	if not (lastRead and ns.Auras and ns.Enabled()) then return end
+	local on = {}
+	for _, b in ipairs(lastRead) do on[b.name] = true end
+	local missing, sound, chat = {}, nil, false
+	for _, group in ipairs(ns.db.buffs.list) do
+		for _, name in ipairs(group.entries) do
+			local mode = ns.Auras.Mode(group, name)
+			if (mode == "keep" or mode == "missing") and not on[name] then
+				local s = A.Get("buffs", name, "combatMissing")
+				local c = A.Get("buffs", name, "combatChat")
+				if s ~= "none" or c then
+					missing[#missing + 1] = name
+					if s ~= "none" then sound = sound or s end
+					chat = chat or c
+				end
+			end
+		end
+	end
+	if #missing == 0 then return end
+	local list = table.concat(missing, ", ")
+	if sound then A.Play(sound, missing[1], "into combat without: " .. list) end
+	if chat then ns.Print("into combat without " .. list) end
+end
+
 -- Out of combat, buffs coming and going on you are read directly (for buffs Blizzard doesn't
 -- track), unless Blizzard announced the same one just now.
 local shownBefore -- name -> true: the buffs in a group that were on you, last time
 function A.OnBuffsRead(buffs)
 	if not ns.Auras then return end
+	lastRead = buffs
 	local now = {}
 	for _, b in ipairs(buffs) do
-		if ns.Auras.GroupOf(b.name) then now[b.name] = true end
+		if ns.Auras.GroupOf(b.name) then
+			now[b.name] = true
+			if b.expires and b.expires > 0 then RunOut(b.name, b.expires, "") else A.StopRunningOut(b.name) end
+		end
+	end
+	for name in pairs(runOut) do
+		if not now[name] then A.StopRunningOut(name) end
 	end
 	if shownBefore then
 		local t = GetTime()
@@ -189,9 +326,14 @@ local events = CreateFrame("Frame")
 events:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_SHOW")
 events:RegisterEvent("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE")
 events:RegisterEvent("PLAYER_REGEN_DISABLED")
-events:SetScript("OnEvent", function(_, event, spellID)
+events:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player")
+events:SetScript("OnEvent", function(_, event, spellID, _, castSpellID)
 	if event == "PLAYER_REGEN_DISABLED" then
+		CombatStarted()
 		A.ForgetBuffs()
+		return
+	elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
+		if ns.db and ns.Enabled() then OnCast(castSpellID) end
 		return
 	end
 	local name = SpellName(spellID)

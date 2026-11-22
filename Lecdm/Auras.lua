@@ -172,18 +172,20 @@ function A.Icon(name)
 end
 
 -- The buffs on you now, out of combat (in combat, and where the game refuses, nothing): each
--- { name, spellID, icon }, once per name.
+-- { name, spellID, icon, duration, expires }, once per name (expires: GetTime() at its end, 0 or
+-- nil for none).
 function A.ReadBuffs()
 	local list, seen = {}, {}
 	if InCombatLockdown() or not (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex) then return list end
 	for i = 1, 40 do
 		local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, "player", i, "HELPFUL")
 		if not ok or type(aura) ~= "table" then break end
-		local name, id, icon, duration = aura.name, aura.spellId, aura.icon, aura.duration
+		local name, id, icon, duration, expires = aura.name, aura.spellId, aura.icon, aura.duration, aura.expirationTime
 		if not (ns.IsSecret(name) or ns.IsSecret(id) or ns.IsSecret(icon)) and name and id and not seen[name] then
 			seen[name] = true
 			if ns.IsSecret(duration) or type(duration) ~= "number" then duration = nil end
-			list[#list + 1] = { name = name, spellID = id, icon = icon, duration = duration }
+			if ns.IsSecret(expires) or type(expires) ~= "number" then expires = nil end
+			list[#list + 1] = { name = name, spellID = id, icon = icon, duration = duration, expires = expires }
 		end
 	end
 	return list
@@ -291,7 +293,7 @@ end
 function A.AlertLook(name)
 	local Get = ns.Alerts.Get
 	local total = A.Duration(name) or 0
-	return Get("buffs", name, "upGlow") .. ":" .. Get("buffs", name, "glowColor") .. ":" .. Get("buffs", name, "warn")
+	return Get("buffs", name, "upGlow") .. ":" .. Get("buffs", name, "glowColor") .. ":" .. ns.Alerts.Warn(name)
 		.. ":" .. Get("buffs", name, "warnGlow") .. ":" .. total
 		.. ":" .. Get("buffs", name, "upAlpha") .. ":" .. tostring(Get("buffs", name, "upGrey"))
 end
@@ -355,7 +357,7 @@ local function Styler(group, name)
 	local size, bars, width = group.size, group.style == "bars", group.barWidth
 	local Get = ns.Alerts.Get
 	local upGlow, color = Get("buffs", name, "upGlow"), Get("buffs", name, "glowColor")
-	local warn, warnGlow = Get("buffs", name, "warn"), Get("buffs", name, "warnGlow")
+	local warn, warnGlow = ns.Alerts.Warn(name), Get("buffs", name, "warnGlow")
 	local alpha, grey = Get("buffs", name, "upAlpha") or 1, Get("buffs", name, "upGrey") and true or false
 	local faded = alpha < 1 or grey
 	local total = A.Duration(name)

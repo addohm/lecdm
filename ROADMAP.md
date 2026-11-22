@@ -76,7 +76,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
   - alerts: sounds ("Say it" too) and glows, defaults and per spell or buff;
   - diagnostics; the release kit (icon, banner, LISTING.md, zip, tag).
 - Since the alpha: Blizzard's own buff icons and timer bars hidden by default (2026-11-21: only
-  what the player sets up shows); how a buff looks while up and while missing (2026-11-22).
+  what the player sets up shows); how a buff looks while up and while missing, the running-out
+  and going-into-combat sounds (2026-11-22).
 
 ## Next
 
@@ -93,10 +94,12 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 - [x] Grey and faded while up, the icon back at the warning time; the missing copy in full
       colour, grey or dimmed red, at its own opacity (2026-11-22)
-- [ ] A sound as a buff runs out, at the warning time: out of combat from its timer; in combat
-      timed from your own cast with the learned duration (not for shared buffs while another of
-      that class is grouped); once per cast
-- [ ] Going into combat with a keep-up buff missing: a sound, and the missing ones in chat
+- [x] A sound as a buff runs out, at the warning time: out of combat from its timer; in combat
+      from that, or timed from your own cast with the learned duration (not while another of
+      your class is grouped); once per cast; the warning time "a tenth of its duration"
+      (2026-11-22)
+- [x] Going into combat with a keep-up buff missing: a sound, and the missing ones in chat
+      (2026-11-22)
 - [ ] Built-in buff lists per class, with every rank and group version (Prayer of Fortitude
       counts as Fortitude), world buffs, weapon enchants (oils, sharpening stones)
 - [ ] Tooltips on hover (buff groups, icon bars)
