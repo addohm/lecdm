@@ -109,7 +109,37 @@ local function BuildMenu(_, root)
 	end
 	Checks("Equipped (trinkets, on-use gear)", Bars.Equipped())
 	Checks("In your bags (potions, healthstones ...)", Bars.BagItems())
+	root:CreateDivider()
+	root:CreateButton("An empty space", function() Bars.AddSpace(bar) end)
+	root:CreateButton("A spell or item by its ID...", function()
+		StaticPopup_Show("LECDM_ADD_ID", nil, nil, { bar = bar })
+	end)
 end
+
+StaticPopupDialogs.LECDM_ADD_ID = {
+	text = "A spell's ID (6673) or an item's (item:13446), from a database site or a tooltip addon:",
+	button1 = OKAY,
+	button2 = CANCEL,
+	hasEditBox = true,
+	maxLetters = 24,
+	OnShow = function(dialog)
+		local box = dialog:GetEditBox()
+		box:SetText("")
+		box:SetFocus()
+	end,
+	OnAccept = function(dialog, data)
+		local text = dialog:GetEditBox():GetText() or ""
+		if not Bars.AddByID(data.bar, text) then ns.Print("no spell or item '" .. text .. "' in this game.") end
+	end,
+	EditBoxOnEnterPressed = function(box)
+		local dialog = box:GetParent()
+		if dialog and dialog.GetButton1 then dialog:GetButton1():Click() end
+	end,
+	EditBoxOnEscapePressed = function(box) box:GetParent():Hide() end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+}
 
 -- A dropdown the size and place of the window's buttons (UI.OptionButton: 150 x 24, 30 px into
 -- the control column), so the column lines up.

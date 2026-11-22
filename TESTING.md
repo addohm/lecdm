@@ -65,7 +65,9 @@ the build and date.
     the last 5 s.
 16. A spell's ⚙, "Its look": Border Heavy and Gold on one icon only; "Icon...", item:13446:
     the icon is a potion's; empty: its own again.
-17. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+17. Icon bars' checklist, at the end: "An empty space" keeps a gap on the bar; "A spell or
+    item by its ID...": item:13446 adds a potion, 6673 Battle Shout, 424242 says no such spell.
+18. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

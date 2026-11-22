@@ -46,7 +46,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   - when it shows: always, only in combat, or in combat or with a target; opacity; out of
     combat the same, faded or hidden; and Delete;
   - its spells and items: tick them in the checklist (Blizzard's Essential and Utility lists,
-    your spellbook, your equipped trinkets and on-use gear, usable items in your bags; an entry
+    your spellbook, racials among it, your equipped trinkets and on-use gear, usable items in
+    your bags; at the end, an empty space that keeps a place, and a spell or item by its ID; an
+    entry
     on another bar says "(on ...)" and ticking moves it), order them with the arrows, choose
     when each shows (always, only when ready, only when ready and usable: Overpower, Revenge,
     Execute; only on cooldown; the others close up), and in its ⚙ menu: its own look (border,

@@ -253,6 +253,33 @@ local function TalentAllows(bar, key)
 	return (mode == "with") == taken
 end
 
+-- An empty space on a bar ("space:<n>"): it keeps its place, showing nothing.
+function B.AddSpace(bar)
+	bar.nextSpace = (bar.nextSpace or 0) + 1
+	table.insert(bar.spells, "space:" .. bar.nextSpace)
+	ns.Refresh()
+end
+
+-- Adds a spell ("6673") or an item ("item:13446") by ID; false if the game knows no such thing.
+function B.AddByID(bar, text)
+	text = strtrim(text or "")
+	local kind, n = text:lower():match("^(%a+):(%d+)$")
+	local id = tonumber(n or text)
+	if not id then return false end
+	if kind == "item" then
+		local ok, icon = pcall(C_Item.GetItemIconByID, id)
+		if not (ok and icon and not ns.IsSecret(icon)) then return false end
+		local key = "item:" .. id
+		if B.BarOf(key) ~= bar then B.SetOnBar(bar, key, true) end
+		return true
+	end
+	if kind and kind ~= "spell" then return false end
+	local ok, name = pcall(C_Spell.GetSpellName, id)
+	if not (ok and name and not ns.IsSecret(name)) then return false end
+	if B.BarOf(id) ~= bar then B.SetOnBar(bar, id, true) end
+	return true
+end
+
 -- Moves a spell up (-1) or down (1) its bar.
 function B.MoveSpell(bar, index, dir)
 	local j = index + dir
@@ -341,6 +368,7 @@ end
 function B.EntryName(key)
 	local kind, id = B.Kind(key)
 	if kind == "spell" then return B.SpellName(id) end
+	if kind == "space" then return "Empty space" end
 	if kind == "slot" then
 		local itemID = SlotItem(id)
 		return (B.SLOTS[id] or ("Slot " .. id)) .. ": " .. (itemID and ItemName(itemID) or "empty")
@@ -351,6 +379,7 @@ end
 function B.EntryIcon(key)
 	local kind, id = B.Kind(key)
 	if kind == "spell" then return B.SpellIcon(id) end
+	if kind == "space" then return nil end
 	local itemID = B.ItemOf(key)
 	if not itemID then return 134400 end
 	local ok, icon = pcall(C_Item.GetItemIconByID, itemID)
@@ -361,6 +390,7 @@ end
 function B.EntryKnown(key)
 	local kind, id = B.Kind(key)
 	if kind == "spell" then return B.Known(id) end
+	if kind == "space" then return true end
 	if kind == "slot" then return HasUse(SlotItem(id)) end
 	return B.ItemCount(id) > 0
 end
@@ -688,6 +718,7 @@ end
 -- Reads an entry's state and shows it. Returns whether the icon should be shown.
 local function Update(b, bar)
 	if not b.known then return false end
+	if b.space then return true end
 	local onCooldown, usable = (b.spellID and SpellState or ItemState)(b, bar)
 	if ns.Alerts then ns.Alerts.OnIcon(b, bar, onCooldown, usable) end
 	b:SetAlpha(onCooldown and bar.cdAlpha or 1)
@@ -832,6 +863,7 @@ function B.Build()
 			local kind, id = B.Kind(key)
 			b.key = key
 			b.spellID = kind == "spell" and id or nil
+			b.space = kind == "space" or nil
 			b.name = kind == "spell" and B.SpellName(id) or B.EntryName(key)
 			-- A bag item you have none of: hidden, or shown greyed with "0" (the bar's choice).
 			b.known = B.EntryKnown(key) or (kind == "item" and bar.emptyItems == "grey")
@@ -869,11 +901,13 @@ function B.ApplyLook(b, bar)
 	b.icon:SetTexCoord(z, 1 - z, z, 1 - z)
 	local own = B.Own(bar, b.key)
 	local n = own.border or bar.border or 1
+	if b.space then n = 0 end
 	b.edge:ClearAllPoints()
 	b.edge:SetPoint("TOPLEFT", -n, n)
 	b.edge:SetPoint("BOTTOMRIGHT", n, -n)
 	b.edge:SetColorTexture(B.BorderRGB(own.borderColor or bar.borderColor))
 	b.edge:SetShown(n > 0)
+	if b.space then b.cd:Clear() b.count:SetText("") end
 	b.cd:SetDrawSwipe(bar.swipe ~= "off")
 	b.cd:SetReverse(bar.swipe == "reverse")
 	b.cd:SetDrawEdge(bar.edge and true or false)

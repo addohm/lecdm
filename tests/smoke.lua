@@ -210,6 +210,16 @@ check(charge.edge.points[1][2] == -3 and charge.icon.texture == 132333 and reven
 ns.Bars.SetLook(cdBar, 100, "border", nil)
 ns.Bars.SetLook(cdBar, 100, "icon", nil)
 check(charge.edge.points[1][2] == -1 and charge.icon.texture ~= 132333 and cdBar.looks[100] == nil, "a spell's look didn't go back to the bar's")
+-- An empty space keeps a place, showing nothing; a spell or item added by its ID.
+local spellsBefore = #cdBar.spells
+ns.Bars.AddSpace(cdBar)
+local spaceKey = cdBar.spells[#cdBar.spells]
+local spaceButton = cooldowns.buttons[#cdBar.spells]
+check(spaceKey == "space:1" and spaceButton.shown and not spaceButton.edge.shown and ns.Bars.EntryName(spaceKey) == "Empty space", "the empty space wrong")
+check(ns.Bars.AddByID(cdBar, "item:5512") and ns.Bars.BarOf("item:5512") == cdBar and not ns.Bars.AddByID(cdBar, "424242"), "adding by ID wrong")
+ns.Bars.SetOnBar(cdBar, "item:5512", false)
+ns.Bars.SetOnBar(cdBar, spaceKey, false)
+check(#cdBar.spells == spellsBefore, "the space or the item stayed")
 -- The swipe: reversed, its colour, the edge; none.
 cdBar.swipe, cdBar.swipeColor, cdBar.edge = "reverse", "gold", true
 ns.Refresh()

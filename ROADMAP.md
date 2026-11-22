@@ -124,7 +124,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
       buff in its slot while up; the buff's stacks on the icon (2026-11-22)
 - [x] The countdown in a colour or with a decimal under a set time (icon bars; 2026-11-22)
 - [x] Per-spell looks: its own border and glow colour; its own icon (2026-11-22)
-- [ ] Empty spacer slots, racials, custom spell and item IDs
+- [x] Empty spacer slots, racials (in the spellbook's lines), custom spell and item IDs
+      (2026-11-22)
 - [ ] "Best in your bags": one entry for healing potions or healthstones, the best you carry, in
       a priority order you set
 - [ ] A cooldown shown as a timer bar
