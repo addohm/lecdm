@@ -492,7 +492,14 @@ C_Spell = {
 		if M.secretDuration then return SECRET end
 		return { spell = id }
 	end,
-	GetSpellCharges = function() return nil end,
+	-- M.charges[id] = { current, max, recharging }; the count is secret in combat.
+	GetSpellCharges = function(id)
+		local c = M.charges and M.charges[id]
+		if not c then return nil end
+		return { currentCharges = M.combat and SECRET or c[1], maxCharges = c[2], isActive = c[3],
+			cooldownStartTime = M.combat and SECRET or 0, cooldownDuration = M.combat and SECRET or 0 }
+	end,
+	GetSpellChargeDuration = function(id) return { charge = id } end,
 	IsSpellUsable = function(id)
 		if M.combat then return SECRET end
 		return M.spells[id].usable ~= false

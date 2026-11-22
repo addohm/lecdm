@@ -320,6 +320,7 @@ ns.Window.Page({
 		local tipGet, tipSet = Field("tooltip")
 		local greyGet, greySet = Field("grey")
 		local cdaGet, cdaSet = Field("cdAlpha")
+		local zeroGet, zeroSet = Field("zeroCharges")
 		local redGet, redSet = Field("red")
 		local darkGet, darkSet = Field("dark")
 		local showGet, showSet = Field("showWhen")
@@ -367,6 +368,8 @@ ns.Window.Page({
 				{ tooltip = { "Tooltip on hover", "The game's tooltip for the spell or item when your mouse is over its icon. Off lets clicks through to the world." } }),
 			UI.OptionCheck(stack.inner, "Grey while on cooldown", greyGet, greySet),
 			UI.OptionSelect(stack.inner, "Opacity while on cooldown", ns.Alerts.ALPHAS, cdaGet, cdaSet),
+			UI.OptionCheck(stack.inner, "Show 0 charges", zeroGet, zeroSet,
+				{ "Show 0 charges", "For spells with charges: the count stays on the icon at 0 (out of combat it can be hidden then; in combat the game shows the count, and Lecdm can't read it)." }),
 			UI.OptionCheck(stack.inner, "Red while your target is out of range", redGet, redSet),
 			UI.OptionCheck(stack.inner, "Dark while you can't use it", darkGet, darkSet),
 			UI.OptionHeading(stack.inner, "When it shows"),

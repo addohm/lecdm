@@ -52,7 +52,9 @@ the build and date.
     shows in Defensive Stance only, switching as you change stance, in combat too. "With a
     talent": the trees and talents are listed (taken ones marked); Only with a talent you
     don't have hides it; take the talent (or respec): it shows.
-12. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+12. A spell with charges, if your class has one on Forever: the count on its icon, in combat
+    too; using one starts the recharge swipe; "Glow at full charges" glows only at full.
+13. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

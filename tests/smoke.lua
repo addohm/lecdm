@@ -169,6 +169,29 @@ ns.Refresh()
 check(not revenge.shown, "an unusable spell shown with only when ready and usable")
 cdBar.show[6572], cdBar.cdAlpha, ns.db.alerts.defaults.spells.cdGlow = nil, 1, "none"
 ns.Refresh()
+-- Charges: the count (the game's, secret in combat), the recharge swipe while one comes back, a
+-- glow at full charges; 0 hidden out of combat if the bar says so.
+M.charges = { [6572] = { 1, 2, true } }
+ns.Refresh()
+check(revenge.count.text == 1 and revenge.cd.duration and revenge.cd.duration.charge == 6572, "charges count or recharge swipe wrong")
+ns.db.alerts.defaults.spells.fullGlow = "pixel"
+M.Fire("SPELL_ACTIVATION_OVERLAY_GLOW_HIDE", 6572)
+M.charges[6572] = { 2, 2, false }
+ns.Refresh()
+local glowKeys = {}
+for k, v in pairs(revenge.glow.glows or {}) do glowKeys[#glowKeys + 1] = k .. "=" .. tostring(v.regions[1] and v.regions[1].shown) end
+check(revenge.glow.glows["pixel:gold:40"] and revenge.glow.glows["pixel:gold:40"].regions[1].shown, "no glow at full charges: "
+	.. table.concat(glowKeys, ",") .. " full=" .. tostring(revenge.fullCharges) .. " shown=" .. tostring(revenge.shown))
+M.combat = true
+ns.Bars.UpdateAll()
+check(revenge.count.text == M.SECRET, "the secret count not handed to the game in combat")
+M.combat = false
+M.charges[6572] = { 0, 2, true }
+cdBar.zeroCharges = false
+ns.Refresh()
+check(revenge.count.text == "", "0 charges shown with the bar hiding them")
+M.charges, cdBar.zeroCharges, ns.db.alerts.defaults.spells.fullGlow = nil, true, "none"
+ns.Refresh()
 -- Stances: only in Defensive Stance hides it in Battle Stance; not in Battle Stance too; back
 -- when the stance changes. The ⚙ menu lists the class's stances.
 ns.Bars.SetForm(cdBar, 100, "in:71")
@@ -418,7 +441,7 @@ ns.Refresh()
 -- A spell's ⚙ menu: a submenu per setting, Default first; picking sets its own, Default clears.
 local alertMenu = M.Menu()
 ns.AlertsMenu("spells", 100, "Charge", alertMenu)
-check(#alertMenu.children == 5 and alertMenu.children[1].text == "Sound when it's ready", "alert menu wrong")
+check(#alertMenu.children == #ns.ALERT_FIELDS.spells and alertMenu.children[1].text == "Sound when it's ready", "alert menu wrong")
 local soundSub = alertMenu.children[1]
 check(soundSub.children[1].text == "Default (None)" and soundSub.children[1].isSelected(), "Default not first and ticked")
 soundSub.children[4].setSelected()

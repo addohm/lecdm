@@ -16,7 +16,8 @@ local DEFAULTS = {
 	-- the alerts (Alerts.lua): defaults, and spells' and buffs' own settings by key or name
 	alerts = {
 		defaults = {
-			spells = { ready = "none", readyGlow = "none", procGlow = "modern", cdGlow = "none", glowColor = "gold" },
+			spells = { ready = "none", readyGlow = "none", procGlow = "modern", cdGlow = "none", fullGlow = "none",
+				glowColor = "gold" },
 			buffs = { applied = "none", removed = "none", upGlow = "none", warn = 5, warnGlow = "none", glowColor = "gold",
 				runningOut = "none", combatMissing = "none", combatChat = false,
 				upAlpha = 1, upGrey = false, missingLook = "red", missingAlpha = 1,

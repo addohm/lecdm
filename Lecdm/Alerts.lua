@@ -6,7 +6,8 @@
 --     ready      a sound when a spell or item comes off a real cooldown;
 --     readyGlow  a glow while it's ready (and usable);
 --     procGlow   a glow while the game highlights it (SPELL_ACTIVATION_OVERLAY_GLOW_SHOW);
---     cdGlow     a glow while it's on a real cooldown.
+--     cdGlow     a glow while it's on a real cooldown;
+--     fullGlow   a glow while a charge spell is at full charges.
 --   Buff groups (the game fills them; Lua only hears what Blizzard's Cooldown Manager announces
 --   in combat, and reads your buffs out of combat):
 --     applied, removed   sounds; in combat only for buffs Blizzard also tracks (its announcement);
@@ -128,6 +129,9 @@ function A.OnIcon(b, bar, onCooldown, usable)
 	if b.shown ~= false then
 		if name and procs[name] then
 			style = A.Get("spells", key, "procGlow")
+		end
+		if style == "none" and b.fullCharges then
+			style = A.Get("spells", key, "fullGlow") or "none"
 		end
 		if style == "none" and not onCooldown and usable ~= false then
 			style = A.Get("spells", key, "readyGlow")

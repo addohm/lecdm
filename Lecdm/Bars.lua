@@ -47,7 +47,7 @@ B.LOOK = {
 	size = 40, gap = 4, grow = "CENTER", vertical = false, perRow = 12, gcd = true, emptyItems = "hide",
 	border = 1, borderColor = "black", zoom = 0.08, countdown = "normal", keybind = false,
 	grey = true, red = true, dark = true, showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "off",
-	cdAlpha = 1,
+	cdAlpha = 1, zeroCharges = true,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -379,6 +379,31 @@ function B.ShowTooltip(b)
 	GameTooltip:Show()
 end
 
+-- A charge spell's count (secret in combat: the game shows it), the recharge swipe while one is
+-- coming back, and whether it's at full charges (b.fullCharges: the max is never secret, nor is
+-- whether it's recharging).
+local function Charges(b, bar, id, onCooldown)
+	local ok, ch = pcall(C_Spell.GetSpellCharges, id)
+	local max = ok and type(ch) == "table" and not ns.IsSecret(ch.maxCharges) and ch.maxCharges
+	if not (type(max) == "number" and max > 1) then
+		b.count:SetText("")
+		b.fullCharges = nil
+		return
+	end
+	local recharging = not ns.IsSecret(ch.isActive) and ch.isActive == true
+	b.fullCharges = not ns.IsSecret(ch.isActive) and ch.isActive == false
+	if recharging and not onCooldown then
+		local okD, dur = pcall(C_Spell.GetSpellChargeDuration, id)
+		if okD and (ns.IsSecret(dur) or dur) then pcall(b.cd.SetCooldownFromDurationObject, b.cd, dur) end
+	end
+	local n = ch.currentCharges
+	if not ns.IsSecret(n) and n == 0 and not bar.zeroCharges then
+		b.count:SetText("")
+	else
+		pcall(b.count.SetText, b.count, n)
+	end
+end
+
 -- A spell's state on its icon; returns whether it's on a real cooldown, and whether it's usable
 -- (nil: the game didn't say).
 local function SpellState(b, bar)
@@ -410,7 +435,7 @@ local function SpellState(b, bar)
 		r, g, bl = 0.4, 0.4, 0.4
 	end
 	b.icon:SetVertexColor(r, g, bl)
-	b.count:SetText("")
+	Charges(b, bar, id, onCooldown)
 	return onCooldown, usable
 end
 

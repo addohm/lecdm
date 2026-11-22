@@ -29,6 +29,8 @@ All notable changes to lecdm. The format follows
   usable" (Overpower, Revenge, Execute: hidden until you can use them).
 - Icon bars, in a spell's ⚙ menu: show it only in (or out of) a stance or form, and only with
   (or without) a talent, read from Forever's talent tree.
+- Charges on icon bars: the count (shown by the game, so in combat too), the recharge swipe while
+  one comes back, a glow at full charges, and 0 shown or not.
 - A sample icon next to each glow picker on the Alerts tab, showing the glow and colour.
 - The sound log (Diagnostics, `/lecdm soundlog on`): every sound any addon plays goes in the
   log, with the addon that played it and, for Lecdm's own, why.

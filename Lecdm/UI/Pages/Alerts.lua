@@ -13,6 +13,7 @@ local FIELDS = {
 		{ "readyGlow", "Glow while it's ready", ns.Glow.STYLES },
 		{ "procGlow", "Glow while the game highlights it (a proc)", ns.Glow.STYLES },
 		{ "cdGlow", "Glow while it's on cooldown", ns.Glow.STYLES },
+		{ "fullGlow", "Glow at full charges (spells with charges)", ns.Glow.STYLES },
 		{ "glowColor", "Glow colour", ns.Glow.COLORS },
 	},
 	buffs = {

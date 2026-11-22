@@ -39,7 +39,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   - its look: border and colour, icon zoom, countdown text size, keybind text (the key of the
     first action button on screen holding it, from any bar addon), the game's tooltip on hover
     (off by default, so clicks go through; on; or out of combat only), grey on cooldown and its
-    opacity then, red out of range, dark when unusable;
+    opacity then, red out of range, dark when unusable; for spells with charges the count (the
+    game's, in combat too) and the recharge swipe, 0 shown or not;
   - when it shows: always, only in combat, or in combat or with a target; opacity; out of
     combat the same, faded or hidden; and Delete;
   - its spells and items: tick them in the checklist (Blizzard's Essential and Utility lists,
@@ -86,8 +87,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   showing the glow and colour picked; each sound picker a Test button. Sounds are the game's (raid warning,
   ready check, alarm clock ...) or "Say it", which speaks the name.
   - Icon bars: a sound when it's ready (off cooldown, not the GCD), a glow while it's ready and
-    usable, a glow while the game highlights it (a proc), a glow while it's on cooldown; glow
-    colour.
+    usable, a glow while the game highlights it (a proc), a glow while it's on cooldown, a glow
+    at full charges; glow colour.
   - Buff groups: sounds when it's applied and when it drops (in combat only for buffs
     Blizzard's `/cdm` also tracks, from its announcement; out of combat for every buff on you);
     a sound as it **runs out**, at the warning time (out of combat from its own timer; in combat
