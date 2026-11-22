@@ -26,6 +26,7 @@ Alerts.lua
 Bars.lua
 Auras.lua
 Hosted.lua
+ButtonGlows.lua
 Blizz.lua
 
 UI\Theme.lua
@@ -36,5 +37,6 @@ UI\Pages\General.lua
 UI\Pages\Bars.lua
 UI\Pages\Buffs.lua
 UI\Pages\Alerts.lua
+UI\Pages\ButtonGlows.lua
 UI\Pages\Test.lua
 UI\Pages\Profiles.lua

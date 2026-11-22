@@ -349,6 +349,68 @@ ns.Keybinds.Scan()
 M.Fire("PLAYER_REGEN_ENABLED")
 ns.Bars.SetOnBar(cdBar, 78, false)
 M.known = nil
+-- Glows on action buttons: a rule for the buttons holding a spell; while usable (Lecdm decides),
+-- while a buff is missing (a presence container), under a health mark (a bar given the health),
+-- late in a swing (timed from PLAYER_SWING), only in combat (faded out of it).
+local glowButton = CreateFrame("Button", "LecdmTestGlowButton")
+glowButton.action = 11
+M.actions[11] = { "spell", 6673 }
+ns.Keybinds.Scan()
+local rule = ns.ButtonGlows.New("Battle Shout")
+local function HolderOf()
+	for _, f in ipairs(M.frames) do
+		if f.parent == glowButton and f.glows then return f end
+	end
+end
+local holder = HolderOf()
+check(holder and holder.glows["pixel:gold:36"] and holder.glows["pixel:gold:36"].regions[1].shown, "no glow while Battle Shout is usable")
+ns.ButtonGlows.Set(rule, "when", "buffMissing")
+ns.ButtonGlows.Set(rule, "buff", "Battle Shout")
+local presenceC
+for _, c in ipairs(M.containers) do
+	if c.groups.buff and c.parent and c.parent.parent == glowButton and c.groups.buff.enabled then presenceC = c end
+end
+check(presenceC and presenceC.groups.buff.ids[6673], "no presence container for a buff-missing glow")
+ns.ButtonGlows.Set(rule, "when", "targetBelow")
+local healthBar
+for _, f in ipairs(M.frames) do
+	if f.kind == "StatusBar" and f.parent and f.parent.parent == glowButton then healthBar = f end
+end
+check(healthBar, "no health bar for a health glow")
+ns.ButtonGlows.Set(rule, "when", "swing")
+ns.ButtonGlows.Set(rule, "seconds", 0.5)
+holder = nil
+for _, f in ipairs(M.frames) do
+	if f.parent == glowButton and f.glows == nil and f.shown and f.kind == "Frame" then holder = f end
+end
+M.Fire("PLAYER_SWING", 2, 0)
+local function SwingGlow()
+	for _, f in ipairs(M.frames) do
+		if f.parent == glowButton and f.glows and f.shown then
+			local g = f.glows["pixel:gold:36"]
+			if g and g.regions[1].shown then return true end
+		end
+	end
+	return false
+end
+check(not SwingGlow(), "a late-in-swing glow early in the swing")
+M.Advance(1.6)
+check(SwingGlow(), "no late-in-swing glow late in the swing")
+M.Advance(0.5)
+check(not SwingGlow(), "the late-in-swing glow stayed after the swing")
+ns.ButtonGlows.Set(rule, "when", "usable")
+ns.ButtonGlows.Set(rule, "combat", true)
+local faded
+for _, f in ipairs(M.frames) do
+	if f.parent == glowButton and f.glows and f.shown then faded = f end
+end
+check(faded and faded.alpha == 0, "a combat-only button glow showed out of combat")
+ns.ButtonGlows.Delete(1)
+check(#ns.db.buttonGlows == 0, "the rule wasn't deleted")
+M.actions[11] = nil
+glowButton:Hide()
+ns.Keybinds.Scan()
+
 -- Fonts: a face with an outline on the count and keybind; the count's place; the badge.
 cdBar.fontFace, cdBar.fontOutline, cdBar.countPos, cdBar.keyBadge = "arial", "THICKOUTLINE", "TOPLEFT", 0.5
 ns.Refresh()
@@ -1172,6 +1234,13 @@ for _, f in ipairs(M.frames) do
 	if f.sample and f.sample.glow.glows and f.sample.glow.glows["modern:gold:22"] then sampled = true end
 end
 check(sampled, "no glow sample on the Alerts tab (the proc glow's Modern, gold)")
+-- The Button glows tab: a row per rule, the new-glow picker.
+ns.ButtonGlows.New("Charge")
+M.Slash("buttons")
+local glowPanel = ns.Window.CurrentPanel()
+check(glowPanel.parts.new and glowPanel.parts.rows[1] and glowPanel.parts.rows[1].label.text:find("Charge"), "the Button glows tab wrong")
+ns.ButtonGlows.Delete(1)
+M.Slash("alerts")
 ns.db.alerts.defaults.spells.ready = "RAID_WARNING"
 ns.Window.RunDefaults()
 check(ns.db.alerts.defaults.spells.ready == "none", "Alerts Defaults didn't reset")

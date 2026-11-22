@@ -32,6 +32,8 @@ local DEFAULTS = {
 	-- the swing timer on on-next-swing attacks (Swing.lua): on your action buttons too, and a
 	-- queued one highlighted
 	swing = { buttons = false, queued = true },
+	-- glows on your action buttons, by rule (ButtonGlows.lua)
+	buttonGlows = {},
 	-- saved looks by name (Bars.lua: B.SaveStyle), for icon bars and for buff groups
 	styles = { bars = {}, buffs = {} },
 	-- the cooldown bars (Bars.lua): list = { bar ... } (B.NewBar has a bar's fields), seeded once
@@ -120,6 +122,7 @@ function ns.Refresh()
 	if ns.Auras then ns.Auras.Build() end
 	if ns.Hosted then ns.Hosted.Build() end
 	if ns.Alerts then ns.Alerts.Reschedule() end
+	if ns.ButtonGlows then ns.ButtonGlows.Build() end
 	if ns.Theme then ns.Theme.Apply() end
 	if ns.Minimap then ns.Minimap.Apply() end
 	if ns.Window then ns.Window.Apply() end
@@ -188,6 +191,7 @@ local PAGE_WORDS = {
 	buffs = "buffs", auras = "buffs",
 	alerts = "alerts", sounds = "alerts", glows = "alerts", sound = "alerts",
 	test = "test", diagnostics = "test", diag = "test",
+	buttons = "buttons", buttonglows = "buttons",
 	profiles = "profiles",
 }
 

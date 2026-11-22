@@ -150,6 +150,12 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     style joins the seven.
   - Blizzard's icons and timer bars: sounds when it's applied and when it drops; quiet when
     your target dies, unless "Also when your target dies".
+- **Button glows:** glows on your action buttons (any bar addon's). "A new glow" picks a spell
+  or item on them (or one by name); each rule's ⚙ sets when it glows: while it's ready and
+  usable, while a buff on you is up or missing, at a number of a buff's stacks, while the
+  target's or your health is under or over a mark (Execute under 20%), or late in a swing (so
+  many seconds before it); only in combat; the glow and its colour. Glows that follow a buff are
+  set out of combat (a change in a fight waits for its end).
 - **Diagnostics:** where Lecdm's diagnostic lines go ("Show them in" the main chat window, a
   chat tab you've made, or nowhere: the log keeps them), and tools: Blizzard's viewers
   invisible (a test, not kept), status, Blizzard's list, what's readable now, the sound log
@@ -163,7 +169,7 @@ Chat commands:
 | Command | What it does |
 |---|---|
 | `/lecdm` | Open or close the options window |
-| `/lecdm general` ... `profiles` | Open that tab (`bars`, `buffs`, `alerts`, `diagnostics` too) |
+| `/lecdm general` ... `profiles` | Open that tab (`bars`, `buffs`, `alerts`, `buttons`, `diagnostics` too) |
 | `/lecdm move` | Unlock everything to drag it; again to lock |
 | `/lecdm profile` | The profile in use, and the Profiles tab |
 | `/lecdm buff` | Your buff groups' buffs; `/lecdm buff fort keep` (any part of a name; `keep`, `missing`, `up`, `out`) sets one |

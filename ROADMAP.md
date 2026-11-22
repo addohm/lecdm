@@ -174,8 +174,9 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - [x] A solid fill style (2026-11-22)
 - [x] Glows only in combat (icon bars and the missing glow; the game's buff buttons can't
       switch as a fight starts) (2026-11-22)
-- [ ] Glows on action-bar buttons (any bar addon): while a buff is up or missing, while usable,
-      health above or below a %, at stacks, only in combat; late in a swing
+- [x] Glows on action-bar buttons (any bar addon): while a buff is up or missing, while usable,
+      health above or below a %, at stacks, only in combat; late in a swing (2026-11-22; one
+      condition a rule: two conditions together are two rules for now)
 
 **Sounds and alerts**
 

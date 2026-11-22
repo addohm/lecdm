@@ -119,7 +119,11 @@ the build and date.
 36. Swing timer (warrior): Heroic Strike on an icon bar sweeps with each main-hand swing, in
     combat, in an instance too; queue it: it's highlighted until the swing. "Your action
     buttons": the same sweep on the action button holding it (Blizzard's bars and a bar addon).
-37. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+37. Button glows tab: "A new glow" for Execute, "While the target's health is under" 20%: its
+    action button glows once a target is under 20%, in combat too, and stops on a new target
+    above it. Battle Shout "While a buff is missing" (Battle Shout): the button glows while
+    it's down. Heroic Strike "Late in a swing" 0.5 s. "Only in combat". With a bar addon too.
+38. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

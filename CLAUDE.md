@@ -67,6 +67,11 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     Cleave, Maul, Raptor Strike): a sweep and a queued highlight (`C_Spell.IsCurrentSpell`) on
     icon bar icons (`bar.swingSweep`, `B.EachIcon`) and, with `ns.db.swing.buttons`, Lecdm's
     overlays on the action buttons holding them (`ns.Keybinds.Buttons(name)`).
+  - `ButtonGlows.lua`: glows on action buttons by rule (`ns.db.buttonGlows`): Lecdm's holder
+    frame made the button's child; `usable` / `swing` decided in Lua, `buffUp` / `buffMissing`
+    (a presence container), `stacks` (an aura slot's application bar), health (a hidden bar
+    given UnitHealth, secret in combat) opening clipped windows; aura parts out of combat only
+    (`pending`). The tab: `UI/Pages/ButtonGlows.lua` (id "buttons").
   - `Alerts.lua`: sounds (`A.SOUNDS`, `A.Play`: SOUNDKIT names or "say", text to speech) and
     when they play; `ns.db.alerts`: `defaults.spells / .buffs / .blizzard` and each spell's
     (`spells[key]`) or buff's (`buffs[name]`, `blizzard[name]`) own (`A.Get`, `A.Set`,

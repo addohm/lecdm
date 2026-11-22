@@ -110,6 +110,14 @@ function K.Read()
 	if ns.ButtonGlows and ns.ButtonGlows.ButtonsChanged then ns.ButtonGlows.ButtonsChanged() end
 end
 
+-- Every spell (by name) and "item:ID" on a visible action button now, sorted.
+function K.Names()
+	local list = {}
+	for name in pairs(buttonsOf) do list[#list + 1] = name end
+	table.sort(list)
+	return list
+end
+
 -- The visible action buttons holding a spell (by name) or "item:ID" now.
 function K.Buttons(name)
 	return name and buttonsOf[name] or {}
