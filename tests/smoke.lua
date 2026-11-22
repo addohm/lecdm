@@ -157,6 +157,23 @@ check(charge.icon.desaturated == true and revenge.icon.desaturated == false, "gr
 check(revenge.icon.vertex == 0.4, "unusable spell not dark")
 check(charge.cd.duration and charge.cd.duration.spell == 100, "swipe not given the duration")
 check(M.viewers.EssentialCooldownViewer.alpha == 0 and M.viewers.UtilityCooldownViewer.alpha == 0, "Blizzard's Essential/Utility not invisible")
+-- Tooltips on hover: off by default (clicks go through); on, the game's tooltip for the spell;
+-- out of combat only, none in combat.
+check(not charge.mouse, "an icon takes the mouse with tooltips off")
+local chargeBar = ns.Bars.Get(cooldowns.barID) or ns.db.bars.list[1]
+chargeBar.tooltip = "on"
+ns.Refresh()
+GameTooltip.spell = nil
+charge.scripts.OnEnter(charge)
+check(charge.mouse and GameTooltip.spell == 100, "no tooltip on hover")
+chargeBar.tooltip = "ooc"
+GameTooltip.spell = nil
+M.combat = true
+charge.scripts.OnEnter(charge)
+check(GameTooltip.spell == nil, "a tooltip in combat with out of combat only")
+M.combat = false
+chargeBar.tooltip = "off"
+ns.Refresh()
 check(M.viewers.BuffIconCooldownViewer.alpha == 0 and M.viewers.BuffBarCooldownViewer.alpha == 0, "Blizzard's buff icons and timer bars not hidden by default")
 -- A profile from 0.9.0-alpha (Blizzard's taken in) switches to hidden once; a later choice holds.
 ns.db.buffs.hiddenByDefault = nil
@@ -520,7 +537,7 @@ check(#M.sounds == heard + 1, "Blizzard's announcement and Lecdm's own reading b
 BD.applied, BD.removed = "none", "none"
 BD.warnGlow, BD.upGlow = "pixel", "autocast"
 ns.Refresh()
-local warned = G("Battle Shout/icons:32:0:1:black:0.08:small/autocast:gold:5:pixel:120")
+local warned = G("Battle Shout/icons:32:0:1:black:0.08:small:on/autocast:gold:5:pixel:120")
 check(warned and warned.button.bound.SetDurationBar, "the warning glow isn't timed on the button")
 check(warned.button.bound.SetDurationText, "no time text")
 BD.warnGlow, BD.upGlow = "none", "none"
@@ -530,7 +547,7 @@ ns.Refresh()
 -- even with no warning glow); without one, the face's own icon.
 BD.upGrey, BD.upAlpha = true, 0.4
 ns.Refresh()
-local faded = G("Battle Shout/icons:32:0:1:black:0.08:small/none:gold:5:none:120:0.4:true")
+local faded = G("Battle Shout/icons:32:0:1:black:0.08:small:on/none:gold:5:none:120:0.4:true")
 check(faded, "the look while up isn't in the key")
 local fb = faded.button.bound
 check(fb.SetDurationBar and fb.SetIcon and fb.SetIcon.parent.alpha == 1 and not fb.SetIcon.desaturated, "the real icon isn't revealed at the warning time")
@@ -544,11 +561,17 @@ check(fort and fort.button.bound.SetIcon.desaturated and fort.button.bound.SetIc
 	"without a duration the face's icon isn't grey and faded")
 BD.upGrey, BD.upAlpha = false, 1
 ns.Refresh()
-check(G("Battle Shout/icons:32:0:1:black:0.08:small/none:gold:5:none:120:1:false"), "back to the plain look")
+check(G("Battle Shout/icons:32:0:1:black:0.08:small:on/none:gold:5:none:120:1:false"), "back to the plain look")
+buffs[1].tooltip = "off"
+ns.Refresh()
+local noTip = G("Battle Shout/icons:32:0:1:black:0.08:small:off/")
+check(noTip and noTip.button.mouse == false, "a buff button with tooltips off takes the mouse")
+buffs[1].tooltip = "on"
+ns.Refresh()
 -- A group's look is in its aura groups' keys; timer bars' own options too.
 buffs[1].style, buffs[1].barColor, buffs[1].barIcon = "bars", "class", false
 ns.Refresh()
-check(G("Battle Shout/bars:32:200:1:black:0.08:small:blizzard:class:0.5:false:true:true/"), "timer bar look not in the key")
+check(G("Battle Shout/bars:32:200:1:black:0.08:small:on:blizzard:class:0.5:false:true:true/"), "timer bar look not in the key")
 buffs[1].style, buffs[1].barColor, buffs[1].barIcon = "icons", "blue", true
 buffs[1].showWhen = "combat"
 ns.Refresh()

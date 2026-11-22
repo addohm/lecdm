@@ -274,6 +274,7 @@ ns.Window.Page({
 		local zoomGet, zoomSet = Field("zoom")
 		local cdGet, cdSet = Field("countdown")
 		local keyGet, keySet = Field("keybind")
+		local tipGet, tipSet = Field("tooltip")
 		local greyGet, greySet = Field("grey")
 		local redGet, redSet = Field("red")
 		local darkGet, darkSet = Field("dark")
@@ -318,6 +319,8 @@ ns.Window.Page({
 				{ tooltip = { "Countdown text", "The cooldown's time left on the icon (the game draws it; its own setting, Show Numbers for Cooldowns, must be on)." } }),
 			UI.OptionCheck(stack.inner, "Keybind text", keyGet, keySet,
 				{ "Keybind text", "The key of the first action button on screen holding the spell or item, from any bar addon." }),
+			UI.OptionSelect(stack.inner, "Tooltip on hover", Bars.TOOLTIPS, tipGet, tipSet,
+				{ tooltip = { "Tooltip on hover", "The game's tooltip for the spell or item when your mouse is over its icon. Off lets clicks through to the world." } }),
 			UI.OptionCheck(stack.inner, "Grey while on cooldown", greyGet, greySet),
 			UI.OptionCheck(stack.inner, "Red while your target is out of range", redGet, redSet),
 			UI.OptionCheck(stack.inner, "Dark while you can't use it", darkGet, darkSet),

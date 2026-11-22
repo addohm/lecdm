@@ -45,7 +45,7 @@ end
 B.LOOK = {
 	size = 40, gap = 4, grow = "CENTER", vertical = false, perRow = 12, gcd = true, emptyItems = "hide",
 	border = 1, borderColor = "black", zoom = 0.08, countdown = "normal", keybind = false,
-	grey = true, red = true, dark = true, showWhen = "always", alpha = 1, oocAlpha = 1,
+	grey = true, red = true, dark = true, showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "off",
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -53,6 +53,8 @@ function B.FillLook(bar)
 	end
 end
 
+-- The tooltip on hover: off (the icons let clicks through), on, or out of combat only.
+B.TOOLTIPS = { { "off", "Off" }, { "on", "On" }, { "ooc", "Out of combat only" } }
 B.BORDERS = { { 0, "None" }, { 1, "Thin" }, { 2, "Thick" }, { 3, "Heavy" } }
 B.BORDER_COLORS = { { "black", "Black" }, { "class", "Class colour" }, { "gold", "Gold" }, { "white", "White" } }
 B.ZOOMS = { { 0, "None" }, { 0.08, "A little" }, { 0.15, "More" } }
@@ -293,8 +295,26 @@ local function Button(frame, i)
 	b.glow:SetAllPoints()
 	b.glow:SetFrameLevel(b.cd:GetFrameLevel() + 1)
 	b.over:SetFrameLevel(b.cd:GetFrameLevel() + 2)
+	b:SetScript("OnEnter", B.ShowTooltip)
+	b:SetScript("OnLeave", GameTooltip_Hide)
 	frame.buttons[i] = b
 	return b
+end
+
+-- The game's tooltip for an icon's spell, slot or item (the bar's choice).
+function B.ShowTooltip(b)
+	local bar = b.bar
+	if not (bar and b.key) or bar.tooltip == "off" or (bar.tooltip == "ooc" and InCombatLockdown()) then return end
+	local kind, id = B.Kind(b.key)
+	GameTooltip:SetOwner(b, "ANCHOR_RIGHT")
+	if kind == "spell" then
+		pcall(GameTooltip.SetSpellByID, GameTooltip, id)
+	elseif kind == "slot" then
+		pcall(GameTooltip.SetInventoryItem, GameTooltip, "player", id)
+	elseif kind == "item" then
+		pcall(GameTooltip.SetItemByID, GameTooltip, id)
+	end
+	GameTooltip:Show()
 end
 
 -- A spell's state on its icon; returns whether it's on a real cooldown, and whether it's usable
@@ -523,6 +543,8 @@ function B.Build()
 			b.icon:SetTexture(B.EntryIcon(key))
 			if b.spellID then pcall(C_Spell.EnableSpellRangeCheck, id, true) end
 			B.ApplyLook(b, bar)
+			b.bar = bar
+			b:EnableMouse(bar.tooltip ~= "off" and not unlocked)
 		end
 		for j = #bar.spells + 1, #frame.buttons do
 			frame.buttons[j].key, frame.buttons[j].spellID = nil, nil

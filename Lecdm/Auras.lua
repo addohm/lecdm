@@ -344,7 +344,7 @@ A.LOOK = {
 	style = "icons", size = 32, gap = 4, grow = "CENTER", vertical = false, perRow = 12, barWidth = 200,
 	border = 1, borderColor = "black", zoom = 0.08, timeText = "small",
 	barTexture = "blizzard", barColor = "blue", barBg = 0.5, barIcon = true, barName = true, barTime = true,
-	showWhen = "always", alpha = 1, oocAlpha = 1,
+	showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "on",
 }
 function A.FillLook(group)
 	for k, v in pairs(A.LOOK) do
@@ -378,7 +378,7 @@ end
 function A.LookKey(group)
 	local bars = group.style == "bars"
 	local parts = { group.style, group.size, bars and group.barWidth or 0, group.border, group.borderColor,
-		group.zoom, group.timeText }
+		group.zoom, group.timeText, group.tooltip }
 	if bars then
 		for _, k in ipairs({ "barTexture", "barColor", "barBg", "barIcon", "barName", "barTime" }) do
 			parts[#parts + 1] = tostring(group[k])
@@ -408,6 +408,12 @@ local function Styler(group, name)
 	local er, eg, eb = ns.Bars.BorderRGB(group.borderColor)
 	local iconTexture = A.Icon(name)
 	return function(button)
+		-- The game's tooltip on hover (its own): off lets clicks through.
+		if group.tooltip == "off" then
+			button:EnableMouse(false)
+		elseif group.tooltip == "ooc" and button.SetHideTooltipInCombat then
+			button:SetHideTooltipInCombat(true)
+		end
 		local face = CreateFrame("Frame", nil, button)
 		face:SetAllPoints(button)
 		face:SetFrameLevel(button:GetFrameLevel() + 1)

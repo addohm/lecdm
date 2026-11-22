@@ -36,7 +36,10 @@ the build and date.
    oil or stone, the weapon's icon as the missing copy; apply one: the game's button with the
    time left, in combat too, and the copy gone. On "While it's up", the place stays empty
    without one. With "Sound when it's applied" set, applying one out of combat plays it.
-6. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+6. Tooltips: on an icon bar, "Tooltip on hover: On": hovering an icon shows the spell's, the
+   trinket's or the item's tooltip; "Out of combat only": none in combat; "Off": clicks go
+   through to the world. A buff group's buffs show the game's buff tooltip (On, the default).
+7. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

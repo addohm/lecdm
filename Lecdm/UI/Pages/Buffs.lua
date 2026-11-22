@@ -319,6 +319,8 @@ ns.Window.Page({
 		p.borderColor = Row("select", "Border colour", Bars.BORDER_COLORS, "borderColor")
 		p.zoom = Row("select", "Icon zoom", Bars.ZOOMS, "zoom")
 		p.timeText = Row("select", "Time text", Bars.TEXT_SIZES, "timeText")
+		p.tooltip = Row("select", "Tooltip on hover", Bars.TOOLTIPS, "tooltip",
+			{ "Tooltip on hover", "The game's tooltip for the buff when your mouse is over it. Off lets clicks through to the world." })
 		p.barTexture = Row("select", "Bar texture", Auras.TEXTURES, "barTexture")
 		p.barColor = Row("select", "Bar colour", Auras.BAR_COLORS, "barColor")
 		p.barBg = Row("select", "Bar background", Auras.BG, "barBg")
@@ -450,6 +452,7 @@ ns.Window.Page({
 				for _, row in ipairs({ p.barTexture, p.barColor, p.barBg, p.barIcon, p.barName, p.barTime }) do stack:Add(row) end
 			end
 			stack:Add(p.timeText)
+			stack:Add(p.tooltip)
 			stack:Add(p.showHead)
 			stack:Add(p.showWhen)
 			stack:Add(p.alpha)

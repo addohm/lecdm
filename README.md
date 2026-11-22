@@ -37,8 +37,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   - its name and layout: icon size, spacing, grow from (centre, left or right), vertical, icons
     per row, the GCD sweep, and items you have none of (hidden, or greyed with a 0);
   - its look: border and colour, icon zoom, countdown text size, keybind text (the key of the
-    first action button on screen holding it, from any bar addon), grey on cooldown, red out of
-    range, dark when unusable;
+    first action button on screen holding it, from any bar addon), the game's tooltip on hover
+    (off by default, so clicks go through; on; or out of combat only), grey on cooldown, red out
+    of range, dark when unusable;
   - when it shows: always, only in combat, or in combat or with a target; opacity; out of
     combat the same, faded or hidden; and Delete;
   - its spells and items: tick them in the checklist (Blizzard's Essential and Utility lists,
@@ -54,8 +55,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
 - **Buffs:** laid out like Icon bars, for buff groups: buffs on you from anyone (your own,
   another priest's Fortitude, world buffs, procs). For the group picked: its name, **Show as**
   icons (a swipe, the time left, stacks) or **timer bars** (the icon, then a bar draining to the
-  right with the name and the time left), its layout, look (border, zoom, time text; for timer
-  bars texture, colour, background, and icon, name and time each on or off), when it shows, and
+  right with the name and the time left), its layout, look (border, zoom, time text, the game's
+  tooltip on hover: on, out of combat only, or off; for timer bars texture, colour, background,
+  and icon, name and time each on or off), when it shows, and
   its buffs: tick them from **Lecdm's list** (your class's buffs, your procs and cooldowns,
   buffs other classes put on you, your race's, world buffs, consumables: every rank, and group
   versions count too, so Prayer of Fortitude is Power Word: Fortitude; weapon enchants: oils,

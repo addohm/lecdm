@@ -68,7 +68,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     missing at the last look (`combatMissing`, `combatChat`).
   - `Bars.lua`: the icon bars (`ns.db.bars`: `list` of bars, each `{ id, name, spells =
     { key ... }, show = { [key] = "ready" | "cooldown" }, size, gap, grow, vertical, perRow,
-    gcd, pos }`; `seeded`, `nextID`, `hideBlizzard`). A key is a spellID (number), `"slot:N"`
+    gcd, pos }` and the look, `B.LOOK`: `tooltip` among it, `B.ShowTooltip`; `seeded`, `nextID`,
+    `hideBlizzard`). A key is a spellID (number), `"slot:N"`
     (an equipment slot: what's equipped there, shown while it has a use effect) or
     `"item:ID"` (a bag item, shown while you have one, with the count): `B.Kind`,
     `B.EntryName`, `B.EntryIcon`, `B.EntryKnown`, `B.Missing`, `B.ItemOf`, `B.Equipped()`,

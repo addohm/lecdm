@@ -246,6 +246,7 @@ end
 Minimap = CreateFrame("Frame", "Minimap")
 Minimap:SetSize(140, 140)
 GameTooltip = CreateFrame("GameTooltip", "GameTooltip")
+function GameTooltip:SetSpellByID(id) self.spell = id end
 SettingsPanel = CreateFrame("Frame", "SettingsPanel")
 ChatFontNormal = {}
 UISpecialFrames = {}
