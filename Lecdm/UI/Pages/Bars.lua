@@ -154,10 +154,18 @@ local function SmallButton(row, texture, x, tip, onClick)
 	return b
 end
 
--- The ⚙ menu's conditions for a spell on the icon bar shown: its stance or form.
+-- The ⚙ menu's entries for a spell on the icon bar shown: its buff on it, its stance or form,
+-- a talent.
 local function Conditions(root, key)
 	local bar = Current()
 	if not (bar and key) then return end
+	if type(key) == "number" then
+		local active = root:CreateButton("While its buff is up")
+		active:CreateRadio("Show the cooldown", function() return not (bar.active and bar.active[key]) end,
+			function() Bars.SetActive(bar, key, false) end)
+		active:CreateRadio("Show the buff on it (its time, stacks, glow)", function() return bar.active and bar.active[key] == true end,
+			function() Bars.SetActive(bar, key, true) end)
+	end
 	root:CreateTitle("When it shows")
 	local sub = root:CreateButton("In a stance or form")
 	local function Radio(text, value)
@@ -324,6 +332,7 @@ ns.Window.Page({
 		local swGet, swSet = Field("swipe")
 		local swcGet, swcSet = Field("swipeColor")
 		local edgeGet, edgeSet = Field("edge")
+		local actGet, actSet = Field("activeColor")
 		local redGet, redSet = Field("red")
 		local darkGet, darkSet = Field("dark")
 		local showGet, showSet = Field("showWhen")
@@ -366,6 +375,8 @@ ns.Window.Page({
 			UI.OptionSelect(stack.inner, "Swipe", Bars.SWIPES, swGet, swSet),
 			UI.OptionSelect(stack.inner, "Swipe colour", Bars.SWIPE_COLORS, swcGet, swcSet),
 			UI.OptionCheck(stack.inner, "Bright edge on the swipe", edgeGet, edgeSet),
+			UI.OptionSelect(stack.inner, "Swipe colour while its buff is up", Bars.SWIPE_COLORS, actGet, actSet,
+				{ tooltip = { "While its buff is up", "For spells whose ⚙ says to show their buff on them (Death Wish, Shield Block): the buff's time left as a swipe in this colour." } }),
 			UI.OptionSelect(stack.inner, "Countdown text", Bars.TEXT_SIZES, cdGet, cdSet,
 				{ tooltip = { "Countdown text", "The cooldown's time left on the icon (the game draws it; its own setting, Show Numbers for Cooldowns, must be on)." } }),
 			UI.OptionCheck(stack.inner, "Keybind text", keyGet, keySet,

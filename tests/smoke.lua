@@ -169,6 +169,29 @@ ns.Refresh()
 check(not revenge.shown, "an unusable spell shown with only when ready and usable")
 cdBar.show[6572], cdBar.cdAlpha, ns.db.alerts.defaults.spells.cdGlow = nil, 1, "none"
 ns.Refresh()
+-- A spell's own buff on its icon: an aura container on the icon, a slot for the spell's buff
+-- (every rank by name), anchored to the icon; in combat the change waits; off: the slot goes.
+local function ActiveOf(b)
+	for _, c in ipairs(M.containers) do
+		if c.parent == b then
+			for k, s2 in pairs(c.slots) do
+				if s2.enabled then return s2, c end
+			end
+			return nil, c
+		end
+	end
+end
+M.combat = true
+ns.Bars.SetActive(cdBar, 100, true)
+check(not ActiveOf(charge), "a buff slot made in combat")
+M.combat = false
+M.Fire("PLAYER_REGEN_ENABLED")
+local activeSlot = ActiveOf(charge)
+check(activeSlot and activeSlot.ids[100] and activeSlot.button.bound.SetDurationCooldown and activeSlot.button.bound.SetApplicationCount,
+	"no buff slot on the icon after combat")
+check(activeSlot.button.allPoints == charge, "the buff slot isn't on the icon")
+ns.Bars.SetActive(cdBar, 100, false)
+check(not ActiveOf(charge), "the buff slot stayed after turning it off")
 -- The swipe: reversed, its colour, the edge; none.
 cdBar.swipe, cdBar.swipeColor, cdBar.edge = "reverse", "gold", true
 ns.Refresh()

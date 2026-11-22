@@ -47,7 +47,7 @@ B.LOOK = {
 	size = 40, gap = 4, grow = "CENTER", vertical = false, perRow = 12, gcd = true, emptyItems = "hide",
 	border = 1, borderColor = "black", zoom = 0.08, countdown = "normal", keybind = false,
 	grey = true, red = true, dark = true, showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "off",
-	cdAlpha = 1, zeroCharges = true, swipe = "normal", swipeColor = "dark", edge = false,
+	cdAlpha = 1, zeroCharges = true, swipe = "normal", swipeColor = "dark", edge = false, activeColor = "gold",
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -138,6 +138,7 @@ function B.SetOnBar(bar, spellID, on)
 		other.show[spellID] = nil
 		if other.forms then other.forms[spellID] = nil end
 		if other.talents then other.talents[spellID] = nil end
+		if other.active then other.active[spellID] = nil end
 	end
 	if on then table.insert(bar.spells, spellID) end
 	ns.Refresh()
@@ -373,7 +374,7 @@ local function Button(frame, i)
 	b.glow = CreateFrame("Frame", nil, b)
 	b.glow:SetAllPoints()
 	b.glow:SetFrameLevel(b.cd:GetFrameLevel() + 1)
-	b.over:SetFrameLevel(b.cd:GetFrameLevel() + 2)
+	b.over:SetFrameLevel(b.cd:GetFrameLevel() + 6) -- above the buff shown on it, too
 	b:SetScript("OnEnter", B.ShowTooltip)
 	b:SetScript("OnLeave", GameTooltip_Hide)
 	frame.buttons[i] = b
@@ -419,6 +420,113 @@ local function Charges(b, bar, id, onCooldown)
 	else
 		pcall(b.count.SetText, b.count, n)
 	end
+end
+
+-- A spell's own buff on its icon -----------------------------------------------------------
+-- While the buff a spell gives you is up (Death Wish, Shield Block, Slice and Dice), its icon can
+-- show the buff instead (bar.active[key]): the game's own button over it, from an aura container
+-- on the icon, so the game fills it in combat too and it hides with the icon. It has the buff's
+-- time as a swipe in the bar's active colour, the time left, its stacks and the active glow (the
+-- spell's alerts). The buff is the spell's name's (every rank; Auras.IDs). Containers are touched
+-- only out of combat: a change in combat waits for its end.
+local activePending = false
+
+local function ActiveKey(bar, key)
+	local Get = ns.Alerts.Get
+	return table.concat({ tostring(key), bar.size, tostring(bar.zoom), bar.border, bar.borderColor, tostring(bar.countdown),
+		tostring(bar.activeColor), tostring(bar.tooltip), Get("spells", key, "activeGlow"), Get("spells", key, "glowColor") }, ":")
+end
+
+local function ActiveStyler(bar, key)
+	local size, z, n = bar.size, bar.zoom or 0.08, bar.border or 1
+	local er, eg, eb = B.BorderRGB(bar.borderColor)
+	local glow, color = ns.Alerts.Get("spells", key, "activeGlow"), ns.Alerts.Get("spells", key, "glowColor")
+	local font = B.FONTS[bar.countdown]
+	return function(button)
+		if bar.tooltip == "off" then button:EnableMouse(false) end
+		button:SetSize(size, size)
+		local edge = button:CreateTexture(nil, "BACKGROUND")
+		edge:SetPoint("TOPLEFT", -n, n)
+		edge:SetPoint("BOTTOMRIGHT", n, -n)
+		edge:SetColorTexture(er, eg, eb, n > 0 and 1 or 0)
+		local icon = button:CreateTexture(nil, "ARTWORK")
+		icon:SetAllPoints()
+		icon:SetTexCoord(z, 1 - z, z, 1 - z)
+		button:SetIcon(icon)
+		local cd = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
+		cd:SetAllPoints()
+		cd:SetDrawEdge(false)
+		cd:SetReverse(true)
+		cd:SetHideCountdownNumbers(true)
+		cd:SetSwipeColor(B.SwipeRGBA(bar.activeColor))
+		button:SetDurationCooldown(cd)
+		local top = CreateFrame("Frame", nil, button)
+		top:SetAllPoints()
+		top:SetFrameLevel(button:GetFrameLevel() + 5)
+		if font then
+			local time = top:CreateFontString(nil, "OVERLAY", font)
+			time:SetPoint("CENTER")
+			button:SetDurationText(time)
+		end
+		local count = top:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+		count:SetPoint("BOTTOMRIGHT", -2, 2)
+		button:SetApplicationCount(count)
+		if glow ~= "none" then
+			local holder = CreateFrame("Frame", nil, button)
+			holder:SetAllPoints()
+			holder:SetFrameLevel(button:GetFrameLevel() + 2)
+			local built = ns.Glow.Build(holder, glow, color, size)
+			for _, g in ipairs(built.groups) do button:AddAuraShownAnimation(g) end
+		end
+	end
+end
+
+-- Sets an icon's buff slot for the spell it shows now (or none).
+local function PlaceActive(b, bar)
+	local want, ids
+	if b.key and b.spellID and bar.active and bar.active[b.key] and ns.Auras and b.name then
+		local set, count = ns.Auras.IDs(b.name)
+		if count > 0 then want, ids = ActiveKey(bar, b.key), set end
+	end
+	if not (want or b.active) then return end
+	if InCombatLockdown() then
+		activePending = true
+		return
+	end
+	if want and not b.active then
+		local ok, c = pcall(CreateFrame, "AuraContainer", nil, b, "CustomAuraContainerTemplate")
+		if not (ok and c) then return end
+		c:SetUnit("player")
+		c:SetSize(1, 1)
+		c:SetPoint("TOPLEFT", b, "TOPLEFT")
+		c:SetFrameLevel(b:GetFrameLevel() + 3)
+		c:Show()
+		b.active = { container = c, slots = {} }
+	end
+	local a = b.active
+	if want then
+		local slot = a.slots[want]
+		if not slot then
+			slot = a.container:AddAuraSlot(want, "HELPFUL", {
+				candidateFilters = { includeSpellIDs = ids },
+				initializeFrame = ActiveStyler(bar, b.key),
+			})
+			a.slots[want] = slot
+		end
+		a.container:SetAuraSlotCandidateFilters(want, { includeSpellIDs = ids })
+		slot:ClearAllPoints()
+		slot:SetAllPoints(b)
+		a.container:SetAuraSlotEnabled(want, true)
+	end
+	for k in pairs(a.slots) do
+		if k ~= want then a.container:SetAuraSlotEnabled(k, false) end
+	end
+end
+
+function B.SetActive(bar, key, on)
+	bar.active = bar.active or {}
+	bar.active[key] = on or nil
+	ns.Refresh()
 end
 
 -- A spell's state on its icon; returns whether it's on a real cooldown, and whether it's usable
@@ -652,10 +760,12 @@ function B.Build()
 			B.ApplyLook(b, bar)
 			b.bar = bar
 			b:EnableMouse(bar.tooltip ~= "off" and not unlocked)
+			pcall(PlaceActive, b, bar)
 		end
 		for j = #bar.spells + 1, #frame.buttons do
 			frame.buttons[j].key, frame.buttons[j].spellID = nil, nil
 			frame.buttons[j].wanted = false
+			pcall(PlaceActive, frame.buttons[j], bar)
 		end
 		frame.label:SetText(bar.name)
 		frame.shade:SetShown(unlocked)
@@ -797,7 +907,7 @@ for _, e in ipairs({ "SPELL_UPDATE_COOLDOWN", "SPELL_UPDATE_CHARGES", "SPELL_UPD
 	pcall(events.RegisterEvent, events, e)
 end
 for _, e in ipairs({ "SPELLS_CHANGED", "COOLDOWN_VIEWER_DATA_LOADED", "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED",
-	"BAG_UPDATE_DELAYED", "PLAYER_EQUIPMENT_CHANGED" }) do
+	"BAG_UPDATE_DELAYED", "PLAYER_EQUIPMENT_CHANGED", "PLAYER_REGEN_ENABLED" }) do
 	pcall(events.RegisterEvent, events, e)
 end
 events:SetScript("OnEvent", function(_, event, arg)
@@ -813,6 +923,11 @@ events:SetScript("OnEvent", function(_, event, arg)
 		if ns.Auras then ns.Auras.Build() end
 	elseif event == "BAG_UPDATE_DELAYED" or event == "PLAYER_EQUIPMENT_CHANGED" then
 		B.Build()
+	elseif event == "PLAYER_REGEN_ENABLED" then
+		if activePending then
+			activePending = false
+			B.Build()
+		end
 	elseif event == "PLAYER_ENTERING_WORLD" or event == "EDIT_MODE_LAYOUTS_UPDATED" then
 		B.ApplyBlizzard()
 	else

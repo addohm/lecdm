@@ -7,7 +7,9 @@
 --     readyGlow  a glow while it's ready (and usable);
 --     procGlow   a glow while the game highlights it (SPELL_ACTIVATION_OVERLAY_GLOW_SHOW);
 --     cdGlow     a glow while it's on a real cooldown;
---     fullGlow   a glow while a charge spell is at full charges.
+--     fullGlow   a glow while a charge spell is at full charges;
+--     activeGlow a glow while its buff is up, for a spell showing its buff on it (the game's
+--                button, so in combat too).
 --   Buff groups (the game fills them; Lua only hears what Blizzard's Cooldown Manager announces
 --   in combat, and reads your buffs out of combat):
 --     applied, removed   sounds; in combat only for buffs Blizzard also tracks (its announcement);

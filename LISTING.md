@@ -63,6 +63,8 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 - Add spells from a checklist: Blizzard's list, your spellbook, your trinkets and on-use gear,
   and potions, healthstones and other usable items in your bags (with the count).
 - Spells with charges: the count, the recharge swipe, a glow at full charges.
+- A spell's own buff on its icon while it's up (Death Wish, Shield Block, Slice and Dice): its
+  time, stacks and a glow, in combat too.
 - Per bar: icon size, spacing, grow from the centre or an edge, vertical, icons per row,
   border and colour, icon zoom, the swipe (reversed, coloured or none), countdown text size, keybind text (from any bar addon),
   tooltips on hover (always, out of combat, or off).

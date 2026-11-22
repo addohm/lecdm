@@ -56,7 +56,11 @@ the build and date.
     too; using one starts the recharge swipe; "Glow at full charges" glows only at full.
 13. Swipe: on an icon bar, Reversed (the dark part shrinks), a colour, the bright edge, None
     (only the countdown); on a buff group, Reversed and a colour.
-14. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+14. A spell's own buff on its icon (warrior: Death Wish or Shield Block; ⚙, "While its buff
+    is up", Show the buff on it): use it: the icon shows the buff's time as a gold swipe and
+    its time left, in combat too; when the buff ends, the cooldown is back. With "Glow while
+    its buff is up" set, it glows then. Change it in combat: it applies when combat ends.
+15. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

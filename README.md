@@ -48,9 +48,11 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     your spellbook, your equipped trinkets and on-use gear, usable items in your bags; an entry
     on another bar says "(on ...)" and ticking moves it), order them with the arrows, choose
     when each shows (always, only when ready, only when ready and usable: Overpower, Revenge,
-    Execute; only on cooldown; the others close up), and in its ⚙ menu, when it shows: in or
-    out of a stance or form (Battle Stance, Bear Form...) and only with or without a talent; and
-    its
+    Execute; only on cooldown; the others close up), and in its ⚙ menu: while its buff is up
+    (Death Wish, Shield Block, Slice and Dice), show the buff on it (the game's own button: its
+    time as a swipe in the bar's "while its buff is up" colour, its stacks, a glow; in combat
+    too); when it shows: in or out of a stance or form (Battle Stance, Bear Form...) and only
+    with or without a talent; and its
     own alerts (⚙). A trinket slot shows whatever's equipped there while it has a use effect;
     spells you haven't learned appear once you do.
 
@@ -90,7 +92,7 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   ready check, alarm clock ...) or "Say it", which speaks the name.
   - Icon bars: a sound when it's ready (off cooldown, not the GCD), a glow while it's ready and
     usable, a glow while the game highlights it (a proc), a glow while it's on cooldown, a glow
-    at full charges; glow colour.
+    at full charges, a glow while its buff is up (for spells showing it); glow colour.
   - Buff groups: sounds when it's applied and when it drops (in combat only for buffs
     Blizzard's `/cdm` also tracks, from its announcement; out of combat for every buff on you);
     a sound as it **runs out**, at the warning time (out of combat from its own timer; in combat

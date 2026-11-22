@@ -46,7 +46,8 @@ local function NewRegion(kind, name, parent)
 	function f:GetStringWidth() return 60 end
 	function f:HasFocus() return false end
 	function f:SetPoint(...) table.insert(self.points, { ... }) end
-	function f:ClearAllPoints() self.points = {} end
+	function f:ClearAllPoints() self.points, self.allPoints = {}, nil end
+	function f:SetAllPoints(rel) self.allPoints = rel or self.parent end
 	function f:GetPoint() local p = self.points[1] or {} return p[1], p[2], p[3], p[4], p[5] end
 	function f:SetScript(event, fn) self.scripts[event] = fn end
 	function f:GetScript(event) return self.scripts[event] end

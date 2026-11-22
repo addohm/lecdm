@@ -29,6 +29,9 @@ All notable changes to lecdm. The format follows
   usable" (Overpower, Revenge, Execute: hidden until you can use them).
 - Icon bars, in a spell's ⚙ menu: show it only in (or out of) a stance or form, and only with
   (or without) a talent, read from Forever's talent tree.
+- A spell's own buff on its icon (its ⚙: "While its buff is up"): while Death Wish, Shield
+  Block or Slice and Dice is on you, the icon shows the buff, from an aura container on the
+  icon (in combat too): its time as a swipe in the bar's colour for it, its stacks, a glow.
 - The swipe, for icon bars and buff groups: normal, reversed or none, its colour, and (icon
   bars) a bright edge.
 - Charges on icon bars: the count (shown by the game, so in combat too), the recharge swipe while
