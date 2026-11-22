@@ -477,6 +477,7 @@ M.range, M.rangeChecked = {}, {}
 -- Learned: Blizzard's list's isKnown, and the spellbook (M.book: one Protection line).
 C_SpellBook = {
 	IsSpellKnown = function(id)
+		if M.known and M.known[id] then return true end
 		for _, info in pairs(M.info) do
 			if info.spellID == id then return info.isKnown end
 		end
@@ -494,6 +495,7 @@ function GetSpellBaseCooldown(id) return id == 2565 and 5000 or 0 end
 -- Spells by ID, and Blizzard's list: section value -> cooldown IDs, cooldown ID -> info.
 M.spells = {
 	[6673] = { name = "Battle Shout", texture = 1 },
+	[78] = { name = "Heroic Strike", texture = 2, known = true },
 	[100] = { name = "Charge", texture = 2, active = true },
 	[6572] = { name = "Revenge", texture = 3, usable = false },
 	[12292] = { name = "Death Wish", texture = 4 },
@@ -544,6 +546,7 @@ C_Spell = {
 			cooldownStartTime = M.combat and SECRET or 0, cooldownDuration = M.combat and SECRET or 0 }
 	end,
 	GetSpellChargeDuration = function(id) return { charge = id } end,
+	IsCurrentSpell = function(id) return M.queuedSpell == id or M.queuedSpell == (M.spells[id] and M.spells[id].name) end,
 	IsSpellUsable = function(id)
 		if M.combat then return SECRET end
 		return M.spells[id].usable ~= false

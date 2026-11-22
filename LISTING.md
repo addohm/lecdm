@@ -72,6 +72,8 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
   time, stacks and a glow, in combat too.
 - Icon shapes: square, round, rounded, diamond, hexagon; a background behind a bar.
 - Icons show pressed as you press their key.
+- The swing timer on Heroic Strike, Cleave, Maul and Raptor Strike (icons and your action
+  buttons), and a highlight while one is queued.
 - Saved styles: save a look by name and give it to other bars or groups.
 - Fonts and outlines for the text, where the count and keybind sit, a keybind badge.
 - Anchor bars and buff groups to each other (or a bar to your cursor), so they move together.

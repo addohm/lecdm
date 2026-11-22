@@ -56,6 +56,7 @@ B.LOOK = {
 	fontFace = "default", fontOutline = "OUTLINE", countPos = "BOTTOMRIGHT", keyPos = "TOPRIGHT", keyBadge = 0,
 	itemCount = "always", itemQuality = false, passiveTrinkets = false, pressMirror = false,
 	barSpark = true, barGradient = "none", barReverse = false, barIconRight = false, barNameSize = "small",
+	swingSweep = true,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -1178,6 +1179,19 @@ function B.UpdateSpell(spellID)
 	end
 end
 
+-- Calls fn(button, bar) for every icon on a shown icon bar.
+function B.EachIcon(fn)
+	if not ns.db then return end
+	for _, bar in ipairs(ns.db.bars.list) do
+		local frame = frames[bar.id]
+		if frame and frame:IsShown() then
+			for _, b in ipairs(frame.buttons) do
+				if b.key then fn(b, bar) end
+			end
+		end
+	end
+end
+
 function B.UpdateAll()
 	if not ns.db then return end
 	local changed = false
@@ -1294,6 +1308,7 @@ function B.Build()
 		if not live[id] then frame:Hide() end
 	end
 	LayoutAll()
+	if ns.Swing then ns.Swing.Update() end
 	B.ApplyBlizzard()
 end
 

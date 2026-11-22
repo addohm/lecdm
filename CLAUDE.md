@@ -63,6 +63,10 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
   - `Keybinds.lua`: action buttons from any bar addon (EnumerateFrames, out of combat, one scan
     per frame), the key of the first one on screen holding a spell or item (its HotKey text,
     else its click binding), `K.For(name)`.
+  - `Swing.lua`: the swing timer (PLAYER_SWING, main hand) on `S.ATTACKS` (Heroic Strike,
+    Cleave, Maul, Raptor Strike): a sweep and a queued highlight (`C_Spell.IsCurrentSpell`) on
+    icon bar icons (`bar.swingSweep`, `B.EachIcon`) and, with `ns.db.swing.buttons`, Lecdm's
+    overlays on the action buttons holding them (`ns.Keybinds.Buttons(name)`).
   - `Alerts.lua`: sounds (`A.SOUNDS`, `A.Play`: SOUNDKIT names or "say", text to speech) and
     when they play; `ns.db.alerts`: `defaults.spells / .buffs / .blizzard` and each spell's
     (`spells[key]`) or buff's (`buffs[name]`, `blizzard[name]`) own (`A.Get`, `A.Set`,

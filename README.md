@@ -51,7 +51,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     decimal, the text's font (the game's numbers, Friz Quadrata, Arial Narrow, Skurri or
     Morpheus) and outline, the count's place, keybind text (its place, a dark badge; the key of the
     first action button on screen holding it, from any bar addon), the game's tooltip on hover
-    (off by default, so clicks go through; on; or out of combat only), shown pressed when you
+    (off by default, so clicks go through; on; or out of combat only), the **swing timer** on
+    Heroic Strike, Cleave, Maul and Raptor Strike (a sweep of your main hand's swing, and a
+    highlight while one is queued), shown pressed when you
     press its key (from any bar addon's action buttons, on cooldown too), grey on cooldown and its
     opacity then, red out of range, dark when unusable; for spells with charges the count (the
     game's, in combat too) and the recharge swipe, 0 shown or not;
@@ -78,6 +80,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     with or without a talent; and its
     own alerts (⚙). A trinket slot shows whatever's equipped there while it has a use effect;
     spells you haven't learned appear once you do.
+
+  "Your action buttons" (at the end of the tab): the swing timer on the action buttons (any bar
+  addon's) holding an on-next-swing attack, and the queued highlight.
 
   The first time, two icon bars are filled from Blizzard's list. Blizzard's own Essential and
   Utility icons are made invisible while Lecdm's icon bars are on (they keep running); untick

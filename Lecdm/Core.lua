@@ -29,6 +29,9 @@ local DEFAULTS = {
 		pixel = { lines = 2, thickness = 2, speed = 0.6 }, -- the pixel glow's look (Glow.lua)
 		combatOnly = false,                                -- glows only in combat (icon bars, missing)
 	},
+	-- the swing timer on on-next-swing attacks (Swing.lua): on your action buttons too, and a
+	-- queued one highlighted
+	swing = { buttons = false, queued = true },
 	-- saved looks by name (Bars.lua: B.SaveStyle), for icon bars and for buff groups
 	styles = { bars = {}, buffs = {} },
 	-- the cooldown bars (Bars.lua): list = { bar ... } (B.NewBar has a bar's fields), seeded once

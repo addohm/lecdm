@@ -116,7 +116,10 @@ the build and date.
     group and Blizzard's icons the same.
 35. Alerts tab, "Every glow": pixel glow 4 dashes, 1 px, fast; "Solid fill" as a glow; "Glows
     only in combat": an icon's ready glow only shows in a fight, from its first moment.
-36. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+36. Swing timer (warrior): Heroic Strike on an icon bar sweeps with each main-hand swing, in
+    combat, in an instance too; queue it: it's highlighted until the swing. "Your action
+    buttons": the same sweep on the action button holding it (Blizzard's bars and a bar addon).
+37. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

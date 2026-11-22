@@ -25,6 +25,8 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- The swing timer on Heroic Strike, Cleave, Maul and Raptor Strike: a sweep of the main hand's
+  swing on their icons and, if you like, on your action buttons; a highlight while queued.
 - Glows: the pixel glow's dashes, thickness and speed; a solid fill style; glows only in
   combat (icon bars and the missing glow).
 - Visibility conditions for icon bars, buff groups and Blizzard's places: only when (all or any

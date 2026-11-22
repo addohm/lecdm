@@ -315,6 +315,40 @@ M.RunTimers()
 check(not charge.pushed.shown, "the pressed look didn't go")
 cdBar.pressMirror = false
 M.actions[9] = nil
+-- The swing timer: Heroic Strike's icon sweeps the main hand's swing, and is highlighted while
+-- queued; on an action button holding it too, when asked.
+M.known = { [78] = true }
+ns.Bars.SetOnBar(cdBar, 78, true)
+local hs
+for _, b in ipairs(cooldowns.buttons) do
+	if b.spellID == 78 then hs = b end
+end
+M.Fire("PLAYER_SWING", 2.4, 0)
+check(hs and hs.swingSweep and hs.swingSweep.cooldown and hs.swingSweep.cooldown[2] == 2.4, "no swing sweep on Heroic Strike")
+M.queuedSpell = 78
+M.Fire("CURRENT_SPELL_CAST_CHANGED")
+check(hs.swingQueued.shown, "a queued Heroic Strike isn't highlighted")
+M.queuedSpell = nil
+M.Fire("CURRENT_SPELL_CAST_CHANGED")
+check(not hs.swingQueued.shown, "the highlight stayed")
+local actionButton = CreateFrame("Button", "LecdmTestActionButton")
+actionButton.action = 10
+M.actions[10] = { "spell", 78 }
+ns.db.swing.buttons = true
+ns.Keybinds.Scan()
+M.Fire("PLAYER_SWING", 2.2, 0)
+local overlay
+for _, f in ipairs(M.frames) do
+	if f.parent == actionButton and f.cooldown then overlay = f end
+end
+check(overlay and overlay.cooldown[2] == 2.2, "no swing sweep on the action button")
+ns.db.swing.buttons = false
+M.actions[10] = nil
+actionButton:Hide()
+ns.Keybinds.Scan()
+M.Fire("PLAYER_REGEN_ENABLED")
+ns.Bars.SetOnBar(cdBar, 78, false)
+M.known = nil
 -- Fonts: a face with an outline on the count and keybind; the count's place; the badge.
 cdBar.fontFace, cdBar.fontOutline, cdBar.countPos, cdBar.keyBadge = "arial", "THICKOUTLINE", "TOPLEFT", 0.5
 ns.Refresh()

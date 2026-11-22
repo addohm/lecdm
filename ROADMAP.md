@@ -185,8 +185,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 **The rest**
 
-- [ ] Swing sweep on Heroic Strike and Cleave (icons and action buttons); a queued-attack
-      highlight
+- [x] Swing sweep on Heroic Strike and Cleave (icons and action buttons); a queued-attack
+      highlight (2026-11-22)
 - [ ] A focus interrupt bar, with a sound when the focus starts casting
 - [ ] Import and export (profiles, icon bars, buff groups)
 - [ ] Shared entries (trinkets, potions, racials) kept in step across profiles

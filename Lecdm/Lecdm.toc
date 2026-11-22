@@ -21,6 +21,7 @@ Check.lua
 Glow.lua
 Visibility.lua
 Keybinds.lua
+Swing.lua
 Alerts.lua
 Bars.lua
 Auras.lua

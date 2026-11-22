@@ -12,6 +12,7 @@ ns.Keybinds = K
 
 local buttons = {}  -- action buttons found at the last scan
 local byName = {}   -- spell name / "item:ID" -> key text
+local buttonsOf = {} -- spell name / "item:ID" -> the visible buttons holding it
 local scanPending = true
 
 local function Number(v)
@@ -50,7 +51,7 @@ end
 
 local function KeyOf(button)
 	local hotkey = button.HotKey or button.hotKey
-	if hotkey and hotkey.GetText then
+	if type(hotkey) == "table" and hotkey.GetText then
 		local ok, text = pcall(hotkey.GetText, hotkey)
 		text = ok and Text(text)
 		-- An unbound button shows the range dot.
@@ -82,6 +83,7 @@ end
 -- What each button holds now, and its key.
 function K.Read()
 	wipe(byName)
+	wipe(buttonsOf)
 	for _, button in ipairs(buttons) do
 		local okShown, visible = pcall(button.IsVisible, button)
 		if okShown and visible then
@@ -96,10 +98,21 @@ function K.Read()
 					name = "item:" .. id
 				end
 				if name and not byName[name] then byName[name] = KeyOf(button) end
+				if name then
+					buttonsOf[name] = buttonsOf[name] or {}
+					table.insert(buttonsOf[name], button)
+				end
 			end
 		end
 	end
 	if ns.Bars and ns.Bars.ShowKeys then ns.Bars.ShowKeys() end
+	if ns.Swing and ns.Swing.ButtonsChanged then ns.Swing.ButtonsChanged() end
+	if ns.ButtonGlows and ns.ButtonGlows.ButtonsChanged then ns.ButtonGlows.ButtonsChanged() end
+end
+
+-- The visible action buttons holding a spell (by name) or "item:ID" now.
+function K.Buttons(name)
+	return name and buttonsOf[name] or {}
 end
 
 -- The key text for an icon bar entry (by its name, or "item:ID"), or nil.

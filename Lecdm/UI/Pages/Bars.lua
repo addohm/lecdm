@@ -624,6 +624,7 @@ ns.Window.Page({
 		local iqGet, iqSet = Field("itemQuality")
 		local ptGet, ptSet = Field("passiveTrinkets")
 		local pmGet, pmSet = Field("pressMirror")
+		local swGet2, swSet2 = Field("swingSweep")
 		local outGet, outSet = Field("fontOutline")
 		local cpGet, cpSet = Field("countPos")
 		local kpGet, kpSet = Field("keyPos")
@@ -748,6 +749,8 @@ ns.Window.Page({
 			UI.OptionSelect(stack.inner, "The count's place (stacks, charges, items)", Bars.CORNERS, cpGet, cpSet),
 			UI.OptionSelect(stack.inner, "Tooltip on hover", Bars.TOOLTIPS, tipGet, tipSet,
 				{ tooltip = { "Tooltip on hover", "The game's tooltip for the spell or item when your mouse is over its icon. Off lets clicks through to the world." } }),
+			UI.OptionCheck(stack.inner, "The swing timer on Heroic Strike, Cleave, Maul", swGet2, swSet2,
+				{ "Swing timer", "On-next-swing attacks (Heroic Strike, Cleave, Maul, Raptor Strike) show your main hand's swing as a sweep, and a highlight while one is queued." }),
 			UI.OptionCheck(stack.inner, "Show it pressed when you press its key", pmGet, pmSet,
 				{ "Key presses", "When you use the spell or item from an action button (its key or a click; on cooldown too), its icon here shows the pressed look for a moment." }),
 			UI.OptionCheck(stack.inner, "Grey while on cooldown", greyGet, greySet),
@@ -792,6 +795,20 @@ ns.Window.Page({
 		p.none = UI.OptionText(stack.inner, "There are no icon bars: pick \"New icon bar...\" in the dropdown above, or Start over below.", 24)
 		p.bottom = {
 			UI.OptionText(stack.inner, "Grey here: a spell not learned yet, a slot with nothing usable in it, an item you have none of. They appear on the bar when they can.", 24),
+			UI.OptionHeading(stack.inner, "Your action buttons"),
+			UI.OptionCheck(stack.inner, "The swing timer on Heroic Strike, Cleave, Maul",
+				function() return ns.db.swing.buttons end,
+				function(v)
+					ns.db.swing.buttons = v
+					if ns.Swing then ns.Swing.ButtonsChanged() end
+				end,
+				{ "On your action buttons", "The swing sweep on the action buttons (any bar addon's) holding an on-next-swing attack, as on icon bars." }),
+			UI.OptionCheck(stack.inner, "Highlight an attack queued for the next swing",
+				function() return ns.db.swing.queued end,
+				function(v)
+					ns.db.swing.queued = v
+					if ns.Swing then ns.Swing.Update() end
+				end),
 			UI.OptionHeading(stack.inner, "All icon bars"),
 			UI.OptionButton(stack.inner, "Move the icon bars", function()
 				return Bars.IsUnlocked() and "Lock" or "Unlock"
