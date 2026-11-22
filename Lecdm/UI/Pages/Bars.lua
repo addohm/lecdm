@@ -795,6 +795,35 @@ ns.Window.Page({
 		p.none = UI.OptionText(stack.inner, "There are no icon bars: pick \"New icon bar...\" in the dropdown above, or Start over below.", 24)
 		p.bottom = {
 			UI.OptionText(stack.inner, "Grey here: a spell not learned yet, a slot with nothing usable in it, an item you have none of. They appear on the bar when they can.", 24),
+			UI.OptionHeading(stack.inner, "The interrupt bar"),
+			UI.OptionCheck(stack.inner, "Show the interrupt bar",
+				function() return ns.db.kick.enabled end,
+				function(v)
+					ns.db.kick.enabled = v
+					ns.Refresh()
+				end,
+				{ "The interrupt bar", "While your focus (or target) casts: its cast filling, its name, a shield when it can't be interrupted, and your interrupt's cooldown (Pummel, Kick, Counterspell...). /lecdm move to place it." }),
+			UI.OptionSelect(stack.inner, "Whose casts", ns.Kick.UNITS,
+				function() return ns.db.kick.unit end,
+				function(v)
+					ns.db.kick.unit = v
+					ns.Refresh()
+				end),
+			ns.SoundPicker(stack.inner, "Sound as it starts casting",
+				function() return ns.db.kick.sound end,
+				function(v) ns.db.kick.sound = v end),
+			UI.OptionSelect(stack.inner, "Its width", Numbers(120, 400, 20),
+				function() return ns.db.kick.width end,
+				function(v)
+					ns.db.kick.width = v
+					ns.Refresh()
+				end),
+			UI.OptionSelect(stack.inner, "Its height", Numbers(12, 32, 2),
+				function() return ns.db.kick.height end,
+				function(v)
+					ns.db.kick.height = v
+					ns.Refresh()
+				end),
 			UI.OptionHeading(stack.inner, "Your action buttons"),
 			UI.OptionCheck(stack.inner, "The swing timer on Heroic Strike, Cleave, Maul",
 				function() return ns.db.swing.buttons end,

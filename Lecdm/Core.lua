@@ -34,6 +34,8 @@ local DEFAULTS = {
 	swing = { buttons = false, queued = true },
 	-- glows on your action buttons, by rule (ButtonGlows.lua)
 	buttonGlows = {},
+	-- the interrupt bar (Kick.lua): your focus's or target's casts and your interrupt
+	kick = { enabled = false, unit = "focus", sound = "none", width = 220, height = 18 },
 	-- saved looks by name (Bars.lua: B.SaveStyle), for icon bars and for buff groups
 	styles = { bars = {}, buffs = {} },
 	-- the cooldown bars (Bars.lua): list = { bar ... } (B.NewBar has a bar's fields), seeded once
@@ -123,6 +125,10 @@ function ns.Refresh()
 	if ns.Hosted then ns.Hosted.Build() end
 	if ns.Alerts then ns.Alerts.Reschedule() end
 	if ns.ButtonGlows then ns.ButtonGlows.Build() end
+	if ns.Kick then
+		ns.Kick.Listen()
+		ns.Kick.Apply()
+	end
 	if ns.Theme then ns.Theme.Apply() end
 	if ns.Minimap then ns.Minimap.Apply() end
 	if ns.Window then ns.Window.Apply() end

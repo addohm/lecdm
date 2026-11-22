@@ -189,7 +189,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 - [x] Swing sweep on Heroic Strike and Cleave (icons and action buttons); a queued-attack
       highlight (2026-11-22)
-- [ ] A focus interrupt bar, with a sound when the focus starts casting
+- [x] A focus interrupt bar, with a sound when the focus starts casting (2026-11-22)
 - [ ] Import and export (profiles, icon bars, buff groups)
 - [ ] Shared entries (trinkets, potions, racials) kept in step across profiles
 - [ ] Blizzard's icons taken in: their size from Lecdm instead of Edit Mode (if it can be done

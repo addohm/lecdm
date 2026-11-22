@@ -81,6 +81,10 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     own alerts (⚙). A trinket slot shows whatever's equipped there while it has a use effect;
     spells you haven't learned appear once you do.
 
+  "The interrupt bar" (at the end of the tab): while your focus (or target) casts, its cast
+  filling, its name, a shield when it can't be interrupted, and your interrupt's cooldown
+  (Pummel or Shield Bash, Kick, Counterspell, Earth Shock...); a sound as it starts casting; its
+  width and height; `/lecdm move` places it.
   "Your action buttons" (at the end of the tab): the swing timer on the action buttons (any bar
   addon's) holding an on-next-swing attack, and the queued highlight.
 

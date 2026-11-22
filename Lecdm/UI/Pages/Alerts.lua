@@ -137,7 +137,7 @@ end
 
 -- A sound default's row: a dropdown (the game's sounds, then Blizzard's Cooldown Manager's by
 -- group) and a Test button.
-local function SoundRow(parent, category, field, label)
+function ns.SoundPicker(parent, label, get, set)
 	local row = CreateFrame("Frame", nil, parent)
 	row:SetHeight(36)
 	row.label = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -149,7 +149,7 @@ local function SoundRow(parent, category, field, label)
 	row.dropdown:SetPoint("LEFT", 330, 0)
 	row.dropdown:SetSize(170, 24)
 	local function Pick(value)
-		ns.db.alerts.defaults[category][field] = value
+		set(value)
 		Alerts.Play(value, "Battle Shout")
 		ns.Refresh()
 		row.Sync()
@@ -157,7 +157,7 @@ local function SoundRow(parent, category, field, label)
 	row.dropdown:SetupMenu(function(_, root)
 		Alerts.AddBlizzardSounds()
 		local function Radio(menu, value, text)
-			menu:CreateRadio(text, function() return ns.db.alerts.defaults[category][field] == value end, function() Pick(value) end)
+			menu:CreateRadio(text, function() return get() == value end, function() Pick(value) end)
 		end
 		for i = 1, Alerts.BASE_SOUNDS do Radio(root, Alerts.SOUNDS[i][1], Alerts.SOUNDS[i][2]) end
 		for _, group in ipairs(Alerts.SOUND_GROUPS) do
@@ -169,12 +169,18 @@ local function SoundRow(parent, category, field, label)
 	test:SetSize(54, 22)
 	test:SetPoint("LEFT", row.dropdown, "RIGHT", 6, 0)
 	test:SetText("Test")
-	test:SetScript("OnClick", function() Alerts.Play(ns.db.alerts.defaults[category][field], "Battle Shout") end)
+	test:SetScript("OnClick", function() Alerts.Play(get(), "Battle Shout") end)
 	row.Sync = function()
 		Alerts.AddBlizzardSounds()
-		row.dropdown:SetText(Alerts.Label(Alerts.SOUNDS, ns.db.alerts.defaults[category][field]))
+		row.dropdown:SetText(Alerts.Label(Alerts.SOUNDS, get()))
 	end
 	return row
+end
+
+local function SoundRow(parent, category, field, label)
+	return ns.SoundPicker(parent, label,
+		function() return ns.db.alerts.defaults[category][field] end,
+		function(v) ns.db.alerts.defaults[category][field] = v end)
 end
 
 -- A default's row: a picker, for sounds a dropdown and a Test button, for glows a sample.

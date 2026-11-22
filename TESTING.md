@@ -127,7 +127,11 @@ the build and date.
     Devices...); pick one: it plays. "Its name on screen with its sounds": "Charge ready" near
     the top as the sound plays, fading. "Sound when it's back to full charges", if your class
     has a charge spell.
-39. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+39. The interrupt bar (Icon bars tab, at the end): set a focus (/focus) on a caster: as it
+    casts, the bar fills with the spell's name, a shield on uninterruptible casts, Pummel (or
+    your interrupt) beside it with its cooldown; the sound as it starts; gone when the cast ends.
+    "Whose casts: Your target" the same for the target. /lecdm move to drag it.
+40. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

@@ -92,6 +92,10 @@ local function NewRegion(kind, name, parent)
 		return self.fillTexture
 	end
 	function f:SetTimerDuration(d) self.timerDuration = d end
+	function f:SetAlphaFromBoolean(v, yes, no)
+		if v == SECRET then self.alpha = "secret" return end
+		self.alpha = v and yes or no
+	end
 	function f:SetCountdownMillisecondsThreshold(v) self.msThreshold = v end
 	function f:SetDrawEdge(v) self.edge = v end
 	function f:SetDrawSwipe(v) self.drawSwipe = v end
@@ -299,6 +303,17 @@ function IsMounted() return M.mounted end
 function IsResting() return M.resting end
 function UnitInVehicle() return false end
 function UnitCanAttack() return M.target ~= nil and M.target.enemy == true end
+-- Casts: M.casting[unit] = { name, notInterruptible } while it casts; secret in combat.
+M.casting = {}
+function UnitCastingDuration(unit) return M.casting[unit] and { cast = unit } end
+function UnitChannelDuration() return nil end
+function UnitCastingInfo(unit)
+	local c = M.casting[unit]
+	if not c then return nil end
+	if M.combat then return SECRET, SECRET, SECRET, SECRET, SECRET, false, SECRET, SECRET, SECRET end
+	return c[1], c[1], 1, 0, 1000, false, "guid", c[2], 1
+end
+function UnitChannelInfo() return nil end
 -- Talents: one trait tree; M.talentsTaken[nodeID] = true for a talent with a rank bought.
 M.talentsTaken = { [501] = true }
 local TALENTS = { [501] = { "Tactical Mastery", 1 }, [502] = { "Improved Overpower", 1 }, [601] = { "Flurry", 2 } }

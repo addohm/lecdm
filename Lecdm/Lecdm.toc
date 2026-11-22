@@ -27,6 +27,7 @@ Bars.lua
 Auras.lua
 Hosted.lua
 ButtonGlows.lua
+Kick.lua
 Blizz.lua
 
 UI\Theme.lua

@@ -116,6 +116,11 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 - Quiet when a mob dies with your debuffs on it.
 - Defaults for everything, and each spell or buff can have its own.
 
+#### The interrupt bar
+
+- Your focus's (or target's) cast with its name and a shield when it can't be interrupted, your
+  interrupt's cooldown next to it, and a sound as it starts casting. In combat too.
+
 #### Button glows
 
 - Glows on your own action buttons (any bar addon's), by rule: while a spell is ready and

@@ -315,6 +315,32 @@ M.RunTimers()
 check(not charge.pushed.shown, "the pressed look didn't go")
 cdBar.pressMirror = false
 M.actions[9] = nil
+-- The interrupt bar: your interrupt's icon, the focus's cast (its duration to the bar, its name,
+-- the can't-interrupt shield from the secret flag in combat), a sound as it starts; gone as it stops.
+M.known = { [6552] = true }
+M.spells[6552] = { name = "Pummel", texture = 5 }
+ns.db.kick.enabled, ns.db.kick.sound = true, "RAID_WARNING"
+ns.Refresh()
+local kickFrame
+for _, f in ipairs(M.frames) do
+	if f.bar and f.shield and f.cd then kickFrame = f end
+end
+check(kickFrame and kickFrame.shown and kickFrame.alpha == 0 and kickFrame.icon.texture == 5, "the interrupt bar wrong before a cast")
+M.casting.focus = { "Shadow Bolt", true }
+M.combat = true
+heard = #M.sounds
+M.Fire("UNIT_SPELLCAST_START", "focus")
+check(kickFrame.alpha == 1 and kickFrame.bar.timerDuration and kickFrame.bar.timerDuration.cast == "focus"
+	and kickFrame.name.text == M.SECRET and kickFrame.shield.alpha == "secret", "the focus's cast not on the interrupt bar")
+check(M.sounds[#M.sounds] == SOUNDKIT.RAID_WARNING, "no sound as the focus started casting")
+M.casting.focus = nil
+M.Fire("UNIT_SPELLCAST_STOP", "focus")
+check(kickFrame.alpha == 0, "the interrupt bar stayed after the cast")
+M.combat = false
+ns.db.kick.enabled, ns.db.kick.sound = false, "none"
+ns.Refresh()
+check(not kickFrame.shown, "the interrupt bar shown when off")
+M.known = nil
 -- Blizzard's sounds in the choices, by group; a kit plays; the name on screen with a sound.
 ns.Alerts.AddBlizzardSounds()
 check(#ns.Alerts.SOUND_GROUPS == 2 and ns.Alerts.SOUND_GROUPS[1][1] == "Animals" and ns.Alerts.Label(ns.Alerts.SOUNDS, "kit:316415") == "Animals: Wolf",

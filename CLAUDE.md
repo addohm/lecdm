@@ -72,6 +72,10 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     (a presence container), `stacks` (an aura slot's application bar), health (a hidden bar
     given UnitHealth, secret in combat) opening clipped windows; aura parts out of combat only
     (`pending`). The tab: `UI/Pages/ButtonGlows.lua` (id "buttons").
+  - `Kick.lua`: the interrupt bar (`ns.db.kick`): the focus's or target's cast from
+    `UnitCastingDuration` / `UnitChannelDuration` (duration objects to `SetTimerDuration`), its
+    name and the can't-interrupt shield (`SetAlphaFromBoolean`) from secrets as they are, your
+    interrupt (`K.SPELLS` by class) with its cooldown; unit events on `UNIT_SPELLCAST_*`.
   - `Alerts.lua`: sounds (`A.SOUNDS`, `A.Play`: SOUNDKIT names, "kit:<id>" (Blizzard's Cooldown
     Manager's, from `CooldownViewerSoundData`: `A.AddBlizzardSounds`, `A.SOUND_GROUPS`) or "say",
     text to speech; the `screen` text, `A.ShowText`) and
