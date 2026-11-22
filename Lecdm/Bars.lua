@@ -1043,7 +1043,7 @@ local function ItemState(b, bar)
 	local v = (bar.dark and usable == false) and 0.4 or 1
 	b.icon:SetVertexColor(v, v, v)
 	local n = kind == "item" and B.ItemCount(id) or 0
-	local showCount = bar.itemCount ~= "never" and not (bar.itemCount == "ooc" and InCombatLockdown())
+	local showCount = bar.itemCount ~= "never" and not (bar.itemCount == "ooc" and ns.InCombat())
 	if kind == "item" and n == 0 then
 		b.icon:SetDesaturated(true)
 		b.icon:SetVertexColor(0.4, 0.4, 0.4)

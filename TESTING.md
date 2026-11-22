@@ -114,7 +114,9 @@ the build and date.
 34. Visibility: an icon bar "Hide it when: Mounted": gone on a mount, back off it; "Only when:
     In a dungeon": only inside; "In a party" + "With an enemy target", any: either. A buff
     group and Blizzard's icons the same.
-35. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+35. Alerts tab, "Every glow": pixel glow 4 dashes, 1 px, fast; "Solid fill" as a glow; "Glows
+    only in combat": an icon's ready glow only shows in a fight, from its first moment.
+36. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

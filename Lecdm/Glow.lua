@@ -21,7 +21,27 @@ Glow.STYLES = {
 	{ "gcd", "GCD" },
 	{ "modern", "Modern WoW glow" },
 	{ "classic", "Classic WoW glow" },
+	{ "fill", "Solid fill" },
 }
+
+-- The pixel glow's settings (ns.db.alerts.pixel): dashes per side, their thickness, how long a
+-- dash takes along its stretch (seconds: shorter is faster).
+Glow.PIXEL_LINES = { { 1, "1 a side" }, { 2, "2 a side" }, { 3, "3 a side" }, { 4, "4 a side" } }
+Glow.PIXEL_THICKNESS = { { 1, "1 px" }, { 2, "2 px" }, { 3, "3 px" }, { 4, "4 px" } }
+Glow.PIXEL_SPEEDS = { { 1, "Slow" }, { 0.6, "Normal" }, { 0.35, "Fast" } }
+local PIXEL_DEFAULT = { lines = 2, thickness = 2, speed = 0.6 }
+
+local function Pixel()
+	local p = ns.db and ns.db.alerts and ns.db.alerts.pixel or PIXEL_DEFAULT
+	return p.lines or 2, p.thickness or 2, p.speed or 0.6
+end
+
+-- What the pixel glow's settings add to a glow's key ("" while they're the defaults).
+function Glow.PixelKey()
+	local lines, thick, speed = Pixel()
+	if lines == 2 and thick == 2 and speed == 0.6 then return "" end
+	return ":px" .. lines .. "-" .. thick .. "-" .. speed
+end
 
 Glow.COLORS = {
 	{ "gold", "Gold" }, { "white", "White" }, { "red", "Red" }, { "orange", "Orange" },
@@ -110,26 +130,27 @@ function Builders.pulse(owner, color, size, out)
 	table.insert(out.groups, group)
 end
 
--- Dashes marching clockwise around the edge, two per side.
+-- Dashes marching clockwise around the edge (two a side, or as set).
 function Builders.pixel(owner, color, size, out)
+	local lines, thick, speed = Pixel()
 	local group = Looping(owner)
 	local edge = size + 4
-	local len = math.max(4, math.floor(size * 0.25))
-	local travel = (edge - len) / 2
+	local len = math.max(4, math.floor(size * 0.25 * 2 / lines))
+	local travel = (edge - len) / lines
 	-- side: anchor point, the dash's offset from it for a start position s, its size, its direction
 	local sides = {
-		{ "TOPLEFT", function(s) return -2 + s, 2 end, len, 2, travel, 0 },
-		{ "TOPRIGHT", function(s) return 2, 2 - s end, 2, len, 0, -travel },
-		{ "BOTTOMRIGHT", function(s) return 2 - s, -2 end, len, 2, -travel, 0 },
-		{ "BOTTOMLEFT", function(s) return -2, -2 + s end, 2, len, 0, travel },
+		{ "TOPLEFT", function(s) return -2 + s, 2 end, len, thick, travel, 0 },
+		{ "TOPRIGHT", function(s) return 2, 2 - s end, thick, len, 0, -travel },
+		{ "BOTTOMRIGHT", function(s) return 2 - s, -2 end, len, thick, -travel, 0 },
+		{ "BOTTOMLEFT", function(s) return -2, -2 + s end, thick, len, 0, travel },
 	}
 	for _, side in ipairs(sides) do
-		for _, start in ipairs({ 0, travel }) do
+		for k = 0, lines - 1 do
 			local dash = Solid(owner, color)
 			dash:SetSize(side[3], side[4])
-			dash:SetPoint(side[1], owner, side[1], side[2](start))
+			dash:SetPoint(side[1], owner, side[1], side[2](k * travel))
 			table.insert(out.regions, dash)
-			Move(group, dash, side[5], side[6], 0.6)
+			Move(group, dash, side[5], side[6], speed)
 		end
 	end
 	table.insert(out.groups, group)
@@ -230,6 +251,14 @@ function Builders.classic(owner, color, size, out)
 	table.insert(out.groups, group)
 end
 
+-- A solid colour over the icon, half see-through.
+function Builders.fill(owner, color, size, out)
+	local t = Solid(owner, color, 7)
+	t:SetAllPoints(owner)
+	t:SetAlpha(0.5)
+	table.insert(out.regions, t)
+end
+
 function Glow.Build(owner, style, color, size)
 	local out = { regions = {}, groups = {} }
 	local builder = Builders[style]
@@ -252,7 +281,7 @@ end
 -- Keeps one active glow per style/colour/size on one of our frames, making them as needed.
 function Glow.Show(owner, style, color, size)
 	owner.glows = owner.glows or {}
-	local key = style .. ":" .. tostring(color) .. ":" .. size
+	local key = style .. ":" .. tostring(color) .. ":" .. size .. (style == "pixel" and Glow.PixelKey() or "")
 	for k, built in pairs(owner.glows) do
 		if k ~= key then Glow.SetActive(built, false) end
 	end

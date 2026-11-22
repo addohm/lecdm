@@ -26,6 +26,8 @@ local DEFAULTS = {
 			blizzard = { applied = "none", removed = "none", deaths = false },
 		},
 		spells = {}, buffs = {}, blizzard = {},
+		pixel = { lines = 2, thickness = 2, speed = 0.6 }, -- the pixel glow's look (Glow.lua)
+		combatOnly = false,                                -- glows only in combat (icon bars, missing)
 	},
 	-- saved looks by name (Bars.lua: B.SaveStyle), for icon bars and for buff groups
 	styles = { bars = {}, buffs = {} },
@@ -59,6 +61,13 @@ function ns.DeepCopy(t)
 	local copy = {}
 	for k, v in pairs(t) do copy[k] = type(v) == "table" and ns.DeepCopy(v) or v end
 	return copy
+end
+
+-- In combat, already as PLAYER_REGEN_DISABLED fires (InCombatLockdown is still false then).
+function ns.InCombat()
+	if InCombatLockdown() then return true end
+	local ok, yes = pcall(UnitAffectingCombat, "player")
+	return ok and not ns.IsSecret(yes) and yes == true
 end
 
 function ns.Print(msg)

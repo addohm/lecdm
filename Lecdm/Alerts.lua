@@ -136,7 +136,8 @@ function A.OnIcon(b, bar, onCooldown, usable)
 	end
 	last[b] = { key = key, onCooldown = onCooldown }
 	local style = "none"
-	if b.shown ~= false then
+	local quiet = ns.db.alerts.combatOnly and not ns.InCombat()
+	if b.shown ~= false and not quiet then
 		if name and procs[name] then
 			style = A.Get("spells", key, "procGlow")
 		end

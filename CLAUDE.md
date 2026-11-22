@@ -53,7 +53,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     ID, `.bySpell`, `.sections`, `.Spells(sections, all)`, `.Name(cooldownID)`), `/lecdm list`.
     It gives Blizzard's default sections, not where the player put things in `/cdm`.
   - `Glow.lua`: the owner's glow styles (`Glow.STYLES`, `Glow.COLORS`, `Glow.Build`, `Glow.Show`):
-    textures and Alpha/Translation/Rotation/FlipBook animations only.
+    textures and Alpha/Translation/Rotation/FlipBook animations only; the pixel glow's settings
+    (`ns.db.alerts.pixel`, `Glow.PixelKey()` in keys), a solid fill. `ns.InCombat()` (Core) is
+    right during PLAYER_REGEN_DISABLED, when `InCombatLockdown()` isn't yet.
   - `Visibility.lua`: `V.Alpha(cfg)` from `showWhen` / `alpha` / `oocAlpha` (bars, groups,
     Blizzard's places) and the conditions (`V.CONDITIONS`; `showIf` with `showMatch`, `hideIf`:
     `V.Allowed`; the tabs' `UI.ConditionsRow`), `V.Apply()` on combat, target, group, zone,

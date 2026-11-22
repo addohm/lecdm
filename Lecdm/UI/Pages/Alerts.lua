@@ -166,11 +166,33 @@ ns.Window.Page({
 		stack:Add(UI.OptionText(stack.inner,
 			"Grey or faded while it's up, so a missing one stands out: icons come back to full strength at the warning time (once Lecdm knows the buff's duration), in combat too; timer bars stay as they are. Glows always show at full strength. While it's missing: what a keep-up buff's place shows (set the buff to Keep up on the Buffs tab).", 56))
 
+		stack:Add(UI.OptionHeading(stack.inner, "Every glow"))
+		local function PixelRow(label, field, list)
+			return UI.OptionSelect(stack.inner, label, list,
+				function() return ns.db.alerts.pixel[field] end,
+				function(v)
+					ns.db.alerts.pixel[field] = v
+					ns.Refresh()
+				end)
+		end
+		stack:Add(PixelRow("Pixel glow: dashes", "lines", ns.Glow.PIXEL_LINES))
+		stack:Add(PixelRow("Pixel glow: thickness", "thickness", ns.Glow.PIXEL_THICKNESS))
+		stack:Add(PixelRow("Pixel glow: speed", "speed", ns.Glow.PIXEL_SPEEDS))
+		stack:Add(UI.OptionCheck(stack.inner, "Glows only in combat",
+			function() return ns.db.alerts.combatOnly end,
+			function(v)
+				ns.db.alerts.combatOnly = v
+				ns.Refresh()
+			end,
+			{ "Only in combat", "Icon bars' glows and the missing glow show only in combat. (Glows on the game's own buff buttons can't be switched as a fight starts: they stay as set.)" }))
+
 		stack:Add(UI.OptionHeading(stack.inner, "Blizzard's icons and timer bars"))
 		for _, f in ipairs(FIELDS.blizzard) do stack:Add(DefaultRow(stack.inner, "blizzard", f)) end
 		stack:Add(UI.OptionText(stack.inner, "Your debuffs on the target among them. When a mob dies every debuff on it goes at once: Lecdm stays quiet then, unless \"Also when your target dies\".", 40))
 	end,
 	defaults = function()
 		ns.db.alerts.defaults = ns.DeepCopy(ns.DEFAULTS.alerts.defaults)
+		ns.db.alerts.pixel = ns.DeepCopy(ns.DEFAULTS.alerts.pixel)
+		ns.db.alerts.combatOnly = ns.DEFAULTS.alerts.combatOnly
 	end,
 })

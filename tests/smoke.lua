@@ -338,6 +338,20 @@ ns.Refresh()
 check(cooldowns.alpha == 1, "not shown with only when resting or solo, solo")
 cdBar.showIf, cdBar.showMatch = nil, nil
 ns.Refresh()
+-- Glows: the pixel glow's dashes in its key; a solid fill; only in combat.
+ns.db.alerts.defaults.spells.cdGlow = "pixel"
+ns.db.alerts.pixel.lines = 3
+ns.Refresh()
+check(charge.glow.glows["pixel:gold:40:px3-2-0.6"] and #charge.glow.glows["pixel:gold:40:px3-2-0.6"].regions == 12, "the pixel glow's dashes wrong")
+ns.db.alerts.pixel.lines = 2
+ns.db.alerts.defaults.spells.cdGlow = "fill"
+ns.Refresh()
+check(charge.glow.glows["fill:gold:40"] and charge.glow.glows["fill:gold:40"].regions[1].shown, "no solid fill glow")
+ns.db.alerts.combatOnly = true
+ns.Refresh()
+check(not charge.glow.glows["fill:gold:40"].regions[1].shown, "a glow out of combat with glows only in combat")
+ns.db.alerts.combatOnly, ns.db.alerts.defaults.spells.cdGlow = false, "none"
+ns.Refresh()
 -- Overflow: past the most, the rest go on to another bar, after its own; rows up.
 cdBar.maxIcons, cdBar.overflowTo = 1, ns.db.bars.list[2].id
 ns.Refresh()

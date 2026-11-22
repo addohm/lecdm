@@ -564,6 +564,7 @@ function A.AlertLook(name)
 		.. ":" .. Get("buffs", name, "warnGlow") .. ":" .. total
 		.. ":" .. Get("buffs", name, "upAlpha") .. ":" .. tostring(Get("buffs", name, "upGrey"))
 		.. ":" .. Get("buffs", name, "stackGlow") .. ":" .. Get("buffs", name, "stackOp") .. Get("buffs", name, "stackCount")
+		.. ns.Glow.PixelKey()
 end
 
 -- A group's look and visibility (also for groups made before a setting existed).
@@ -1008,6 +1009,15 @@ local function PlaceMissing(f, group, name, x, y, w, h)
 	end
 	StyleCopy(c, group, ns.Alerts.Get("buffs", name, "missingLook") or "red", ns.Alerts.Get("buffs", name, "missingAlpha") or 1)
 	ns.Glow.Show(p.glow, ns.Alerts.Get("buffs", name, "missingGlow"), ns.Alerts.Get("buffs", name, "missingColor"), h)
+	p.glow:SetAlpha((ns.db.alerts.combatOnly and not ns.InCombat()) and 0 or 1)
+end
+
+-- "Glows only in combat": the missing glows (Lecdm's own frames) follow combat.
+function A.GlowsForCombat()
+	local quiet = ns.db.alerts.combatOnly and not ns.InCombat()
+	for _, f in pairs(frames) do
+		for _, p in pairs(f.presence) do pcall(p.glow.SetAlpha, p.glow, quiet and 0 or 1) end
+	end
 end
 
 local function HideMissing(f, name)
@@ -1265,6 +1275,7 @@ end
 
 local events = CreateFrame("Frame")
 events:RegisterEvent("PLAYER_REGEN_ENABLED")
+events:RegisterEvent("PLAYER_REGEN_DISABLED")
 events:RegisterUnitEvent("UNIT_AURA", "player")
 events:RegisterEvent("WEAPON_ENCHANT_CHANGED")
 events:SetScript("OnEvent", function(_, event, unit)
@@ -1272,7 +1283,10 @@ events:SetScript("OnEvent", function(_, event, unit)
 	if event == "UNIT_AURA" or event == "WEAPON_ENCHANT_CHANGED" then
 		if (event == "UNIT_AURA" and unit ~= "player") or InCombatLockdown() then return end
 		if LearnFromBuffs() then A.Build() end
+	elseif event == "PLAYER_REGEN_DISABLED" then
+		A.GlowsForCombat()
 	elseif event == "PLAYER_REGEN_ENABLED" then
+		A.GlowsForCombat()
 		local learned = LearnFromBuffs()
 		if pending or learned then A.Build() end
 	end

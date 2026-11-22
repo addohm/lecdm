@@ -140,6 +140,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     while it's missing: a copy in **full colour**, **grey** or **dimmed red** (the default), at
     its own opacity. For "grey and faded while up, full colour and glowing while missing": Grey
     while it's up Yes, Opacity 40%, Look while it's missing Full colour, and the buff on Keep up.
+  - Every glow: the pixel glow's dashes a side, thickness and speed; glows only in combat (icon
+    bars' and the missing glow; glows on the game's buff buttons stay as set). A **solid fill**
+    style joins the seven.
   - Blizzard's icons and timer bars: sounds when it's applied and when it drops; quiet when
     your target dies, unless "Also when your target dies".
 - **Diagnostics:** where Lecdm's diagnostic lines go ("Show them in" the main chat window, a
