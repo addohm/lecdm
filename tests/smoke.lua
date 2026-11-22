@@ -220,6 +220,15 @@ check(ns.Bars.AddByID(cdBar, "item:5512") and ns.Bars.BarOf("item:5512") == cdBa
 ns.Bars.SetOnBar(cdBar, "item:5512", false)
 ns.Bars.SetOnBar(cdBar, spaceKey, false)
 check(#cdBar.spells == spellsBefore, "the space or the item stayed")
+-- Saved styles: a bar's look under a name, given to another; deleted.
+cdBar.size, cdBar.barColor = 32, "red"
+ns.Bars.SaveStyle("bars", cdBar, "Red")
+cdBar.size, cdBar.barColor = 40, "blue"
+ns.Bars.ApplyStyle("bars", ns.db.bars.list[2], "Red")
+check(ns.db.bars.list[2].size == 32 and ns.db.bars.list[2].barColor == "red" and cdBar.size == 40, "a saved style wrong")
+ns.Bars.DeleteStyle("bars", "Red")
+check(ns.db.styles.bars.Red == nil, "a style wasn't deleted")
+ns.db.bars.list[2].size, ns.db.bars.list[2].barColor = 40, "blue"
 -- Copying a bar's look to every bar: the look, not the spells or place.
 cdBar.size, cdBar.shape = 36, "Round"
 ns.Bars.CopyLook(cdBar)
@@ -1113,6 +1122,20 @@ M.Slash("bars")
 local panel = ns.Window.CurrentPanel()
 local first = ns.db.bars.list[1]
 check(panel.parts.spellRows[#first.spells] and panel.parts.spellRows[1].key == first.spells[1], "spell rows missing")
+-- The saved styles row: save the bar's look by name from its menu; it lists it.
+local styleRow
+for _, row in ipairs(panel.parts.top) do
+	if row.label and row.label.text == "Saved styles" then styleRow = row end
+end
+local styleMenu = M.Menu()
+styleRow.dropdown.generator(nil, styleMenu)
+styleMenu.children[1].onClick()
+M.Accept("Mine")
+check(ns.db.styles.bars.Mine and ns.db.styles.bars.Mine.size == first.size, "saving a style from the tab didn't")
+styleMenu = M.Menu()
+styleRow.dropdown.generator(nil, styleMenu)
+check(styleMenu.children[2].text == "Mine" and styleMenu.children[2].children[1].text == "Give it to this one", "the saved style isn't listed")
+ns.Bars.DeleteStyle("bars", "Mine")
 -- An empty space on the bar shows in the tab's rows and the preview.
 ns.Bars.AddSpace(first)
 ns.Window.Refresh()

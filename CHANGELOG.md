@@ -25,6 +25,7 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- Saved styles: an icon bar's or buff group's look saved by name, given to one or every other.
 - Stack bars: a buff's timer bar filled by its stacks instead of its time (up to 2 to 20),
   with ticks and up to five colours from a number of stacks, drawn by the game in combat too.
 - Timer bars (icon bars' and buff groups'): a spark, a gradient, filling or draining from the

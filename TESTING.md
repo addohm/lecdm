@@ -109,7 +109,9 @@ the build and date.
 32. A stacking buff in a group of timer bars, its ⚙ "Stack bar: fill by stacks, up to" 3
     (Flurry) or 5, ticks on, a colour from 2: the bar fills a third (fifth) per stack, red
     past 2, in combat too.
-33. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+33. "Saved styles" (Icon bars and Buffs tabs): save a bar's look, change another bar, give it
+    the style: it takes the look, keeping its own spells and place; delete the style.
+34. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

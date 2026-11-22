@@ -310,6 +310,75 @@ local function Conditions(root, key)
 	end
 end
 
+-- Saved styles: a row with a menu to save the look shown under a name, and to apply or delete
+-- the saved ones. kind: "bars" or "buffs"; current: the bar or group shown; all: every one.
+StaticPopupDialogs.LECDM_STYLE = {
+	text = "Name the style:",
+	button1 = OKAY,
+	button2 = CANCEL,
+	hasEditBox = true,
+	maxLetters = 32,
+	OnShow = function(dialog)
+		local box = dialog:GetEditBox()
+		box:SetText("")
+		box:SetFocus()
+	end,
+	OnAccept = function(dialog, data)
+		local name = strtrim(dialog:GetEditBox():GetText() or "")
+		if name ~= "" then
+			Bars.SaveStyle(data.kind, data.from, name)
+			ns.Window.Refresh()
+		end
+	end,
+	EditBoxOnEnterPressed = function(box)
+		local dialog = box:GetParent()
+		if dialog and dialog.GetButton1 then dialog:GetButton1():Click() end
+	end,
+	EditBoxOnEscapePressed = function(box) box:GetParent():Hide() end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+}
+
+function ns.StyleRow(parent, kind, current, all)
+	local row = CreateFrame("Frame", nil, parent)
+	row:SetHeight(36)
+	row.label = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	row.label:SetPoint("LEFT", 16, 0)
+	row.label:SetText("Saved styles")
+	row.dropdown = CreateFrame("DropdownButton", nil, row, "WowStyle1FilterDropdownTemplate")
+	row.dropdown:SetPoint("LEFT", 330, 0)
+	row.dropdown:SetSize(150, 24)
+	row.dropdown:SetupMenu(function(_, root)
+		local target = current()
+		if not target then return end
+		root:CreateButton("Save this look as a style...", function()
+			StaticPopup_Show("LECDM_STYLE", nil, nil, { kind = kind, from = target })
+		end)
+		local names = {}
+		for name in pairs(ns.db.styles[kind]) do names[#names + 1] = name end
+		table.sort(names)
+		if #names > 0 then root:CreateDivider() end
+		for _, name in ipairs(names) do
+			local sub = root:CreateButton(name)
+			sub:CreateButton("Give it to this one", function() Bars.ApplyStyle(kind, current(), name) end)
+			sub:CreateButton("Give it to every one", function()
+				for _, t in ipairs(all()) do Bars.ApplyStyle(kind, t, name) end
+			end)
+			sub:CreateButton("Delete it", function()
+				Bars.DeleteStyle(kind, name)
+				ns.Window.Refresh()
+			end)
+		end
+	end)
+	row.Sync = function()
+		local n = 0
+		for _ in pairs(ns.db.styles[kind]) do n = n + 1 end
+		row.dropdown:SetText(n == 1 and "1 style" or (n .. " styles"))
+	end
+	return row
+end
+
 -- The preview: the bar's entries as icons in its order (greyed when they can't show now). Drag
 -- one onto another to move it there; right-click for its ⚙ menu; middle-click takes it off.
 local PREVIEW = 30
@@ -691,6 +760,7 @@ ns.Window.Page({
 			UI.OptionSelect(stack.inner, "Opacity", V.ALPHAS, alphaGet, alphaSet),
 			UI.OptionSelect(stack.inner, "Out of combat", V.OOC, oocGet, oocSet,
 				{ tooltip = { "Out of combat", "Its opacity out of combat, as a share of the opacity above: fade it, or hide it, while you're not fighting." } }),
+			ns.StyleRow(stack.inner, "bars", Current, function() return ns.db.bars.list end),
 			UI.OptionButton(stack.inner, "Its look and layout", "Copy to every bar", function()
 				local bar = Current()
 				if not bar then return end

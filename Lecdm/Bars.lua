@@ -515,6 +515,32 @@ function B.AddByID(bar, text)
 	return true
 end
 
+-- Saved styles: a bar's or group's look (B.LOOK / Auras.LOOK) under a name, to give to others.
+-- kind: "bars" or "buffs".
+local function LookOf(kind)
+	return kind == "bars" and B.LOOK or ns.Auras.LOOK
+end
+
+function B.SaveStyle(kind, from, name)
+	local look = {}
+	for k in pairs(LookOf(kind)) do
+		local v = from[k]
+		look[k] = type(v) == "table" and ns.DeepCopy(v) or v
+	end
+	ns.db.styles[kind][name] = look
+end
+
+function B.ApplyStyle(kind, to, name)
+	local look = ns.db.styles[kind][name]
+	if not look then return end
+	for k, v in pairs(look) do to[k] = type(v) == "table" and ns.DeepCopy(v) or v end
+	ns.Refresh()
+end
+
+function B.DeleteStyle(kind, name)
+	ns.db.styles[kind][name] = nil
+end
+
 -- Copies a bar's look and layout (everything in B.LOOK) to every other icon bar.
 function B.CopyLook(from)
 	for _, bar in ipairs(ns.db.bars.list) do

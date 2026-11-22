@@ -27,6 +27,8 @@ local DEFAULTS = {
 		},
 		spells = {}, buffs = {}, blizzard = {},
 	},
+	-- saved looks by name (Bars.lua: B.SaveStyle), for icon bars and for buff groups
+	styles = { bars = {}, buffs = {} },
 	-- the cooldown bars (Bars.lua): list = { bar ... } (B.NewBar has a bar's fields), seeded once
 	-- from Blizzard's list, and whether Blizzard's Essential and Utility viewers are made invisible
 	bars = { list = {}, seeded = false, nextID = 1, hideBlizzard = true },

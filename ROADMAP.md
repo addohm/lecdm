@@ -161,7 +161,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
       text turns red already)
 - [x] Custom names; the name's size (time and stacks text: the look rows) (2026-11-22)
 - [ ] A decimal under a set time on buff timer bars (needs the game's number formatter)
-- [ ] Saved styles, applied to a bar or a group
+- [x] Saved styles, applied to a bar or a group (2026-11-22)
 
 **Visibility**
 

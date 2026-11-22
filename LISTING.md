@@ -72,6 +72,7 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
   time, stacks and a glow, in combat too.
 - Icon shapes: square, round, rounded, diamond, hexagon; a background behind a bar.
 - Icons show pressed as you press their key.
+- Saved styles: save a look by name and give it to other bars or groups.
 - Fonts and outlines for the text, where the count and keybind sit, a keybind badge.
 - Anchor bars and buff groups to each other (or a bar to your cursor), so they move together.
 - Rows going up or down, a second row's size, and overflow: past so many icons the rest go on
