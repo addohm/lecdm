@@ -203,6 +203,13 @@ ns.Refresh()
 check(not charge.useBinding and charge.cd.msThreshold == 5 and charge.cd.hideNumbers == false, "the decimal near the end wrong")
 cdBar.threshold, cdBar.thresholdColor, cdBar.thresholdDecimals = 0, "red", false
 ns.Refresh()
+-- A spell's own look: its border and colour, its icon; Default (nil) back to the bar's.
+ns.Bars.SetLook(cdBar, 100, "border", 3)
+ns.Bars.SetLook(cdBar, 100, "icon", 132333)
+check(charge.edge.points[1][2] == -3 and charge.icon.texture == 132333 and revenge.edge.points[1][2] == -1, "a spell's own look wrong")
+ns.Bars.SetLook(cdBar, 100, "border", nil)
+ns.Bars.SetLook(cdBar, 100, "icon", nil)
+check(charge.edge.points[1][2] == -1 and charge.icon.texture ~= 132333 and cdBar.looks[100] == nil, "a spell's look didn't go back to the bar's")
 -- The swipe: reversed, its colour, the edge; none.
 cdBar.swipe, cdBar.swipeColor, cdBar.edge = "reverse", "gold", true
 ns.Refresh()
@@ -973,6 +980,19 @@ check(firstButton.shown, "a spell not shown with the talent it needs")
 M.talentsTaken[502] = nil
 ns.Bars.SetTalent(first, spellKey, nil)
 M.Fire("TRAIT_CONFIG_UPDATED")
+-- ... its own icon, from a popup: an item's; empty: its own again.
+panel.parts.spellRows[1].gear.scripts.OnClick(panel.parts.spellRows[1].gear)
+local iconItem
+for _, c in ipairs(M.contextMenu.children) do
+	if c.text:find("^Icon%.%.%.") then iconItem = c end
+end
+iconItem.onClick()
+check(M.popup and M.popup.which == "LECDM_ICON", "the icon popup didn't open")
+M.Accept("item:5512")
+check(first.looks[spellKey].icon == 7 and firstButton.icon.texture == 7, "the item's icon wasn't used")
+iconItem.onClick()
+M.Accept("")
+check(first.looks == nil or first.looks[spellKey] == nil, "empty didn't give it its own icon back")
 local root = M.Menu()
 panel.parts.top[#panel.parts.top].dropdown.generator(nil, root)
 check(root.children[1].text == "Blizzard's Essential" and root.children[2].text == "Blizzard's Utility", "checklist sections wrong")

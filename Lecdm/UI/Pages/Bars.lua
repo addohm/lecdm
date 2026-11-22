@@ -154,11 +154,73 @@ local function SmallButton(row, texture, x, tip, onClick)
 	return b
 end
 
--- The ⚙ menu's entries for a spell on the icon bar shown: its buff on it, its stance or form,
--- a talent.
+-- The popup for a spell's own icon: a spell ID ("spell:..."), an item ID ("item:...") or an icon's
+-- file ID; empty: its own again.
+local function IconOf(text)
+	text = strtrim(text or "")
+	local kind, id = text:match("^(%a+):(%d+)$")
+	id = tonumber(id or text)
+	if not id then return nil end
+	if kind == "spell" then
+		local ok, icon = pcall(C_Spell.GetSpellTexture, id)
+		return ok and not ns.IsSecret(icon) and icon or nil
+	elseif kind == "item" then
+		local ok, icon = pcall(C_Item.GetItemIconByID, id)
+		return ok and not ns.IsSecret(icon) and icon or nil
+	end
+	return id
+end
+
+StaticPopupDialogs.LECDM_ICON = {
+	text = "Its icon: a spell (spell:6673), an item (item:13446) or an icon's file ID (132333). Empty: its own.",
+	button1 = OKAY,
+	button2 = CANCEL,
+	hasEditBox = true,
+	maxLetters = 24,
+	OnShow = function(dialog)
+		local box = dialog:GetEditBox()
+		box:SetText("")
+		box:SetFocus()
+	end,
+	OnAccept = function(dialog, data)
+		local text = dialog:GetEditBox():GetText() or ""
+		if strtrim(text) == "" then
+			Bars.SetLook(data.bar, data.key, "icon", nil)
+			return
+		end
+		local icon = IconOf(text)
+		if icon then Bars.SetLook(data.bar, data.key, "icon", icon) else ns.Print("no icon found for '" .. text .. "'.") end
+	end,
+	EditBoxOnEnterPressed = function(box)
+		local dialog = box:GetParent()
+		if dialog and dialog.GetButton1 then dialog:GetButton1():Click() end
+	end,
+	EditBoxOnEscapePressed = function(box) box:GetParent():Hide() end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+}
+
+-- The ⚙ menu's entries for a spell on the icon bar shown: its look, its buff on it, its stance
+-- or form, a talent.
 local function Conditions(root, key)
 	local bar = Current()
 	if not (bar and key) then return end
+	root:CreateTitle("Its look")
+	local function LookMenu(label, field, list)
+		local sub = root:CreateButton(label)
+		sub:CreateRadio("As the bar's (" .. ns.Alerts.Label(list, bar[field]) .. ")",
+			function() return Bars.Own(bar, key)[field] == nil end, function() Bars.SetLook(bar, key, field, nil) end)
+		for _, v in ipairs(list) do
+			sub:CreateRadio(v[2], function() return Bars.Own(bar, key)[field] == v[1] end,
+				function() Bars.SetLook(bar, key, field, v[1]) end)
+		end
+	end
+	LookMenu("Border", "border", Bars.BORDERS)
+	LookMenu("Border colour", "borderColor", Bars.BORDER_COLORS)
+	root:CreateButton("Icon..." .. (Bars.Own(bar, key).icon and " (its own)" or ""), function()
+		StaticPopup_Show("LECDM_ICON", nil, nil, { bar = bar, key = key })
+	end)
 	if type(key) == "number" then
 		local active = root:CreateButton("While its buff is up")
 		active:CreateRadio("Show the cooldown", function() return not (bar.active and bar.active[key]) end,

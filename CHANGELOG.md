@@ -34,6 +34,8 @@ All notable changes to lecdm. The format follows
   icon (in combat too): its time as a swipe in the bar's colour for it, its stacks, a glow.
 - Icon bars: near the end of a cooldown (under a time you pick), the countdown in a colour (the
   game's duration text binding, so in combat too) or with a decimal (8.7).
+- A spell's own look on its icon bar (its ⚙): border, border colour, and its icon (another
+  spell's, an item's, or any icon by file ID).
 - The swipe, for icon bars and buff groups: normal, reversed or none, its colour, and (icon
   bars) a bright edge.
 - Charges on icon bars: the count (shown by the game, so in combat too), the recharge swipe while

@@ -49,7 +49,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     your spellbook, your equipped trinkets and on-use gear, usable items in your bags; an entry
     on another bar says "(on ...)" and ticking moves it), order them with the arrows, choose
     when each shows (always, only when ready, only when ready and usable: Overpower, Revenge,
-    Execute; only on cooldown; the others close up), and in its ⚙ menu: while its buff is up
+    Execute; only on cooldown; the others close up), and in its ⚙ menu: its own look (border,
+    border colour, an icon: a spell's, an item's or any icon's file ID), while its buff is up
     (Death Wish, Shield Block, Slice and Dice), show the buff on it (the game's own button: its
     time as a swipe in the bar's "while its buff is up" colour, its stacks, a glow; in combat
     too); when it shows: in or out of a stance or form (Battle Stance, Bear Form...) and only

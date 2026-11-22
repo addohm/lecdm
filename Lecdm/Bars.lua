@@ -189,6 +189,7 @@ function B.SetOnBar(bar, spellID, on)
 		if other.forms then other.forms[spellID] = nil end
 		if other.talents then other.talents[spellID] = nil end
 		if other.active then other.active[spellID] = nil end
+		if other.looks then other.looks[spellID] = nil end
 	end
 	if on then table.insert(bar.spells, spellID) end
 	ns.Refresh()
@@ -486,13 +487,16 @@ local activePending = false
 
 local function ActiveKey(bar, key)
 	local Get = ns.Alerts.Get
-	return table.concat({ tostring(key), bar.size, tostring(bar.zoom), bar.border, bar.borderColor, tostring(bar.countdown),
+	local own = B.Own(bar, key)
+	return table.concat({ tostring(key), bar.size, tostring(bar.zoom), own.border or bar.border, own.borderColor or bar.borderColor,
+		tostring(bar.countdown),
 		tostring(bar.activeColor), tostring(bar.tooltip), Get("spells", key, "activeGlow"), Get("spells", key, "glowColor") }, ":")
 end
 
 local function ActiveStyler(bar, key)
-	local size, z, n = bar.size, bar.zoom or 0.08, bar.border or 1
-	local er, eg, eb = B.BorderRGB(bar.borderColor)
+	local own = B.Own(bar, key)
+	local size, z, n = bar.size, bar.zoom or 0.08, own.border or bar.border or 1
+	local er, eg, eb = B.BorderRGB(own.borderColor or bar.borderColor)
 	local glow, color = ns.Alerts.Get("spells", key, "activeGlow"), ns.Alerts.Get("spells", key, "glowColor")
 	local font = B.FONTS[bar.countdown]
 	return function(button)
@@ -574,6 +578,20 @@ local function PlaceActive(b, bar)
 	for k in pairs(a.slots) do
 		if k ~= want then a.container:SetAuraSlotEnabled(k, false) end
 	end
+end
+
+-- A spell's own look on its bar (bar.looks[key]): border, borderColor, icon (a texture); nil
+-- for the bar's.
+function B.Own(bar, key)
+	return bar.looks and bar.looks[key] or {}
+end
+
+function B.SetLook(bar, key, field, value)
+	bar.looks = bar.looks or {}
+	local own = bar.looks[key] or {}
+	own[field] = value
+	bar.looks[key] = next(own) and own or nil
+	ns.Refresh()
 end
 
 function B.SetActive(bar, key, on)
@@ -818,7 +836,7 @@ function B.Build()
 			-- A bag item you have none of: hidden, or shown greyed with "0" (the bar's choice).
 			b.known = B.EntryKnown(key) or (kind == "item" and bar.emptyItems == "grey")
 			b.wanted = nil
-			b.icon:SetTexture(B.EntryIcon(key))
+			b.icon:SetTexture(B.Own(bar, key).icon or B.EntryIcon(key))
 			if b.spellID then pcall(C_Spell.EnableSpellRangeCheck, id, true) end
 			B.ApplyLook(b, bar)
 			b.bar = bar
@@ -849,11 +867,12 @@ end
 function B.ApplyLook(b, bar)
 	local z = bar.zoom or 0.08
 	b.icon:SetTexCoord(z, 1 - z, z, 1 - z)
-	local n = bar.border or 1
+	local own = B.Own(bar, b.key)
+	local n = own.border or bar.border or 1
 	b.edge:ClearAllPoints()
 	b.edge:SetPoint("TOPLEFT", -n, n)
 	b.edge:SetPoint("BOTTOMRIGHT", n, -n)
-	b.edge:SetColorTexture(B.BorderRGB(bar.borderColor))
+	b.edge:SetColorTexture(B.BorderRGB(own.borderColor or bar.borderColor))
 	b.edge:SetShown(n > 0)
 	b.cd:SetDrawSwipe(bar.swipe ~= "off")
 	b.cd:SetReverse(bar.swipe == "reverse")
