@@ -94,7 +94,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     `B.BagItems()`. Spells draw from duration objects (`SpellState`); items from plain numbers
     with `Cooldown:SetCooldown` (`ItemState`: item cooldowns aren't secret). `B.Build()` (frames, buttons,
     seeding from Blizzard's list once per profile), `Update` (one icon: swipe from the duration
-    object, grey, dark, red; returns whether it shows), `LayoutAll` (every bar in one pass:
+    object, grey, dark, red; returns whether it shows), `B.Position` (anchorTo another bar or group by id, `B.FrameOf`, `anchorSide`, or
+    "cursor"; `strata`; `B.Reposition` after the buff groups are made), `LayoutAll` (every
+    bar in one pass:
     closes gaps, `maxIcons` / `overflowTo`; `Place`: rows, `rowsBack`, `row2Size`), `B.UpdateAll` /
     `B.UpdateSpell` on events, `B.SetOnBar`, `B.MoveSpell`, `B.NewBar`, `B.Delete`,
     `B.StartOver`, `B.SetUnlocked`, `B.ApplyBlizzard`, `B.Spellbook()` (spells with a cooldown,

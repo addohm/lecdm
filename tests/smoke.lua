@@ -251,6 +251,19 @@ check(parts and charge.icon.masks[parts.mask] and parts.ring.shown and not charg
 cdBar.shape, cdBar.background = "square", 0
 ns.Refresh()
 check(not charge.icon.masks[parts.mask] and not parts.ring.shown and charge.edge.shown and not cooldowns.bg.shown, "back to square wrong")
+-- Anchored: an icon bar to a buff group, a buff group to an icon bar; the cursor; strata.
+cdBar.anchorTo, cdBar.strata = ns.db.buffs.list[1].id, "HIGH"
+ns.Refresh()
+check(cooldowns.points[1][2] == ns.Auras.AnchorOf(ns.db.buffs.list[1].id) and cooldowns.points[1][1] == "TOP", "an icon bar anchored to a buff group wrong")
+cdBar.anchorTo = "cursor"
+ns.Refresh()
+check(cooldowns.scripts.OnUpdate ~= nil, "an icon bar doesn't follow the cursor")
+cdBar.anchorTo, cdBar.strata = nil, "MEDIUM"
+ns.db.buffs.list[1].anchorTo, ns.db.buffs.list[1].anchorSide = cdBar.id, "right"
+ns.Refresh()
+check(ns.Auras.AnchorOf(ns.db.buffs.list[1].id).points[1][2] == cooldowns and cooldowns.scripts.OnUpdate == nil, "a buff group anchored to an icon bar wrong")
+ns.db.buffs.list[1].anchorTo, ns.db.buffs.list[1].anchorSide = nil, "below"
+ns.Refresh()
 -- Overflow: past the most, the rest go on to another bar, after its own; rows up.
 cdBar.maxIcons, cdBar.overflowTo = 1, ns.db.bars.list[2].id
 ns.Refresh()

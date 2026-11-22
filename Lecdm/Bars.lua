@@ -28,7 +28,8 @@ B.GROW = { { "CENTER", "Centre" }, { "LEFT", "Left / top" }, { "RIGHT", "Right /
 B.BLIZZARD = { "EssentialCooldownViewer", "UtilityCooldownViewer" }
 B.BLIZZARD_BUFFS = { "BuffIconCooldownViewer", "BuffBarCooldownViewer" }
 
-local frames = {}  -- bar id -> its frame
+local frames = {} -- bar id -> its frame
+local DefaultPos  -- the default place of the i-th bar (below)
 local unlocked = false
 local faded = {}   -- Blizzard viewer -> true while Lecdm keeps it invisible
 
@@ -51,6 +52,7 @@ B.LOOK = {
 	threshold = 0, thresholdColor = "red", thresholdDecimals = false,
 	style = "icons", barWidth = 180, barTexture = "blizzard", barColor = "blue", barName = true,
 	shape = "square", background = 0, rowsBack = false, row2Size = 0, maxIcons = 0,
+	anchorSide = "below", strata = "MEDIUM", minIcons = 0,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -218,6 +220,72 @@ local function Countdown(b, dur)
 	else
 		pcall(b.timeBinding.SetEnabled, b.timeBinding, false)
 		b.timeText:SetText("")
+	end
+end
+
+-- Where a bar or buff group sits: its own place, or anchored to another icon bar or buff group
+-- (anchorTo: its id; anchorSide: below, above, left or right of it), or (icon bars) following
+-- the mouse cursor ("cursor"). Dragging an anchored one sets it free. Its frame strata.
+B.ANCHOR_SIDES = { { "below", "Below it" }, { "above", "Above it" }, { "left", "Left of it" }, { "right", "Right of it" } }
+B.STRATAS = { { "BACKGROUND", "Background" }, { "LOW", "Low" }, { "MEDIUM", "Medium" }, { "HIGH", "High" }, { "DIALOG", "Dialog" } }
+local SIDES = {
+	below = { "TOP", "BOTTOM", 0, -1 }, above = { "BOTTOM", "TOP", 0, 1 },
+	left = { "RIGHT", "LEFT", -1, 0 }, right = { "LEFT", "RIGHT", 1, 0 },
+}
+
+-- An icon bar's or buff group's frame by its id.
+function B.FrameOf(id)
+	if not id then return nil end
+	return frames[id] or (ns.Auras and ns.Auras.AnchorOf and ns.Auras.AnchorOf(id))
+end
+
+-- What can be anchored to: every icon bar and buff group but `self` (id), and for icon bars the
+-- cursor.
+function B.AnchorTargets(selfID, cursor)
+	local list = { { nil, "Nothing (its own place)" } }
+	if cursor then list[#list + 1] = { "cursor", "The mouse cursor" } end
+	for _, bar in ipairs(ns.db.bars.list) do
+		if bar.id ~= selfID then list[#list + 1] = { bar.id, "Icon bar: " .. bar.name } end
+	end
+	for _, group in ipairs(ns.db.buffs.list) do
+		if group.id ~= selfID then list[#list + 1] = { group.id, "Buff group: " .. group.name } end
+	end
+	return list
+end
+
+local function FollowCursor(self)
+	local x, y = GetCursorPosition()
+	local scale = UIParent:GetEffectiveScale()
+	self:ClearAllPoints()
+	self:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", x / scale + 16, y / scale + 16)
+end
+
+-- Places a bar's or group's frame: anchored, following the cursor, or at pos.
+function B.Position(frame, cfg, pos)
+	frame:SetFrameStrata(cfg.strata or "MEDIUM")
+	frame:ClearAllPoints()
+	frame:SetScript("OnUpdate", nil)
+	if cfg.anchorTo == "cursor" then
+		frame:SetScript("OnUpdate", FollowCursor)
+		FollowCursor(frame)
+		return
+	end
+	local target = B.FrameOf(cfg.anchorTo)
+	local side = SIDES[cfg.anchorSide or "below"] or SIDES.below
+	if target and target ~= frame then
+		local gap = 4
+		if pcall(frame.SetPoint, frame, side[1], target, side[2], side[3] * gap, side[4] * gap) then return end
+		frame:ClearAllPoints()
+	end
+	frame:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
+end
+
+-- Places again every icon bar anchored to something (after the buff groups are made).
+function B.Reposition()
+	if not ns.db then return end
+	for i, bar in ipairs(ns.db.bars.list) do
+		local frame = frames[bar.id]
+		if frame and bar.anchorTo and bar.anchorTo ~= "cursor" then B.Position(frame, bar, bar.pos or DefaultPos(i)) end
 	end
 end
 
@@ -1010,7 +1078,7 @@ function B.UpdateAll()
 end
 
 -- The default place of the i-th bar: under the middle of the screen, one under another.
-local function DefaultPos(i)
+function DefaultPos(i)
 	return { "CENTER", "CENTER", 0, -200 - (i - 1) * 52 }
 end
 
@@ -1029,7 +1097,15 @@ local function Frame(bar)
 	frame:SetMovable(true)
 	frame:SetClampedToScreen(true)
 	frame:RegisterForDrag("LeftButton")
-	frame:SetScript("OnDragStart", frame.StartMoving)
+	frame:SetScript("OnDragStart", function(self)
+		-- Dragging an anchored bar sets it free.
+		local bar = B.Get(self.barID)
+		if bar and bar.anchorTo then
+			bar.anchorTo = nil
+			self:SetScript("OnUpdate", nil)
+		end
+		self:StartMoving()
+	end)
 	frame:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing()
 		SavePos(self)
@@ -1066,13 +1142,11 @@ function B.Build()
 			-- rows after the first can be another size
 			local size2 = math.max(12, bar.size + (bar.row2Size or 0))
 			local lines = math.ceil(n / per)
-			local across = math.min(n, per) * step - bar.gap
+			local across = math.max(math.min(n, per), bar.minIcons or 0) * step - bar.gap
 			local deep = bar.size + (lines - 1) * (size2 + bar.gap)
 			if bar.vertical then frame:SetSize(deep, across) else frame:SetSize(across, deep) end
 		end
-		local pos = bar.pos or DefaultPos(i)
-		frame:ClearAllPoints()
-		frame:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
+		B.Position(frame, bar, bar.pos or DefaultPos(i))
 		for j, key in ipairs(bar.spells) do
 			local b = Button(frame, j)
 			local kind, id = B.Kind(key)

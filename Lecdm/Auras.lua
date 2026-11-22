@@ -507,7 +507,7 @@ A.LOOK = {
 	border = 1, borderColor = "black", zoom = 0.08, timeText = "small",
 	barTexture = "blizzard", barColor = "blue", barBg = 0.5, barIcon = true, barName = true, barTime = true,
 	showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "on", swipe = "normal", swipeColor = "dark",
-	shape = "square", background = 0,
+	shape = "square", background = 0, anchorSide = "below", strata = "MEDIUM",
 }
 function A.FillLook(group)
 	for k, v in pairs(A.LOOK) do
@@ -725,7 +725,15 @@ local function Frame(group)
 	anchor:SetMovable(true)
 	anchor:SetClampedToScreen(true)
 	anchor:RegisterForDrag("LeftButton")
-	anchor:SetScript("OnDragStart", anchor.StartMoving)
+	anchor:SetScript("OnDragStart", function(self)
+		-- Dragging an anchored group sets it free.
+		local group = A.Get(self.groupID)
+		if group and group.anchorTo then
+			group.anchorTo = nil
+			self:SetScript("OnUpdate", nil)
+		end
+		self:StartMoving()
+	end)
 	anchor:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing()
 		SavePos(self)
@@ -971,9 +979,7 @@ local function PlaceGroup(f, group, i)
 	f.anchor:SetSize(width, height)
 	f.anchor.bg:SetColorTexture(0, 0, 0, group.background or 0)
 	f.anchor.bg:SetShown((group.background or 0) > 0)
-	local pos = group.pos or DefaultPos(i)
-	f.anchor:ClearAllPoints()
-	f.anchor:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
+	ns.Bars.Position(f.anchor, group, group.pos or DefaultPos(i))
 
 	local look = A.LookKey(group)
 	-- The fixed places.
@@ -1147,6 +1153,14 @@ function A.Build()
 			for _, en in pairs(f.enchants) do pcall(en.container.SetItemEnchantmentEnabled, en.container, en.slot, false) end
 		end
 	end
+	-- Icon bars anchored to a buff group follow it now that it's made.
+	ns.Bars.Reposition()
+end
+
+-- A buff group's frame by its id (what icon bars and groups can be anchored to).
+function A.AnchorOf(id)
+	local f = frames[id]
+	return f and f.anchor
 end
 
 function A.IsPending()

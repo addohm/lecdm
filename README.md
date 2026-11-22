@@ -38,7 +38,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     filling as the cooldown comes back, full when ready, with the name and the time left: bar
     height, width, texture, colour, the name on it), icon size, spacing, grow from (centre,
     left or right), vertical, icons per row, rows going up (columns left), the rows after the
-    first bigger or smaller, at most so many icons with the rest on another bar, the GCD
+    first bigger or smaller, at most so many icons with the rest on another bar, at least so
+    many icons wide, anchored to another icon bar or buff group (below, above, left or right
+    of it; dragging it sets it free) or to the mouse cursor, its strata, the GCD
     sweep, and items you have none of (hidden, or greyed with a 0);
   - its look: the icon shape (square, round, rounded square, diamond, hexagon), a background
     behind the bar, border and colour, icon zoom, the swipe (normal, reversed or none; its colour;
@@ -74,7 +76,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
 - **Buffs:** laid out like Icon bars, for buff groups: buffs on you from anyone (your own,
   another priest's Fortitude, world buffs, procs). For the group picked: its name, **Show as**
   icons (a swipe, the time left, stacks) or **timer bars** (the icon, then a bar draining to the
-  right with the name and the time left), its layout, look (icon shape, a background, border,
+  right with the name and the time left), its layout (anchored to another buff group or icon
+  bar, its strata too), look (icon shape, a background, border,
   zoom, time text, the swipe
   and its colour, the game's
   tooltip on hover: on, out of combat only, or off; for timer bars texture, colour, background,

@@ -143,7 +143,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - [x] Icon shapes (square, round, ...) and a bar background (2026-11-22)
 - [x] Rows: how many, which way, a second row's size; overflow into another bar past a number
       (2026-11-22)
-- [ ] Anchored to another bar or to the cursor; strata; a minimum width in icons
+- [x] Anchored to another bar or to the cursor; strata; a minimum width in icons (2026-11-22)
 - [ ] Fonts, outline, sizes and positions for the countdown and the count; a keybind badge
       (background, border, padding)
 - [ ] Item count never, always or out of combat; item quality; trinkets without a use

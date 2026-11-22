@@ -342,6 +342,12 @@ ns.Window.Page({
 		p.zoom = Row("select", "Icon zoom", Bars.ZOOMS, "zoom")
 		p.timeText = Row("select", "Time text", Bars.TEXT_SIZES, "timeText")
 		p.shape = Row("select", "Icon shape", Bars.SHAPES, "shape")
+		p.anchorTo = Row("select", "Anchor it to", function()
+			local group = Current()
+			return Bars.AnchorTargets(group and group.id, false)
+		end, "anchorTo", { "Anchor it to", "Another buff group or icon bar: it moves with it. Dragging it while unlocked sets it free." })
+		p.anchorSide = Row("select", "...on which side", Bars.ANCHOR_SIDES, "anchorSide")
+		p.strata = Row("select", "Strata (above or below other frames)", Bars.STRATAS, "strata")
 		p.background = Row("select", "Background behind it", Bars.BACKGROUNDS, "background")
 		p.swipe = Row("select", "Swipe", Bars.SWIPES, "swipe")
 		p.swipeColor = Row("select", "Swipe colour", Bars.SWIPE_COLORS, "swipeColor")
@@ -470,6 +476,9 @@ ns.Window.Page({
 				stack:Add(p.vertical)
 				stack:Add(p.perRow)
 			end
+			stack:Add(p.anchorTo)
+			stack:Add(p.anchorSide)
+			stack:Add(p.strata)
 			stack:Add(p.lookHead)
 			if not bars then stack:Add(p.shape) end
 			stack:Add(p.background)

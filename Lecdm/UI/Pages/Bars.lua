@@ -541,6 +541,16 @@ ns.Window.Page({
 		local backGet, backSet = Field("rowsBack")
 		local r2Get, r2Set = Field("row2Size")
 		local maxGet, maxSet = Field("maxIcons")
+		local anGet, anSet = Field("anchorTo")
+		local sideGet, sideSet = Field("anchorSide")
+		local strataGet, strataSet = Field("strata")
+		local minGet, minSet = Field("minIcons")
+		local function Targets()
+			local bar = Current()
+			return Bars.AnchorTargets(bar and bar.id, true)
+		end
+		local WIDE = { { 0, "As its icons" } }
+		for i = 1, 20 do WIDE[#WIDE + 1] = { i, i .. " icons" } end
 		local ovGet, ovSet = Field("overflowTo")
 		local function OtherBars()
 			local list, bar = { { nil, "None (they stay here)" } }, Current()
@@ -597,6 +607,11 @@ ns.Window.Page({
 				{ tooltip = { "Icons per row", "More start a new row (a new column, on a vertical bar)." } })),
 			Only("icons", UI.OptionCheck(stack.inner, "Rows go up (columns left, vertical)", backGet, backSet)),
 			Only("icons", UI.OptionSelect(stack.inner, "The rows after the first: size", ROW2, r2Get, r2Set)),
+			UI.OptionSelect(stack.inner, "Anchor it to", Targets, anGet, anSet,
+				{ tooltip = { "Anchor it to", "Another icon bar or buff group (it moves with it), or the mouse cursor. Dragging it while unlocked sets it free." } }),
+			UI.OptionSelect(stack.inner, "...on which side", Bars.ANCHOR_SIDES, sideGet, sideSet),
+			UI.OptionSelect(stack.inner, "Strata (above or below other frames)", Bars.STRATAS, strataGet, strataSet),
+			Only("icons", UI.OptionSelect(stack.inner, "At least this wide", WIDE, minGet, minSet)),
 			UI.OptionSelect(stack.inner, "At most this many icons", MOST, maxGet, maxSet,
 				{ tooltip = { "At most", "Past this many shown icons, the rest go on the bar below (or are shown here if there's none)." } }),
 			UI.OptionSelect(stack.inner, "...the rest on", OtherBars, ovGet, ovSet),

@@ -89,7 +89,10 @@ the build and date.
 25. Icon bars: "At most this many icons" 3, "...the rest on" another bar: with more than 3
     showing, the rest appear on the other bar after its own, in combat too, and come back
     as icons hide. "Rows go up"; "The rows after the first: size" +6.
-26. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+26. Anchoring: an icon bar "Anchor it to" a buff group, below it: it sits under the group and
+    moves with it (/lecdm move, drag the group); drag the bar: it's free again. "The mouse
+    cursor": the bar follows the cursor. Strata High: above the action bars.
+27. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 
