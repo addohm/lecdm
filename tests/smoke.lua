@@ -322,6 +322,22 @@ check(charge.count.font and charge.count.font[1]:find("ARIALN") and charge.count
 	and charge.count.points[1][1] == "TOPLEFT" and charge.keyBadge.alpha == 0.5, "fonts, the count's place or the badge wrong")
 cdBar.fontFace, cdBar.fontOutline, cdBar.countPos, cdBar.keyBadge = "default", "OUTLINE", "BOTTOMRIGHT", 0
 ns.Refresh()
+-- Conditions: hidden while mounted; only when resting and solo (all), or either (any).
+cdBar.hideIf = { mounted = true }
+M.mounted = true
+ns.Refresh()
+check(cooldowns.alpha == 0, "shown while mounted with hide when mounted")
+M.mounted = false
+M.Fire("PLAYER_MOUNT_DISPLAY_CHANGED")
+check(cooldowns.alpha == 1, "not back after dismounting")
+cdBar.hideIf, cdBar.showIf = nil, { resting = true, solo = true }
+ns.Refresh()
+check(cooldowns.alpha == 0, "shown with only when resting and solo, not resting")
+cdBar.showMatch = "any"
+ns.Refresh()
+check(cooldowns.alpha == 1, "not shown with only when resting or solo, solo")
+cdBar.showIf, cdBar.showMatch = nil, nil
+ns.Refresh()
 -- Overflow: past the most, the rest go on to another bar, after its own; rows up.
 cdBar.maxIcons, cdBar.overflowTo = 1, ns.db.bars.list[2].id
 ns.Refresh()
@@ -1136,6 +1152,21 @@ styleMenu = M.Menu()
 styleRow.dropdown.generator(nil, styleMenu)
 check(styleMenu.children[2].text == "Mine" and styleMenu.children[2].children[1].text == "Give it to this one", "the saved style isn't listed")
 ns.Bars.DeleteStyle("bars", "Mine")
+-- The conditions rows: ticking one in "Hide it when" sets it, unticking clears it.
+local hideRow
+for _, row in ipairs(panel.parts.top) do
+	if row.label and row.label.text == "Hide it when" then hideRow = row end
+end
+local condMenu = M.Menu()
+hideRow.dropdown.generator(nil, condMenu)
+local mountedBox
+for _, c in ipairs(condMenu.children) do
+	if c.text == "Mounted" then mountedBox = c end
+end
+mountedBox.setSelected()
+check(first.hideIf and first.hideIf.mounted and hideRow.dropdown.text == "1 thing", "ticking a condition didn't set it")
+mountedBox.setSelected()
+check(first.hideIf == nil and hideRow.dropdown.text == "Nothing", "unticking a condition didn't clear it")
 -- An empty space on the bar shows in the tab's rows and the preview.
 ns.Bars.AddSpace(first)
 ns.Window.Refresh()

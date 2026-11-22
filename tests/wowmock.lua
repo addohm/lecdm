@@ -294,6 +294,11 @@ function UnitClass(unit)
 	return "Warrior", "WARRIOR"
 end
 function IsInRaid() return false end
+M.mounted, M.resting = false, false
+function IsMounted() return M.mounted end
+function IsResting() return M.resting end
+function UnitInVehicle() return false end
+function UnitCanAttack() return M.target ~= nil and M.target.enemy == true end
 -- Talents: one trait tree; M.talentsTaken[nodeID] = true for a talent with a rank bought.
 M.talentsTaken = { [501] = true }
 local TALENTS = { [501] = { "Tactical Mastery", 1 }, [502] = { "Improved Overpower", 1 }, [601] = { "Flurry", 2 } }

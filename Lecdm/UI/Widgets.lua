@@ -212,3 +212,46 @@ function UI.Stack(parent)
 	end
 	return stack
 end
+
+-- A row with a checklist of visibility conditions (ns.Visibility.CONDITIONS) for a thing's
+-- `field` ("showIf" or "hideIf"): getCfg() gives the bar's, group's or place's settings.
+function UI.ConditionsRow(parent, label, getCfg, field, tooltip)
+	local row = CreateFrame("Frame", nil, parent)
+	row:SetHeight(36)
+	row:EnableMouse(true)
+	row.label = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	row.label:SetPoint("LEFT", 16, 0)
+	row.label:SetText(label)
+	row.dropdown = CreateFrame("DropdownButton", nil, row, "WowStyle1FilterDropdownTemplate")
+	row.dropdown:SetPoint("LEFT", 330, 0)
+	row.dropdown:SetSize(150, 24)
+	row.dropdown:SetupMenu(function(_, root)
+		local cfg = getCfg()
+		if not cfg then return end
+		for _, c in ipairs(ns.Visibility.CONDITIONS) do
+			root:CreateCheckbox(c[2], function() return cfg[field] ~= nil and cfg[field][c[1]] == true end, function()
+				cfg[field] = cfg[field] or {}
+				cfg[field][c[1]] = not cfg[field][c[1]] or nil
+				if next(cfg[field]) == nil then cfg[field] = nil end
+				ns.Refresh()
+				row.Sync()
+			end)
+		end
+	end)
+	if tooltip then
+		row:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:AddLine(tooltip[1])
+			GameTooltip:AddLine(tooltip[2], 1, 1, 1, true)
+			GameTooltip:Show()
+		end)
+		row:SetScript("OnLeave", GameTooltip_Hide)
+	end
+	row.Sync = function()
+		local cfg = getCfg()
+		local n = 0
+		for _ in pairs(cfg and cfg[field] or {}) do n = n + 1 end
+		row.dropdown:SetText(n == 0 and "Nothing" or (n == 1 and "1 thing" or (n .. " things")))
+	end
+	return row
+end

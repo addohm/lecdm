@@ -165,8 +165,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 **Visibility**
 
-- [ ] Party, raid or solo; instances and dungeons; mounted; resting; in a vehicle; an enemy
-      target; match all or any of them
+- [x] Party, raid or solo; instances and dungeons; mounted; resting; in a vehicle; an enemy
+      target; match all or any of them (2026-11-22)
 
 **Glows**
 

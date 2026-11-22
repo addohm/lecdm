@@ -663,6 +663,7 @@ ns.Window.Page({
 		local showGet, showSet = Field("showWhen")
 		local alphaGet, alphaSet = Field("alpha")
 		local oocGet, oocSet = Field("oocAlpha")
+		local matchGet, matchSet = Field("showMatch")
 		local V = ns.Visibility
 		panel.parts = p
 		p.picker = BarPickerRow(stack.inner)
@@ -760,6 +761,11 @@ ns.Window.Page({
 			UI.OptionSelect(stack.inner, "Opacity", V.ALPHAS, alphaGet, alphaSet),
 			UI.OptionSelect(stack.inner, "Out of combat", V.OOC, oocGet, oocSet,
 				{ tooltip = { "Out of combat", "Its opacity out of combat, as a share of the opacity above: fade it, or hide it, while you're not fighting." } }),
+			UI.ConditionsRow(stack.inner, "Only when", Current, "showIf",
+				{ "Only when", "Shown only when these hold (all of them, or any: below): solo, in a party or raid, in an instance, mounted, resting..." }),
+			UI.OptionSelect(stack.inner, "...all or any of them", V.MATCH, matchGet, matchSet),
+			UI.ConditionsRow(stack.inner, "Hide it when", Current, "hideIf",
+				{ "Hide it when", "Hidden while any of these holds." }),
 			ns.StyleRow(stack.inner, "bars", Current, function() return ns.db.bars.list end),
 			UI.OptionButton(stack.inner, "Its look and layout", "Copy to every bar", function()
 				local bar = Current()

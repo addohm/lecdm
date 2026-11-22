@@ -111,7 +111,10 @@ the build and date.
     past 2, in combat too.
 33. "Saved styles" (Icon bars and Buffs tabs): save a bar's look, change another bar, give it
     the style: it takes the look, keeping its own spells and place; delete the style.
-34. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+34. Visibility: an icon bar "Hide it when: Mounted": gone on a mount, back off it; "Only when:
+    In a dungeon": only inside; "In a party" + "With an enemy target", any: either. A buff
+    group and Blizzard's icons the same.
+35. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

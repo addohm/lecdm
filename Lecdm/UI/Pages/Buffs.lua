@@ -423,6 +423,16 @@ ns.Window.Page({
 		p.alpha = Row("select", "Opacity", V.ALPHAS, "alpha")
 		p.ooc = Row("select", "Out of combat", V.OOC, "oocAlpha",
 			{ "Out of combat", "Its opacity out of combat, as a share of the opacity above: fade it, or hide it, while you're not fighting." })
+		p.showIf = UI.ConditionsRow(stack.inner, "Only when", Current, "showIf",
+			{ "Only when", "Shown only when these hold (all of them, or any: below): solo, in a party or raid, in an instance, mounted, resting..." })
+		p.showMatch = Row("select", "...all or any of them", V.MATCH, "showMatch")
+		p.hideIf = UI.ConditionsRow(stack.inner, "Hide it when", Current, "hideIf", { "Hide it when", "Hidden while any of these holds." })
+		local function Place()
+			local kind = CurrentKind()
+			return kind and ns.Hosted.Settings(kind.key)
+		end
+		p.blizzShowIf = UI.ConditionsRow(stack.inner, "Only when", Place, "showIf")
+		p.blizzHideIf = UI.ConditionsRow(stack.inner, "Hide them when", Place, "hideIf")
 		p.picker = PickerRow(stack.inner)
 		local modeGet, modeSet = BlizzField("mode")
 		local bGapGet, bGapSet = BlizzField("gap")
@@ -525,6 +535,8 @@ ns.Window.Page({
 				stack:Add(p.blizzShow)
 				stack:Add(p.blizzAlpha)
 				stack:Add(p.blizzOoc)
+				stack:Add(p.blizzShowIf)
+				stack:Add(p.blizzHideIf)
 			end
 			stack:Add(p.blizzNote)
 			stack:Add(p.blizzOpen)
@@ -569,6 +581,9 @@ ns.Window.Page({
 			stack:Add(p.showWhen)
 			stack:Add(p.alpha)
 			stack:Add(p.ooc)
+			stack:Add(p.showIf)
+			stack:Add(p.showMatch)
+			stack:Add(p.hideIf)
 			stack:Add(p.styles)
 			stack:Add(p.copy)
 			stack:Add(p.delete)

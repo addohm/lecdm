@@ -55,7 +55,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
   - `Glow.lua`: the owner's glow styles (`Glow.STYLES`, `Glow.COLORS`, `Glow.Build`, `Glow.Show`):
     textures and Alpha/Translation/Rotation/FlipBook animations only.
   - `Visibility.lua`: `V.Alpha(cfg)` from `showWhen` / `alpha` / `oocAlpha` (bars, groups,
-    Blizzard's places), `V.Apply()` on combat and target changes (opacity only).
+    Blizzard's places) and the conditions (`V.CONDITIONS`; `showIf` with `showMatch`, `hideIf`:
+    `V.Allowed`; the tabs' `UI.ConditionsRow`), `V.Apply()` on combat, target, group, zone,
+    mount, resting and vehicle changes (opacity only).
   - `Keybinds.lua`: action buttons from any bar addon (EnumerateFrames, out of combat, one scan
     per frame), the key of the first one on screen holding a spell or item (its HotKey text,
     else its click binding), `K.For(name)`.

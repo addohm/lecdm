@@ -116,6 +116,8 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 
 - Every icon bar, buff group and Blizzard place: always, only in combat, or in combat or with a
   target; its opacity; faded or hidden out of combat.
+- Only when, or hide when: solo, in a party or raid, in an instance, a dungeon, a raid, a
+  battleground, mounted, resting, in a vehicle, with an enemy target; all or any of them.
 
 #### Profiles
 
