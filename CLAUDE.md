@@ -76,7 +76,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     { key ... }, show = { [key] = "ready" | "usable" | "cooldown" }, size, gap, grow, vertical,
     perRow, gcd, pos }` and the look, `B.LOOK`: `tooltip` (`B.ShowTooltip`), `cdAlpha` among
     it; `forms[key]` "in:<form spell>" / "out:<id>" (0: no form; `B.FormNow`, `B.Forms`,
-    `B.SetForm`) and `talents[key]` "with:<nodeID>" / "without:..." (`B.SetTalent`), set from
+    `B.SetForm`), `talents[key]` "with:<nodeID>" / "without:..." (`B.SetTalent`) and
+    `active[key]` (the spell's own buff on its icon: an aura container parented to the icon, a
+    slot per look, `PlaceActive`, out of combat only, `activePending`; `B.SetActive`), set from
     the spell's ⚙ (the extra entries `ns.AlertsGear` takes); `seeded`, `nextID`,
     `hideBlizzard`). A key is a spellID (number), `"slot:N"`
     (an equipment slot: what's equipped there, shown while it has a use effect) or
