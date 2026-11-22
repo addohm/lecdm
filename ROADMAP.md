@@ -158,7 +158,9 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
       (2026-11-22)
 - [ ] A colour change at the warning time: icon bars' timer bars only (a buff's aura button
       takes one duration bar, the one it shows, so its fill can't be timed twice; its time
-      text turns red already)
+      text turns red already). For icon bars it would need the bar recoloured every frame from
+      the duration (an OnUpdate), against "events, not timers": the owner's call. Their
+      countdown text turns its colour already.
 - [x] Custom names; the name's size (time and stacks text: the look rows) (2026-11-22)
 - [x] A decimal under a set time on buff timer bars (and icons; C_StringUtil's formatter)
       (2026-11-22)
