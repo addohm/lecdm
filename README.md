@@ -93,7 +93,16 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   The first time, two icon bars are filled from Blizzard's list. Blizzard's own Essential and
   Utility icons are made invisible while Lecdm's icon bars are on (they keep running); untick
   "Hide Blizzard's Essential and Utility icons" to keep them.
-- **Buffs:** laid out like Icon bars, for buff groups: buffs on you from anyone (your own,
+- **Buffs:** a buff group's page opens with **its buffs**: "Add or remove buffs", a preview of
+  them (click one to pick it, drag one onto another to move it) and **three samples** of the
+  one picked, drawn with its look: **while up**, **fading** and **missing**. **Right-click** a
+  buff (or a sample) for one menu with tick boxes, in those three parts: while it's up (grey,
+  opacity, glow, a sound as it comes), fading (from how many seconds, back to full colour, the
+  time turning red, glow, a sound), while it's missing (show it, its looks, opacity, glow,
+  sounds, a word in chat entering combat), its name on screen, More (a glow at stacks, how it
+  shows, its border and text), "Use these for every buff" and "Back to the defaults". Choices
+  leave the menu open, so the samples change as you pick. The rest ("Show them": its layout
+  and look, each buff's row) is laid out like Icon bars, for buff groups: buffs on you from anyone (your own,
   another priest's Fortitude, world buffs, procs). For the group picked: its name, **Show as**
   icons (a swipe, the time left, stacks) or **timer bars** (the icon, then a bar draining to the
   right with the name and the time left), the time with a decimal under a set time, its layout

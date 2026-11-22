@@ -8,6 +8,18 @@ local UI = ns.UI
 local Auras = ns.Auras
 
 local selected -- the group shown (its id), or "blizz:icons" / "blizz:bars"
+local picked = {} -- group id -> the buff whose samples show
+local showAll = false -- the group's layout and look rows shown (a window state, not a setting)
+
+-- The buff picked in a group (its first, until another is clicked).
+local function Picked(group)
+	if not group then return nil end
+	local name = picked[group.id]
+	for _, n in ipairs(group.entries) do
+		if n == name then return name end
+	end
+	return group.entries[1]
+end
 
 -- The Blizzard place shown, if one is.
 local function CurrentKind()
@@ -321,6 +333,7 @@ local function BuffLooks(root, name)
 		StaticPopup_Show("LECDM_LABEL", nil, nil, { set = function(text) Auras.SetLook(group, name, "label", text) end })
 	end)
 end
+ns.BuffLooks = BuffLooks
 
 -- The popup for an own name (a timer bar's label); empty: its own again.
 StaticPopupDialogs.LECDM_LABEL = {
@@ -548,7 +561,20 @@ ns.Window.Page({
 		end)
 		p.buffsHead = UI.OptionHeading(stack.inner, "Its buffs")
 		p.checklist = ChecklistRow(stack.inner)
+		p.preview = ns.BuffPreviewRow(stack.inner, Current, function() return Picked(Current()) end, function(name)
+			local group = Current()
+			if group then picked[group.id] = name end
+			ns.Window.Refresh()
+		end)
+		p.samples = ns.BuffSamplesRow(stack.inner, Current, function() return Picked(Current()) end)
+		p.more = UI.OptionButton(stack.inner, "Its layout and look, and each buff's row",
+			function() return showAll and "Hide them" or "Show them" end,
+			function()
+				showAll = not showAll
+				ns.Window.Refresh()
+			end)
 		p.empty = UI.OptionText(stack.inner, "No buffs in this group yet: tick some in the list above.", 24)
+		p.eachHead = UI.OptionHeading(stack.inner, "Each buff")
 		p.none = UI.OptionText(stack.inner, "There are no buff groups: pick \"New buff group...\" in the dropdown above, or Start over below.", 24)
 		p.bottom = {
 			UI.OptionText(stack.inner, "A buff shows while it's on you, whoever cast it. Lecdm learns every rank of a buff the first time it sees it on you out of combat.", 32),
@@ -603,6 +629,23 @@ ns.Window.Page({
 		elseif group then
 			local bars = group.style == "bars"
 			for _, row in ipairs({ p.head, p.name, p.style }) do stack:Add(row) end
+			-- Its buffs first: add or remove them, the preview, the three samples of one.
+			stack:Add(p.buffsHead)
+			stack:Add(p.checklist)
+			if #group.entries == 0 then
+				stack:Add(p.empty)
+			else
+				p.preview:Fill(group)
+				stack:Add(p.preview)
+				stack:Add(p.samples)
+			end
+			stack:Add(p.more)
+			if not showAll then
+				for _, row in ipairs(p.bottom) do stack:Add(row) end
+				stack:Done()
+				stack:Sync()
+				return
+			end
 			if bars then
 				stack:Add(p.barHeight)
 				stack:Add(p.barWidth)
@@ -651,8 +694,7 @@ ns.Window.Page({
 			stack:Add(p.import)
 			stack:Add(p.copy)
 			stack:Add(p.delete)
-			stack:Add(p.buffsHead)
-			stack:Add(p.checklist)
+			stack:Add(p.eachHead)
 			for i, name in ipairs(group.entries) do
 				local row = p.buffRows[i]
 				if not row then
@@ -662,7 +704,6 @@ ns.Window.Page({
 				row.index, row.name = i, name
 				stack:Add(row)
 			end
-			if #group.entries == 0 then stack:Add(p.empty) end
 		else
 			stack:Add(p.none)
 		end

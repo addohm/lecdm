@@ -9,6 +9,11 @@ the build and date.
    "Blizzard's icons": What happens to them: Hide them), and stay gone after `/reload`. Lecdm's
    own buff groups and icon bars are all that shows. In-combat drop sounds for buffs tracked in
    /cdm still play.
+2a. The buff samples (Buffs tab, a buff group): the preview shows its buffs; click one: the
+    three samples (While up, Fading, Missing) show its look. Right-click it: tick Grey, set
+    Opacity 40%, tick "Show it while it's missing", Looks Full colour, a Glow while missing:
+    the samples change as you go, the menu stays open; in game the buff looks like the
+    samples (in combat too).
 2. The owner's look (2026-11-22), with Battle Shout on **Keep up** in a buff group (Buffs tab),
    and on the Alerts tab under "Buff groups: how a buff looks": Grey while it's up: Yes;
    Opacity while it's up: 40%; Look while it's missing: Full colour; a glow while it's missing.

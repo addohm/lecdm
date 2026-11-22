@@ -172,7 +172,10 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     Options > AddOns entry), `UI/Minimap.lua` (`LecdmMinimapButton`, angle 350, the addon
     compartment): the owner's house code, from leproc.
   - `UI/Pages/`: `General.lua`, `Alerts.lua` (the Alerts tab's defaults, `ns.AlertsMenu` and
-    `ns.AlertsGear`: a row's ⚙ context menu, `ns.ALERT_FIELDS`), `Buffs.lua` (the Buffs tab, laid out like Icon bars:
+    `ns.AlertsGear`: a row's ⚙ context menu, `ns.ALERT_FIELDS`), `BuffMenu.lua` (`ns.MenuKit`: tick boxes, choices that leave the menu open
+    (`MenuResponse.Refresh`), glows, sounds, a field's own value; `ns.BuffMenu(group, name,
+    root)` in three parts; `ns.BuffPreviewRow`; `ns.BuffSamplesRow` with `K.DrawBuff`), `Buffs.lua`
+    (the Buffs tab: its buffs first, the rest behind "Show them" (`showAll`), laid out like Icon bars:
     `LECDM_NEW_BUFFS` popup, Show as, look rows shown by style, the checklist of Blizzard's
     buffs and the buffs on you now, a row per buff), `Bars.lua` (the Icon bars tab: the preview, `PreviewRow`, drag to
     order with `B.MoveTo`; a `DropdownButton` picks the

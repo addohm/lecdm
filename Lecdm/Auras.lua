@@ -59,6 +59,14 @@ function A.SetInGroup(group, name, on)
 	ns.Refresh()
 end
 
+-- Moves a buff to another place in its group (the preview's drag).
+function A.MoveTo(group, from, to)
+	if from == to or not group.entries[from] or to < 1 or to > #group.entries then return end
+	local name = table.remove(group.entries, from)
+	table.insert(group.entries, to, name)
+	ns.Refresh()
+end
+
 function A.MoveEntry(group, index, dir)
 	local j = index + dir
 	if j < 1 or j > #group.entries then return end
@@ -336,10 +344,14 @@ end
 
 -- The time text's colour: red under `warn` seconds, white above (the game applies the curve in
 -- combat too); faded above with the icon while it's up (alpha), full strength under.
-local function WarnCurve(warn, alpha, rgb)
+local function WarnCurve(warn, alpha, rgb, red)
 	local curve = C_CurveUtil.CreateColorCurve()
 	curve:SetType(Enum.LuaCurveType.Step)
-	curve:AddPoint(0, CreateColor(1, 0.25, 0.25, 1))
+	if red == false then
+		curve:AddPoint(0, CreateColor(rgb and rgb[1] or 1, rgb and rgb[2] or 1, rgb and rgb[3] or 1, 1))
+	else
+		curve:AddPoint(0, CreateColor(1, 0.25, 0.25, 1))
+	end
 	curve:AddPoint(warn, CreateColor(rgb and rgb[1] or 1, rgb and rgb[2] or 1, rgb and rgb[3] or 1, alpha or 1))
 	return curve
 end
@@ -564,7 +576,7 @@ function A.AlertLook(name)
 		.. ":" .. Get("buffs", name, "warnGlow") .. ":" .. total
 		.. ":" .. Get("buffs", name, "upAlpha") .. ":" .. tostring(Get("buffs", name, "upGrey"))
 		.. ":" .. Get("buffs", name, "stackGlow") .. ":" .. Get("buffs", name, "stackOp") .. Get("buffs", name, "stackCount")
-		.. ns.Glow.PixelKey()
+		.. ns.Glow.PixelKey() .. ":" .. tostring(Get("buffs", name, "reveal")) .. tostring(Get("buffs", name, "warnRed"))
 end
 
 -- A group's look and visibility (also for groups made before a setting existed).
@@ -650,7 +662,8 @@ local function Styler(group, name)
 	local total = A.Duration(name)
 	local own = A.Own(group, name)
 	local timeRGB = TIME_RGB[own.timeColor or "white"] or TIME_RGB.white
-	local timeOptions = warn > 0 and { textColor = { curve = WarnCurve(warn, bars and 1 or alpha, timeRGB), property = Enum.DurationTextBindingProperty.RemainingDuration } } or nil
+	local timeOptions = warn > 0 and { textColor = { curve = WarnCurve(warn, bars and 1 or alpha, timeRGB, Get("buffs", name, "warnRed")),
+		property = Enum.DurationTextBindingProperty.RemainingDuration } } or nil
 	-- A decimal under the group's time (the game's number formatter).
 	if (group.decimals or 0) > 0 then
 		local formatter = ns.Bars.TimeFormatter(group.decimals)
@@ -745,7 +758,7 @@ local function Styler(group, name)
 			edge:SetPoint("BOTTOMRIGHT", n, -n)
 			edge:SetColorTexture(er, eg, eb, n > 0 and 1 or 0)
 			local host = AddTimedGlow(button, warnGlow, color, size, warn, total,
-				faded and { z, n, er, eg, eb } or nil)
+				faded and Get("buffs", name, "reveal") ~= false and { z, n, er, eg, eb } or nil)
 			-- The swipe: on the face; above the revealed icon when there is one (still faded).
 			local cooldown
 			if host and host.icon and alpha == 0 then

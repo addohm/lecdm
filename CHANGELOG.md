@@ -8,6 +8,12 @@ All notable changes to lecdm. The format follows
 
 ### Added
 
+- Buffs: three samples of the buff picked (while up, fading, missing) drawn with its look, a
+  preview of the group's buffs, and a right-click menu with tick boxes in those three parts
+  (choices leave it open; "Use these for every buff"). The group's page opens with its buffs;
+  its layout and look rows are behind "Show them". Back to full colour and the red time as a
+  buff fades can each be turned off.
+
 - How a buff looks (the owner's look, 2026-11-22), on the Alerts tab and each buff's ⚙: grey
   and an opacity while it's up, the icon coming back to full strength at the warning time (in
   combat too, timed by the game once the buff's duration is known); and a keep-up buff's place

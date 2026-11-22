@@ -1052,7 +1052,7 @@ ns.Refresh()
 -- A buff's own look: in its key; Default back to the group's.
 ns.Auras.SetLook(buffs[1], "Battle Shout", "border", 3)
 ns.Auras.SetLook(buffs[1], "Battle Shout", "timePos", "CENTER")
-local ownLook = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark/none:gold:5:none:120:1:false:none:>=5:3:nil:nil:CENTER:nil")
+local ownLook = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark/none:gold:5:none:120:1:false:none:>=5:truetrue:3:nil:nil:CENTER:nil")
 check(ownLook, "a buff's own look not in its key")
 ns.Auras.SetLook(buffs[1], "Battle Shout", "border", nil)
 ns.Auras.SetLook(buffs[1], "Battle Shout", "timePos", nil)
@@ -1552,7 +1552,47 @@ ns.db.test.chat = "main"
 M.Slash("buffs")
 local buffPanel = ns.Window.CurrentPanel()
 check(buffPanel.parts.picker.dropdown.text == "Buffs", "buff group picker wrong")
-check(buffPanel.parts.buffRows[1].name == ns.db.buffs.list[1].entries[1], "buff rows missing")
+-- Its buffs first: the preview, the three samples of the first; the rest behind "Show them".
+local bp = buffPanel.parts
+local function OnPage(row)
+	for _, r in ipairs(buffPanel.stack.rows) do
+		if r == row then return true end
+	end
+	return false
+end
+check(OnPage(bp.preview) and bp.preview.icons[1].name == ns.db.buffs.list[1].entries[1] and OnPage(bp.samples)
+	and not OnPage(bp.lookHead) and not OnPage(bp.eachHead), "the buff group page's top wrong")
+-- The samples: a buff's look while up, fading and missing; the right-click menu's tick boxes
+-- change it (its own), "Use these for every buff" makes them the defaults.
+local firstBuff = ns.db.buffs.list[1].entries[1]
+ns.Auras.Learn(firstBuff, 1243)
+local up, fading, missing = bp.samples.samples[1], bp.samples.samples[2], bp.samples.samples[3]
+check(up.icon.texture and missing.note.text == "not shown", "the samples wrong before any setting")
+bp.preview.icons[1].scripts.OnClick(bp.preview.icons[1], "RightButton")
+local menu = M.contextMenu
+local function Item(m, prefix)
+	for _, c in ipairs(m.children) do
+		if c.text:sub(1, #prefix) == prefix then return c end
+	end
+end
+check(Item(menu, "Grey") and Item(menu, "Opacity: 100%") and Item(menu, "Show it while it's missing"),
+	"the buff's menu wrong: " .. (function() local t = {} for _, c in ipairs(menu.children) do t[#t + 1] = tostring(c.text) end return table.concat(t, " | ") end)())
+Item(menu, "Grey").setSelected()
+Item(Item(menu, "Opacity"), "40%").setSelected()
+Item(menu, "Show it while it's missing").setSelected()
+Item(Item(menu, "Looks"), "Full colour").setSelected()
+check(ns.Alerts.Get("buffs", firstBuff, "upGrey") == true and ns.Alerts.Get("buffs", firstBuff, "upAlpha") == 0.4
+	and ns.Auras.Mode(ns.db.buffs.list[1], firstBuff) == "keep", "the menu didn't set the buff's own")
+check(up.icon.desaturated and up.alpha == 0.4 and not fading.icon.desaturated and fading.alpha == 1
+	and not missing.icon.desaturated and missing.alpha == 1 and missing.icon.shown, "the samples don't follow the menu")
+bp.preview.icons[1].scripts.OnClick(bp.preview.icons[1], "RightButton")
+Item(M.contextMenu, "Use these for every buff").onClick()
+check(ns.db.alerts.defaults.buffs.upGrey == true and ns.db.alerts.defaults.buffs.missingLook == "normal"
+	and not ns.Alerts.HasOwn("buffs", firstBuff), "Use these for every buff didn't")
+ns.db.alerts.defaults.buffs.upGrey, ns.db.alerts.defaults.buffs.upAlpha, ns.db.alerts.defaults.buffs.missingLook = false, 1, "red"
+ns.Auras.SetMode(ns.db.buffs.list[1], firstBuff, "up")
+buffPanel.parts.more.button.scripts.OnClick(buffPanel.parts.more.button)
+check(buffPanel.parts.buffRows[1].name == ns.db.buffs.list[1].entries[1] and OnPage(bp.lookHead) and OnPage(bp.eachHead), "buff rows missing")
 local buffMenu = M.Menu()
 buffPanel.parts.checklist.dropdown.generator(nil, buffMenu)
 check(buffMenu.children[2].text == "Yours, from Blizzard's list" and #buffMenu.children[2].children == 1, "Blizzard's buffs section wrong")

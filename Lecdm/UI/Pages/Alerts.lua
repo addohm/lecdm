@@ -35,6 +35,8 @@ local FIELDS = {
 		{ "glowColor", "Glow colour", ns.Glow.COLORS },
 		{ "upGrey", "Grey while it's up", YESNO, "Buff groups: how a buff looks" },
 		{ "upAlpha", "Opacity while it's up", Alerts.UP_ALPHAS },
+		{ "reveal", "Back to full colour as it fades", YESNO },
+		{ "warnRed", "The time turns red as it fades", YESNO },
 		{ "missingLook", "Look while it's missing (keep-up buffs)", ns.Auras.MISSING_LOOKS },
 		{ "missingAlpha", "Opacity while it's missing", Alerts.ALPHAS },
 		{ "missingGlow", "Glow while it's missing", ns.Glow.STYLES },
