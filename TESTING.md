@@ -106,7 +106,10 @@ the build and date.
 31. Timer bars (a buff group and an icon bar as timer bars): a spark at the fill's end, a
     gradient, "Drain to the right" / "Fill from the right", the icon on the right, the name's
     size; a buff's or spell's ⚙ "Its name on a timer bar...": your name shows instead.
-32. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+32. A stacking buff in a group of timer bars, its ⚙ "Stack bar: fill by stacks, up to" 3
+    (Flurry) or 5, ticks on, a colour from 2: the bar fills a third (fifth) per stack, red
+    past 2, in combat too.
+33. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

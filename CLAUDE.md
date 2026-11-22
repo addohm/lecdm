@@ -120,7 +120,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     up, a button's face has `upAlpha` / `upGrey`, an icon revealed at the warning time
     (`AddTimedGlow`'s reveal), a glow at stacks (`AddStackGlow`: an application bar and
     clipped windows), each buff's own look (`group.looks[name]`: `A.Own`, `A.SetLook`,
-    `A.OwnKey` in its keys); the rest flow in the group's container after them. Weapon
+    `A.OwnKey` in its keys; a stack bar: `stackMax`, `ticks`, `zones`, `StackBar`, `A.SetZone`);
+    the rest flow in the group's container after them. Weapon
     enchants (`A.EnchantSlot`, BuffList's `enchant`) always have a fixed place: the game's
     button in a container of their own per look (`AddItemEnchantment`, `hidePermanent`), the
     presence container by item enchantment; `A.ReadEnchants()` (out of combat,

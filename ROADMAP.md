@@ -154,7 +154,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 **Timer bars**
 
 - [x] Spark, gradient fill, reverse fill, the icon left or right, height and width (2026-11-22)
-- [ ] Ticks and stack thresholds (up to five, with colours), max stacks, stack-based bars
+- [x] Ticks and stack thresholds (up to five, with colours), max stacks, stack-based bars
+      (2026-11-22)
 - [ ] A colour change at the warning time: icon bars' timer bars only (a buff's aura button
       takes one duration bar, the one it shows, so its fill can't be timed twice; its time
       text turns red already)

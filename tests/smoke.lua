@@ -825,6 +825,17 @@ ns.Auras.SetLook(buffs[1], "Battle Shout", "label", "Shout!")
 local labelled = G("Battle Shout/bars:")
 check(labelled and not labelled.button.bound.SetSpellName and labelled.button.spark and labelled.button.spark.shown, "a buff timer bar's own name or spark wrong")
 ns.Auras.SetLook(buffs[1], "Battle Shout", "label", nil)
+-- A stack bar: the game fills it from the stacks (no duration bar), with ticks and a colour zone.
+ns.Auras.SetLook(buffs[1], "Battle Shout", "stackMax", 5)
+ns.Auras.SetLook(buffs[1], "Battle Shout", "ticks", true)
+ns.Auras.SetZone(buffs[1], "Battle Shout", 1, 3, "red")
+local stackBar = G("Battle Shout/bars:")
+check(stackBar and stackBar.button.bound.SetApplicationBar and not stackBar.button.bound.SetDurationBar
+	and buffs[1].looks["Battle Shout"].zones[1].from == 3, "the stack bar wrong")
+ns.Auras.SetZone(buffs[1], "Battle Shout", 1, nil)
+ns.Auras.SetLook(buffs[1], "Battle Shout", "ticks", nil)
+ns.Auras.SetLook(buffs[1], "Battle Shout", "stackMax", nil)
+check(buffs[1].looks == nil or buffs[1].looks["Battle Shout"] == nil, "the stack bar's settings stayed")
 buffs[1].style, buffs[1].barColor, buffs[1].barIcon = "icons", "blue", true
 buffs[1].showWhen = "combat"
 ns.Refresh()

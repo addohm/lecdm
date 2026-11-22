@@ -95,6 +95,7 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 - Lecdm's own list of buffs for every class, with every rank (group versions count too: Prayer
   of Fortitude is Fortitude), racials, world buffs, consumables, and weapon enchants (oils,
   sharpening stones, poisons).
+- Stack bars: a buff's bar filled by its stacks (Sunder Armor to 5), with ticks and colours.
 - Timer bars: texture, colour (class colour too), background, icon (left or right), name (its
   size, or your own) and time each on or off, a spark, a gradient, either direction.
 

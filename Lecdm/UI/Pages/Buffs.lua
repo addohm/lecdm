@@ -260,6 +260,28 @@ local function BuffLooks(root, name)
 	LookMenu("Time text", "timeText", ns.Bars.TEXT_SIZES, group.timeText)
 	LookMenu("Time text's place (icons)", "timePos", Auras.TIME_POSITIONS, "BOTTOM")
 	LookMenu("Time text's colour", "timeColor", Auras.TIME_COLORS, "white")
+	if group.style == "bars" then
+		LookMenu("Stack bar: fill by stacks, up to", "stackMax", Auras.STACK_MAXES, 0)
+		LookMenu("Ticks on a stack bar", "ticks", { { true, "Yes" }, { false, "No" } }, false)
+		local zones = root:CreateButton("Stack bar colours")
+		local own = Auras.Own(group, name)
+		for i = 1, 5 do
+			local z = own.zones and own.zones[i]
+			local zone = zones:CreateButton("Colour " .. i .. (z and (": from " .. z.from .. ", " .. ns.Alerts.Label(Auras.ZONE_COLORS, z.color)) or ": off"))
+			local from = zone:CreateButton("From this many stacks")
+			from:CreateRadio("Off", function() return not (own.zones and own.zones[i]) end,
+				function() Auras.SetZone(group, name, i, nil) end)
+			for n = 1, 19 do
+				from:CreateRadio(tostring(n), function() return own.zones and own.zones[i] and own.zones[i].from == n end,
+					function() Auras.SetZone(group, name, i, n) end)
+			end
+			local colour = zone:CreateButton("Colour")
+			for _, c in ipairs(Auras.ZONE_COLORS) do
+				colour:CreateRadio(c[2], function() return own.zones and own.zones[i] and own.zones[i].color == c[1] end,
+					function() Auras.SetZone(group, name, i, own.zones and own.zones[i] and own.zones[i].from or 1, c[1]) end)
+			end
+		end
+	end
 	root:CreateButton("Its name on a timer bar..." .. (Auras.Own(group, name).label and " (its own)" or ""), function()
 		StaticPopup_Show("LECDM_LABEL", nil, nil, { set = function(text) Auras.SetLook(group, name, "label", text) end })
 	end)

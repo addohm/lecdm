@@ -97,7 +97,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   Blizzard's list, or from the buffs on you now (out of combat), order them, choose how each shows (**while it's up**, **keep up**: a fixed place with
   a copy of it and a glow while it's down, or **only while missing**), and its own alerts and
   looks (its ⚙: border, border colour, the time text's size, place and colour, its own name on a
-  timer bar).
+  timer bar; as a timer bar, a **stack bar** instead: filled by its stacks, up to 2 to 20,
+  with ticks and up to five colours from a number of stacks).
   Every rank of a buff, whoever cast it, and its full duration are learned the first time Lecdm
   sees it on you out of combat. Changes made in combat apply when it ends.
 

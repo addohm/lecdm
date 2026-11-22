@@ -354,6 +354,23 @@ function A.Own(group, name)
 	return group.looks and group.looks[name] or {}
 end
 
+-- Sets a stack bar's zone i (1 to 5): from (stacks; nil: off) and colour.
+function A.SetZone(group, name, i, from, color)
+	group.looks = group.looks or {}
+	local own = group.looks[name] or {}
+	own.zones = own.zones or {}
+	if from then
+		own.zones[i] = { from = from, color = color or (own.zones[i] and own.zones[i].color) or "yellow" }
+	else
+		own.zones[i] = nil
+	end
+	local list = {}
+	for k = 1, 5 do if own.zones[k] then list[#list + 1] = own.zones[k] end end
+	own.zones = #list > 0 and list or nil
+	group.looks[name] = next(own) and own or nil
+	ns.Refresh()
+end
+
 function A.SetLook(group, name, field, value)
 	group.looks = group.looks or {}
 	local own = group.looks[name] or {}
@@ -362,12 +379,60 @@ function A.SetLook(group, name, field, value)
 	ns.Refresh()
 end
 
+local function ZonesKey(zones)
+	local parts = {}
+	for _, z in ipairs(zones or {}) do parts[#parts + 1] = tostring(z.from) .. tostring(z.color) end
+	return #parts > 0 and (":" .. table.concat(parts, ",")) or ""
+end
+
+-- A stack bar (a buff's own look: stackMax, the stacks it fills at; ticks; up to five colour
+-- zones, zones = { { from = stacks, color } ... }): the game fills the timer bar from the buff's
+-- stacks (SetApplicationBar) instead of its time. Each zone colours the fill past its stacks: a
+-- frame clipped from that point to the bar's end, holding a colour on the fill.
+A.ZONE_COLORS = { { "green", "Green" }, { "yellow", "Yellow" }, { "orange", "Orange" }, { "red", "Red" },
+	{ "purple", "Purple" }, { "blue", "Blue" } }
+local ZONE_RGB = { green = { 0.25, 0.8, 0.3 }, yellow = { 1, 0.85, 0.1 }, orange = { 1, 0.5, 0.1 }, red = { 0.9, 0.2, 0.2 },
+	purple = { 0.65, 0.4, 1 }, blue = { 0.25, 0.6, 1 } }
+A.STACK_MAXES = { { 0, "Off (its time)" } }
+for i = 2, 20 do A.STACK_MAXES[#A.STACK_MAXES + 1] = { i, i .. " stacks" } end
+
+local function StackBar(button, bar, own, barWidth, height)
+	local max = own.stackMax
+	button:SetApplicationBar(bar, { minApplications = 0, maxApplications = max,
+		interpolation = Enum.StatusBarInterpolation.Immediate })
+	local fill = bar:GetStatusBarTexture()
+	for _, zone in ipairs(own.zones or {}) do
+		local rgb = ZONE_RGB[zone.color]
+		if rgb and zone.from and zone.from > 0 and zone.from < max then
+			local clip = CreateFrame("Frame", nil, bar)
+			clip:SetPoint("TOPLEFT", bar, "TOPLEFT", barWidth * zone.from / max, 0)
+			clip:SetPoint("BOTTOMRIGHT")
+			clip:SetClipsChildren(true)
+			clip:SetFrameLevel(bar:GetFrameLevel() + 1)
+			local holder = CreateFrame("Frame", nil, clip, "DisableUntrustedLayoutScriptsTemplate")
+			holder:SetAllPoints(fill)
+			local tex = holder:CreateTexture(nil, "ARTWORK")
+			tex:SetAllPoints()
+			tex:SetColorTexture(rgb[1], rgb[2], rgb[3], 1)
+		end
+	end
+	if own.ticks then
+		for i = 1, max - 1 do
+			local tick = bar:CreateTexture(nil, "OVERLAY")
+			tick:SetColorTexture(0, 0, 0, 0.8)
+			tick:SetSize(1, height)
+			tick:SetPoint("LEFT", bar, "LEFT", barWidth * i / max, 0)
+		end
+	end
+end
+
 -- The part of a button's key its own look makes.
 function A.OwnKey(group, name)
 	local own = A.Own(group, name)
 	if not next(own) then return "" end
 	return ":" .. tostring(own.border) .. ":" .. tostring(own.borderColor) .. ":" .. tostring(own.timeText) .. ":"
 		.. tostring(own.timePos) .. ":" .. tostring(own.timeColor) .. ":" .. tostring(own.label)
+		.. ":" .. tostring(own.stackMax) .. ":" .. tostring(own.ticks) .. ZonesKey(own.zones)
 end
 
 local function Margin(size)
@@ -636,10 +701,14 @@ local function Styler(group, name)
 			local bg = bar:CreateTexture(nil, "BACKGROUND")
 			bg:SetAllPoints()
 			bg:SetColorTexture(0, 0, 0, group.barBg or 0.5)
-			button:SetDurationBar(bar, {
-				direction = Enum.StatusBarTimerDirection.RemainingTime,
-				interpolation = Enum.StatusBarInterpolation.Immediate,
-			})
+			if (own.stackMax or 0) > 1 then
+				StackBar(button, bar, own, width - inset, size)
+			else
+				button:SetDurationBar(bar, {
+					direction = Enum.StatusBarTimerDirection.RemainingTime,
+					interpolation = Enum.StatusBarInterpolation.Immediate,
+				})
+			end
 			local barTop = CreateFrame("Frame", nil, bar)
 			barTop:SetAllPoints(bar)
 			barTop:SetFrameLevel(bar:GetFrameLevel() + 2)
@@ -715,7 +784,9 @@ local function Styler(group, name)
 			local cp = group.countPos or "TOPRIGHT"
 			count:SetPoint(cp, cp:find("LEFT") and 1 or cp:find("RIGHT") and -1 or 0, cp:find("TOP") and -1 or cp:find("BOTTOM") and 1 or 0)
 		end
-		AddStackGlow(button, Get("buffs", name, "stackGlow"), color, size, Get("buffs", name, "stackOp"), Get("buffs", name, "stackCount"))
+		if not (bars and (own.stackMax or 0) > 1) then
+			AddStackGlow(button, Get("buffs", name, "stackGlow"), color, size, Get("buffs", name, "stackOp"), Get("buffs", name, "stackCount"))
+		end
 		-- The glow while it's up: part of the button, so it shows with it; its animations play
 		-- when the game shows the button.
 		if upGlow ~= "none" then
