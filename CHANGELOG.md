@@ -25,6 +25,8 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- Import and export: a profile, an icon bar or a buff group as text to share; pasted text is
+  read by Lecdm's own parser, never run.
 - The interrupt bar: your focus's (or target's) cast as a bar the game fills, its name, a
   shield when it can't be interrupted, your interrupt's cooldown, and a sound as it starts.
 - Alerts: all of Blizzard's Cooldown Manager's sounds in every sound picker (by group), three

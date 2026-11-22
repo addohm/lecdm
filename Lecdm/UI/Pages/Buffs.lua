@@ -481,6 +481,11 @@ ns.Window.Page({
 		p.vertical = UI.OptionCheck(stack.inner, "Vertical", vertGet, vertSet)
 		p.perRow = UI.OptionSelect(stack.inner, "Icons per row", Numbers(1, 20, 1), perGet, perSet)
 		p.styles = ns.StyleRow(stack.inner, "buffs", Current, function() return ns.db.buffs.list end)
+		p.export = UI.OptionButton(stack.inner, "This buff group, as text to share", "Export", function()
+			local group = Current()
+			if group then ns.Transfer.ShowExport("Buff group " .. group.name, ns.Transfer.Export("group", group)) end
+		end)
+		p.import = UI.OptionButton(stack.inner, "A buff group someone shared", "Import...", function() ns.Transfer.ShowImport() end)
 		p.copy = UI.OptionButton(stack.inner, "Its look and layout", "Copy to every group", function()
 			local group = Current()
 			if not group then return end
@@ -585,6 +590,8 @@ ns.Window.Page({
 			stack:Add(p.showMatch)
 			stack:Add(p.hideIf)
 			stack:Add(p.styles)
+			stack:Add(p.export)
+			stack:Add(p.import)
 			stack:Add(p.copy)
 			stack:Add(p.delete)
 			stack:Add(p.buffsHead)

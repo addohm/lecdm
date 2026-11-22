@@ -229,6 +229,31 @@ check(ns.db.bars.list[2].size == 32 and ns.db.bars.list[2].barColor == "red" and
 ns.Bars.DeleteStyle("bars", "Red")
 check(ns.db.styles.bars.Red == nil, "a style wasn't deleted")
 ns.db.bars.list[2].size, ns.db.bars.list[2].barColor = 40, "blue"
+-- Import and export: the text reads back to the same; a shared bar joins with its spells
+-- (taken from the bar they were on); damaged or foreign text is refused; nothing is run.
+local T = ns.Transfer
+local sample = { name = "Q \"x\"\nline", n = 3, f = 1.5, yes = true, no = false, list = { 100, "item:5512", { deep = -2 } } }
+local back = T.Parse(T.Serialize(sample))
+check(back and back.name == sample.name and back.n == 3 and back.f == 1.5 and back.yes == true and back.no == false
+	and back.list[2] == "item:5512" and back.list[3].deep == -2, "the text didn't read back the same")
+local text = T.Export("bar", ns.DeepCopy(cdBar))
+local kind, data = T.Decode(text)
+check(kind == "bar" and data.name == cdBar.name, "an exported bar didn't decode")
+local before = #ns.db.bars.list
+local ok, imported = T.Apply(kind, data)
+check(ok and #ns.db.bars.list == before + 1 and imported.id ~= cdBar.id and ns.Bars.BarOf(100) == imported and #cdBar.spells == 0,
+	"an imported bar wrong")
+for _, key in ipairs(imported.spells) do table.insert(cdBar.spells, key) end
+ns.Bars.Delete(imported.id)
+check(ns.Bars.BarOf(100) == cdBar, "the spells didn't go back")
+check(not T.Decode("Lecdm1:bar:{\"name\"=os.exit();}") and not T.Decode("hello") and not T.Decode("Lecdm1:bar:{\"a\"=1;"),
+	"damaged or foreign text was taken")
+local profileText = T.Export("profile", ns.db)
+local pk, pdata = T.Decode(profileText)
+local current = ns.Profiles.Current()
+check(pk == "profile" and T.Apply(pk, pdata, "Shared one") and ns.Profiles.Current() == "Shared one", "a profile didn't import")
+ns.Profiles.Switch(current)
+ns.Profiles.Delete("Shared one")
 -- Copying a bar's look to every bar: the look, not the spells or place.
 cdBar.size, cdBar.shape = 36, "Round"
 ns.Bars.CopyLook(cdBar)

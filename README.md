@@ -171,7 +171,10 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   (every sound any addon plays goes in the log, with the addon that played it and, for Lecdm's
   own, why), and the log, ready to copy into a bug report.
 - **Profiles:** each character starts with its own ("First Last"); pick another to share it,
-  copy, rename, delete, reset, or switch automatically by your talents or group role.
+  copy, rename, delete, reset, or switch automatically by your talents or group role. **Share**:
+  export this profile as text, or import one someone shared (it becomes a new profile you
+  name). Icon bars and buff groups have their own Export and Import on their tabs (an imported
+  one joins this profile, its spells or buffs moving to it).
 
 Chat commands:
 

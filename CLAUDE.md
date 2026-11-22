@@ -76,6 +76,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     `UnitCastingDuration` / `UnitChannelDuration` (duration objects to `SetTimerDuration`), its
     name and the can't-interrupt shield (`SetAlphaFromBoolean`) from secrets as they are, your
     interrupt (`K.SPELLS` by class) with its cooldown; unit events on `UNIT_SPELLCAST_*`.
+  - `Transfer.lua`: import and export ("Lecdm1:<kind>:<data>": `T.Serialize`, `T.Parse`, a
+    strict reader, never `loadstring`; `T.Decode`, `T.Apply`; the `LecdmTransfer` window).
   - `Alerts.lua`: sounds (`A.SOUNDS`, `A.Play`: SOUNDKIT names, "kit:<id>" (Blizzard's Cooldown
     Manager's, from `CooldownViewerSoundData`: `A.AddBlizzardSounds`, `A.SOUND_GROUPS`) or "say",
     text to speech; the `screen` text, `A.ShowText`) and
@@ -220,7 +222,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
 ## Conventions
 
 - Lua 5.1, no libraries. Every file starts `local _, ns = ...`; shared state lives on `ns`.
-  Globals only from the list in `tests/run_tests.py`.
+  Globals only from the list in `tests/run_tests.py` (window names for Escape to close them:
+  `LecdmFrame`, `LecdmLog`, `LecdmTransfer`).
 - **Secret values:** never compare, concatenate, index or even test one for nil. Ask
   `ns.IsSecret` first; `ns.Show` gives text for any value. Wrap game calls that may refuse in
   `pcall`.

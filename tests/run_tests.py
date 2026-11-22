@@ -14,7 +14,7 @@ except ImportError:
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ADDON = ROOT / "Lecdm"
 TESTS = ROOT / "tests"
-ALLOWED_GLOBALS = {"LecdmDB", "LecdmLog", "LecdmFrame", "LecdmMinimapButton", "SLASH_LECDM1", "SLASH_LECDM2",
+ALLOWED_GLOBALS = {"LecdmDB", "LecdmLog", "LecdmTransfer", "LecdmFrame", "LecdmMinimapButton", "SLASH_LECDM1", "SLASH_LECDM2",
                    "Lecdm_OnAddonCompartmentClick"}
 
 failed = False

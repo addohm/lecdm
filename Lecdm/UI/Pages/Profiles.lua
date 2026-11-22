@@ -139,6 +139,14 @@ ns.Window.Page({
 				{ "In a group as the " .. r[2], "While you're in a group with this role (picked in the group finder or set by the leader). Wins over the talent rules." }))
 		end
 
+		stack:Add(UI.OptionHeading(stack.inner, "Share"))
+		stack:Add(UI.OptionButton(stack.inner, "This profile, as text to share", "Export", function()
+			ns.Transfer.ShowExport("Profile " .. Profiles.Current(), ns.Transfer.Export("profile", ns.db))
+		end))
+		stack:Add(UI.OptionButton(stack.inner, "A profile, icon bar or buff group", "Import...", function()
+			ns.Transfer.ShowImport()
+		end, { "Import", "Paste the text someone shared: a profile becomes a new profile (you name it); an icon bar or buff group joins this profile." }))
+
 		stack:Add(UI.OptionHeading(stack.inner, "Manage"))
 		stack:Add(UI.OptionEdit(stack.inner, "Rename this profile (press Enter)",
 			function() return Profiles.Current() end,

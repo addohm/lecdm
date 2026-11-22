@@ -131,7 +131,10 @@ the build and date.
     casts, the bar fills with the spell's name, a shield on uninterruptible casts, Pummel (or
     your interrupt) beside it with its cooldown; the sound as it starts; gone when the cast ends.
     "Whose casts: Your target" the same for the target. /lecdm move to drag it.
-40. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+40. Import and export: Profiles tab, Export: the text is selected (Ctrl+C); Import..., paste
+    it, Import, name it: a new profile, in use. An icon bar's Export, then Import: a copy of it
+    joins (its spells move to it). Pasting nonsense says so.
+41. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

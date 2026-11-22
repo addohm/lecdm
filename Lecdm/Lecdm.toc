@@ -28,6 +28,7 @@ Auras.lua
 Hosted.lua
 ButtonGlows.lua
 Kick.lua
+Transfer.lua
 Blizz.lua
 
 UI\Theme.lua

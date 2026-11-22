@@ -777,6 +777,11 @@ ns.Window.Page({
 					Bars.CopyLook(bar)
 				end)
 			end),
+			UI.OptionButton(stack.inner, "This icon bar, as text to share", "Export", function()
+				local bar = Current()
+				if bar then ns.Transfer.ShowExport("Icon bar " .. bar.name, ns.Transfer.Export("bar", bar)) end
+			end),
+			UI.OptionButton(stack.inner, "An icon bar someone shared", "Import...", function() ns.Transfer.ShowImport() end),
 			UI.OptionButton(stack.inner, "", "Delete this icon bar", function()
 				local bar = Current()
 				if not bar then return end
