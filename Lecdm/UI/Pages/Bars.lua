@@ -154,6 +154,48 @@ local function SmallButton(row, texture, x, tip, onClick)
 	return b
 end
 
+-- The ⚙ menu's conditions for a spell on the icon bar shown: its stance or form.
+local function Conditions(root, key)
+	local bar = Current()
+	if not (bar and key) then return end
+	root:CreateTitle("When it shows")
+	local sub = root:CreateButton("In a stance or form")
+	local function Radio(text, value)
+		sub:CreateRadio(text, function() return (bar.forms and bar.forms[key]) == value end,
+			function() Bars.SetForm(bar, key, value) end)
+	end
+	Radio("Any (always)", nil)
+	local forms = Bars.Forms()
+	for _, f in ipairs(forms) do
+		Radio("Only in " .. f[2], "in:" .. f[1])
+		Radio("Not in " .. f[2], "out:" .. f[1])
+	end
+	if #forms > 0 then
+		Radio("Only in no stance or form", "in:0")
+		Radio("Only in a stance or form", "out:0")
+	end
+
+	local talents = root:CreateButton("With a talent")
+	local function Is(value) return function() return (bar.talents and bar.talents[key]) == value end end
+	local function Set(value) return function() Bars.SetTalent(bar, key, value) end end
+	talents:CreateRadio("Any (always)", Is(nil), Set(nil))
+	local t = ns.Talents.Read()
+	if not t.known then
+		talents:CreateTitle("The game didn't list your talents")
+		return
+	end
+	local trees, order = {}, {}
+	for _, e in ipairs(t.list) do
+		if not trees[e[3]] then
+			trees[e[3]] = talents:CreateButton(e[3])
+			order[#order + 1] = e[3]
+		end
+		local sub2 = trees[e[3]]:CreateButton(e[2] .. (t.taken[e[1]] and " |cff40ff40(taken)|r" or ""))
+		sub2:CreateRadio("Only with it", Is("with:" .. e[1]), Set("with:" .. e[1]))
+		sub2:CreateRadio("Only without it", Is("without:" .. e[1]), Set("without:" .. e[1]))
+	end
+end
+
 -- A spell on the bar: its icon and name, when it shows, and up / down / remove.
 local function SpellRow(parent)
 	local row
@@ -192,8 +234,9 @@ local function SpellRow(parent)
 		local bar = Current()
 		if bar and row.key then Bars.SetOnBar(bar, row.key, false) end
 	end)
-	ns.AlertsGear(row, x + 80, "spells", function() return row.key end,
-		function() return row.key and Bars.EntryName(row.key) end)
+	row.gear = ns.AlertsGear(row, x + 80, "spells", function() return row.key end,
+		function() return row.key and Bars.EntryName(row.key) end,
+		function(root) Conditions(root, row.key) end)
 	return row
 end
 

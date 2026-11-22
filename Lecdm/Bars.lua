@@ -119,9 +119,69 @@ function B.SetOnBar(bar, spellID, on)
 	if other then
 		table.remove(other.spells, i)
 		other.show[spellID] = nil
+		if other.forms then other.forms[spellID] = nil end
+		if other.talents then other.talents[spellID] = nil end
 	end
 	if on then table.insert(bar.spells, spellID) end
 	ns.Refresh()
+end
+
+-- Stances and forms: a spell can show only in one, or only out of it ("in:<form spell ID>",
+-- "out:<id>"; id 0 is no stance or form). GetShapeshiftForm's index gives the form's spell.
+function B.FormNow()
+	if not GetShapeshiftForm then return nil end
+	local ok, i = pcall(GetShapeshiftForm)
+	if not ok or ns.IsSecret(i) or type(i) ~= "number" then return nil end
+	if i == 0 then return 0 end
+	local okInfo, _, _, _, spellID = pcall(GetShapeshiftFormInfo, i)
+	if okInfo and not ns.IsSecret(spellID) and type(spellID) == "number" then return spellID end
+end
+
+-- The class's stances and forms: { spellID, name } each.
+function B.Forms()
+	local list = {}
+	local ok, n = pcall(GetNumShapeshiftForms)
+	if not ok or ns.IsSecret(n) or type(n) ~= "number" then return list end
+	for i = 1, n do
+		local okInfo, _, _, _, spellID = pcall(GetShapeshiftFormInfo, i)
+		if okInfo and not ns.IsSecret(spellID) and type(spellID) == "number" then
+			list[#list + 1] = { spellID, B.SpellName(spellID) or ("form " .. i) }
+		end
+	end
+	return list
+end
+
+function B.SetForm(bar, key, value)
+	bar.forms = bar.forms or {}
+	bar.forms[key] = value
+	ns.Refresh()
+end
+
+-- Whether a spell's stance or form condition lets it show now (unknown: yes).
+local function FormAllows(bar, key)
+	local cond = bar.forms and bar.forms[key]
+	if not cond then return true end
+	local mode, id = cond:match("^(%a+):(%d+)$")
+	local now = B.FormNow()
+	if not (mode and now) then return true end
+	return (mode == "in") == (now == tonumber(id))
+end
+
+-- Talents: a spell can show only with a talent taken, or only without it ("with:<nodeID>",
+-- "without:<nodeID>"; Talents.lua).
+function B.SetTalent(bar, key, value)
+	bar.talents = bar.talents or {}
+	bar.talents[key] = value
+	ns.Refresh()
+end
+
+local function TalentAllows(bar, key)
+	local cond = bar.talents and bar.talents[key]
+	if not cond then return true end
+	local mode, id = cond:match("^(%a+):(%d+)$")
+	local taken = mode and ns.Talents.Taken(tonumber(id))
+	if taken == nil then return true end
+	return (mode == "with") == taken
 end
 
 -- Moves a spell up (-1) or down (1) its bar.
@@ -400,6 +460,7 @@ local function Update(b, bar)
 	local onCooldown, usable = (b.spellID and SpellState or ItemState)(b, bar)
 	if ns.Alerts then ns.Alerts.OnIcon(b, bar, onCooldown, usable) end
 	b:SetAlpha(onCooldown and bar.cdAlpha or 1)
+	if not (FormAllows(bar, b.key) and TalentAllows(bar, b.key)) then return false end
 	local show = bar.show[b.key] or "always"
 	if show == "ready" then return not onCooldown end
 	if show == "usable" then return not onCooldown and usable ~= false end
@@ -685,7 +746,8 @@ end
 
 local events = CreateFrame("Frame")
 for _, e in ipairs({ "SPELL_UPDATE_COOLDOWN", "SPELL_UPDATE_CHARGES", "SPELL_UPDATE_USABLE",
-	"ACTIONBAR_UPDATE_USABLE", "PLAYER_TARGET_CHANGED", "SPELL_RANGE_CHECK_UPDATE", "BAG_UPDATE_COOLDOWN" }) do
+	"ACTIONBAR_UPDATE_USABLE", "PLAYER_TARGET_CHANGED", "SPELL_RANGE_CHECK_UPDATE", "BAG_UPDATE_COOLDOWN",
+	"UPDATE_SHAPESHIFT_FORM" }) do
 	pcall(events.RegisterEvent, events, e)
 end
 for _, e in ipairs({ "SPELLS_CHANGED", "COOLDOWN_VIEWER_DATA_LOADED", "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED",

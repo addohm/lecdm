@@ -46,7 +46,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     your spellbook, your equipped trinkets and on-use gear, usable items in your bags; an entry
     on another bar says "(on ...)" and ticking moves it), order them with the arrows, choose
     when each shows (always, only when ready, only when ready and usable: Overpower, Revenge,
-    Execute; only on cooldown; the others close up), and its
+    Execute; only on cooldown; the others close up), and in its ⚙ menu, when it shows: in or
+    out of a stance or form (Battle Stance, Bear Form...) and only with or without a talent; and
+    its
     own alerts (⚙). A trinket slot shows whatever's equipped there while it has a use effect;
     spells you haven't learned appear once you do.
 

@@ -35,6 +35,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     UnitName's second value is the surname on Forever; no realm); `ns.db` is the one in use.
     Switching by talents or role: `LecdmDB.auto["First Last"]`. Init also moves 0.0.1's flat
     settings (`sound`, `icons`, `pos`) into the profile's `test` table once.
+  - `Talents.lua`: your talents from Forever's trait tree (`ns.Talents.Read()`: `list` of
+    `{ nodeID, name, tree }`, `taken`, `known`; `T.Taken(nodeID)`: nil when the game didn't
+    say), read again after a talent change.
   - `Log.lua`: `ns.Log(text, toChat)` into `LecdmDB.log` (account-wide, last 500), and the copy
     window (`LecdmLog`). `toChat` lines are the test build's debug output: `ns.Debug(line)`
     sends them where `ns.db.test.chat` says ("main", a chat tab's name from `ns.ChatTabs()`,

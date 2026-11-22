@@ -274,6 +274,27 @@ function UnitClass(unit)
 	return "Warrior", "WARRIOR"
 end
 function IsInRaid() return false end
+-- Talents: one trait tree; M.talentsTaken[nodeID] = true for a talent with a rank bought.
+M.talentsTaken = { [501] = true }
+local TALENTS = { [501] = { "Tactical Mastery", 1 }, [502] = { "Improved Overpower", 1 }, [601] = { "Flurry", 2 } }
+C_ClassTalents = { GetActiveConfigID = function() return 7 end }
+C_Traits = {
+	GetConfigInfo = function() return { treeIDs = { 70 } } end,
+	GetGroupDisplayInfoByTreeID = function() return { { groupID = 1, displayName = "Arms", orderIndex = 1 }, { groupID = 2, displayName = "Fury", orderIndex = 2 } } end,
+	GetTreeNodes = function() return { 501, 502, 601 } end,
+	GetNodeInfo = function(_, nodeID)
+		return { entryIDs = { nodeID * 10 }, groupIDs = { TALENTS[nodeID][2] }, isVisible = true,
+			ranksPurchased = M.talentsTaken[nodeID] and 1 or 0 }
+	end,
+	GetEntryInfo = function(_, entryID) return { definitionID = entryID } end,
+	GetDefinitionInfo = function(definitionID) return { overrideName = TALENTS[definitionID / 10][1] } end,
+	GetGroupCurrencyInfo = function() return {} end,
+}
+-- Stances: M.forms = { form spell IDs }, M.form = the index in (0: none).
+M.forms, M.form = { 2457, 71, 2458 }, 1
+function GetNumShapeshiftForms() return #M.forms end
+function GetShapeshiftForm() return M.form end
+function GetShapeshiftFormInfo(i) return 1, i == M.form, true, M.forms[i] end
 function UnitRace() return "Human", "Human" end
 function GetNumSubgroupMembers() return #M.party end
 function GetNumGroupMembers() return #M.party + 1 end
@@ -567,6 +588,14 @@ function M.Menu()
 	end
 	return Node("root")
 end
+
+-- MenuUtil's context menu: built at once into M.contextMenu.
+MenuUtil = {
+	CreateContextMenu = function(owner, generator)
+		M.contextMenu = M.Menu()
+		generator(owner, M.contextMenu)
+	end,
+}
 
 function M.Printed(pattern)
 	for _, line in ipairs(M.printed) do

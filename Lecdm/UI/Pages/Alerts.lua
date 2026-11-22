@@ -40,8 +40,9 @@ local FIELDS = {
 }
 ns.ALERT_FIELDS = FIELDS
 
--- A spell's or buff's own choices, as a menu: a submenu per setting, "Default (...)" first.
-function ns.AlertsMenu(category, key, words, root)
+-- A spell's or buff's own choices, as a menu: a submenu per setting, "Default (...)" first;
+-- extra(root): the row's own entries after them (an icon bar's conditions).
+function ns.AlertsMenu(category, key, words, root, extra)
 	root:CreateTitle(words or tostring(key))
 	for _, f in ipairs(FIELDS[category]) do
 		local field, label, list = f[1], f[2], f[3]
@@ -66,10 +67,14 @@ function ns.AlertsMenu(category, key, words, root)
 				end)
 		end
 	end
+	if extra then
+		root:CreateDivider()
+		extra(root)
+	end
 end
 
 -- The ⚙ button for a row: its spell's or buff's own alerts.
-function ns.AlertsGear(row, x, category, getKey, getWords)
+function ns.AlertsGear(row, x, category, getKey, getWords, extra)
 	local gear = CreateFrame("Button", nil, row)
 	gear:SetSize(20, 20)
 	gear:SetPoint("LEFT", x, 0)
@@ -78,7 +83,7 @@ function ns.AlertsGear(row, x, category, getKey, getWords)
 	gear:SetScript("OnClick", function(self)
 		local key = getKey()
 		if key == nil then return end
-		MenuUtil.CreateContextMenu(self, function(_, root) ns.AlertsMenu(category, key, getWords(), root) end)
+		MenuUtil.CreateContextMenu(self, function(_, root) ns.AlertsMenu(category, key, getWords(), root, extra) end)
 	end)
 	gear:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")

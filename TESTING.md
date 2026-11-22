@@ -48,7 +48,11 @@ the build and date.
 10. Icon bars: "Opacity while on cooldown" 50%: icons fade while on cooldown, back when
     ready; Alerts tab "Glow while it's on cooldown": the glow on cooldown only; a spell set to
     "Only when ready and usable" (Overpower, Revenge) shows only when you can use it, in combat.
-11. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+11. A spell's ⚙ on the Icon bars tab, "In a stance or form": Only in Defensive Stance: it
+    shows in Defensive Stance only, switching as you change stance, in combat too. "With a
+    talent": the trees and talents are listed (taken ones marked); Only with a talent you
+    don't have hides it; take the talent (or respec): it shows.
+12. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

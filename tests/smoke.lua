@@ -169,6 +169,18 @@ ns.Refresh()
 check(not revenge.shown, "an unusable spell shown with only when ready and usable")
 cdBar.show[6572], cdBar.cdAlpha, ns.db.alerts.defaults.spells.cdGlow = nil, 1, "none"
 ns.Refresh()
+-- Stances: only in Defensive Stance hides it in Battle Stance; not in Battle Stance too; back
+-- when the stance changes. The ⚙ menu lists the class's stances.
+ns.Bars.SetForm(cdBar, 100, "in:71")
+check(not charge.shown, "an only-in-Defensive spell shown in Battle Stance")
+M.form = 2
+M.Fire("UPDATE_SHAPESHIFT_FORM")
+check(charge.shown, "an only-in-Defensive spell not shown in Defensive Stance")
+ns.Bars.SetForm(cdBar, 100, "out:71")
+check(not charge.shown, "a not-in-Defensive spell shown in Defensive Stance")
+M.form = 1
+ns.Bars.SetForm(cdBar, 100, nil)
+check(charge.shown, "the stance condition didn't clear")
 -- Tooltips on hover: off by default (clicks go through); on, the game's tooltip for the spell;
 -- out of combat only, none in combat.
 check(not charge.mouse, "an icon takes the mouse with tooltips off")
@@ -861,6 +873,40 @@ M.Slash("bars")
 local panel = ns.Window.CurrentPanel()
 local first = ns.db.bars.list[1]
 check(panel.parts.spellRows[#first.spells] and panel.parts.spellRows[1].key == first.spells[1], "spell rows missing")
+-- A spell's ⚙: its alerts, then when it shows: any stance, or only in or not in each of the class's.
+panel.parts.spellRows[1].gear.scripts.OnClick(panel.parts.spellRows[1].gear)
+local stanceMenu
+for _, c in ipairs(M.contextMenu.children) do
+	if c.text == "In a stance or form" then stanceMenu = c end
+end
+check(stanceMenu and #stanceMenu.children == 9 and stanceMenu.children[1].isSelected(), "the stance menu wrong")
+stanceMenu.children[2].setSelected()
+check(first.forms[first.spells[1]] == "in:2457", "picking a stance didn't set it")
+stanceMenu.children[1].setSelected()
+check(first.forms[first.spells[1]] == nil, "Any didn't clear the stance")
+-- ... and with a talent: by tree, each talent with or without; the condition hides and shows.
+panel.parts.spellRows[1].gear.scripts.OnClick(panel.parts.spellRows[1].gear)
+local talentMenu
+for _, c in ipairs(M.contextMenu.children) do
+	if c.text == "With a talent" then talentMenu = c end
+end
+check(talentMenu and talentMenu.children[2].text == "Arms" and talentMenu.children[3].text == "Fury", "the talent menu's trees wrong")
+local improved = talentMenu.children[2].children[1]
+check(improved.text == "Improved Overpower" and talentMenu.children[2].children[2].text:find("^Tactical Mastery .*taken"), "the talent menu's talents wrong")
+local spellKey = first.spells[1]
+improved.children[1].setSelected()
+check(first.talents[spellKey] == "with:502", "picking a talent didn't set it")
+local firstButton
+for _, b in ipairs(BarFrame(first.name).buttons) do
+	if b.key == spellKey then firstButton = b end
+end
+check(firstButton and not firstButton.shown, "a spell shown without the talent it needs")
+M.talentsTaken[502] = true
+M.Fire("TRAIT_CONFIG_UPDATED")
+check(firstButton.shown, "a spell not shown with the talent it needs")
+M.talentsTaken[502] = nil
+ns.Bars.SetTalent(first, spellKey, nil)
+M.Fire("TRAIT_CONFIG_UPDATED")
 local root = M.Menu()
 panel.parts.top[#panel.parts.top].dropdown.generator(nil, root)
 check(root.children[1].text == "Blizzard's Essential" and root.children[2].text == "Blizzard's Utility", "checklist sections wrong")
