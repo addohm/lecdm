@@ -134,7 +134,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 **Buff icons**
 
 - [x] A glow at a number of stacks (fewer, at most, exactly, at least, more) (2026-11-22)
-- [ ] Shown only for its last seconds
+- [x] Shown only for its last seconds ("Opacity while it's up: Hidden"; 2026-11-22)
 - [ ] Swipe colour, reversed swipe; text (size, colour, position) and border per buff
 
 **Icon bars and layout**

@@ -114,7 +114,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     (icons, timed by the game from the buff's learned duration), a glow while a keep-up buff is
     missing (red pixel glow by default), a glow at a number of stacks (fewer than, at most,
     exactly, at least or more than N; drawn by the game, in combat too); colours.
-  - Buff groups, how a buff looks: **grey** and its **opacity** while it's up (so a missing one
+  - Buff groups, how a buff looks: **grey** and its **opacity** while it's up (or **hidden until
+    the warning time**: then it shows only in its last seconds, and while it's missing if kept
+    up; so a missing one
     stands out; icons come back to full strength at the warning time, in combat too, once its
     duration is known; glows stay at full strength), and what a keep-up buff's place shows
     while it's missing: a copy in **full colour**, **grey** or **dimmed red** (the default), at

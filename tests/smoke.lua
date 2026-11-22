@@ -690,6 +690,14 @@ check(fort and fort.button.bound.SetIcon.desaturated and fort.button.bound.SetIc
 BD.upGrey, BD.upAlpha = false, 1
 ns.Refresh()
 check(G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark/none:gold:5:none:120:1:false"), "back to the plain look")
+-- Hidden until the warning time: the face invisible, the swipe with the revealed icon.
+BD.upAlpha = 0
+ns.Refresh()
+local lastSeconds = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark/none:gold:5:none:120:0:false")
+check(lastSeconds and lastSeconds.button.bound.SetDurationBar and lastSeconds.button.bound.SetDurationCooldown.parent == lastSeconds.button.bound.SetIcon.parent,
+	"hidden until the warning time wrong")
+BD.upAlpha = 1
+ns.Refresh()
 -- A glow at a number of stacks: an application bar the game drives, in the key.
 BD.stackGlow, BD.stackOp, BD.stackCount = "pixel", "=", 3
 ns.Refresh()

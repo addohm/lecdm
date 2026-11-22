@@ -614,7 +614,12 @@ local function Styler(group, name)
 				faded and { z, n, er, eg, eb } or nil)
 			-- The swipe: on the face; above the revealed icon when there is one (still faded).
 			local cooldown
-			if host and host.icon then
+			if host and host.icon and alpha == 0 then
+				-- Hidden while up: the swipe comes with the icon at the warning time.
+				cooldown = CreateFrame("Cooldown", nil, host, "CooldownFrameTemplate")
+				icon:SetTexture(iconTexture)
+				button:SetIcon(host.icon)
+			elseif host and host.icon then
 				cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
 				cooldown:SetFrameLevel(button:GetFrameLevel() + 4)
 				cooldown:SetAlpha(alpha)

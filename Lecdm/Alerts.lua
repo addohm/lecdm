@@ -51,6 +51,11 @@ A.SOUNDS = {
 	{ "MAP_PING", "Map ping" },
 }
 A.ALPHAS = { { 1, "100%" }, { 0.9, "90%" }, { 0.75, "75%" }, { 0.6, "60%" }, { 0.5, "50%" }, { 0.4, "40%" }, { 0.25, "25%" } }
+-- While a buff is up its opacity can be 0: hidden until the warning time, then shown (its last
+-- seconds), as the warning glow is timed.
+A.UP_ALPHAS = {}
+for i, v in ipairs(A.ALPHAS) do A.UP_ALPHAS[i] = v end
+A.UP_ALPHAS[#A.UP_ALPHAS + 1] = { 0, "Hidden until the warning time" }
 A.WARNS = { { 0, "Off" }, { "auto", "Each buff's own" }, { 3, "3 s" }, { 5, "5 s" }, { 10, "10 s" }, { 15, "15 s" },
 	{ 30, "30 s" }, { 60, "1 min" }, { 120, "2 min" } }
 
