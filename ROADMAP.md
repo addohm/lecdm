@@ -128,7 +128,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
       (2026-11-22)
 - [x] "Best in your bags": one entry for healing potions or healthstones, the best you carry, in
       a priority order you set (mana potions and runes too; 2026-11-22)
-- [ ] A cooldown shown as a timer bar
+- [x] A cooldown shown as a timer bar (an icon bar's "Show as"; 2026-11-22)
 - [ ] Drag to order, click for settings, in a preview in the window
 
 **Buff icons**

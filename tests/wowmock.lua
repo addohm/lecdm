@@ -80,6 +80,7 @@ local function NewRegion(kind, name, parent)
 	function f:SetTexCoord(...) self.texcoord = { ... } end
 	function f:SetHideCountdownNumbers(v) self.hideNumbers = v end
 	function f:SetReverse(v) self.reverse = v end
+	function f:SetTimerDuration(d) self.timerDuration = d end
 	function f:SetCountdownMillisecondsThreshold(v) self.msThreshold = v end
 	function f:SetDrawEdge(v) self.edge = v end
 	function f:SetDrawSwipe(v) self.drawSwipe = v end

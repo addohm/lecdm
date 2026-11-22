@@ -436,6 +436,16 @@ ns.Window.Page({
 		local swcGet, swcSet = Field("swipeColor")
 		local edgeGet, edgeSet = Field("edge")
 		local actGet, actSet = Field("activeColor")
+		local styleGet, styleSet = Field("style")
+		local bwGet, bwSet = Field("barWidth")
+		local btGet, btSet = Field("barTexture")
+		local bcGet, bcSet = Field("barColor")
+		local bnGet, bnSet = Field("barName")
+		-- A row only for one style ("icons" or "bars").
+		local function Only(kind, row)
+			row.only = kind
+			return row
+		end
 		local thGet, thSet = Field("threshold")
 		local thcGet, thcSet = Field("thresholdColor")
 		local thdGet, thdSet = Field("thresholdDecimals")
@@ -461,19 +471,26 @@ ns.Window.Page({
 						ns.Refresh()
 					end
 				end),
-			UI.OptionSelect(stack.inner, "Icon size", Numbers(24, 64, 4), sizeGet, sizeSet),
+			UI.OptionSelect(stack.inner, "Show as", Bars.STYLES, styleGet, styleSet,
+				{ tooltip = { "Show as", "Icons, or timer bars: the icon at the left, then a bar filling as the cooldown comes back (full when it's ready), with the name and the time left." } }),
+			Only("icons", UI.OptionSelect(stack.inner, "Icon size", Numbers(24, 64, 4), sizeGet, sizeSet)),
+			Only("bars", UI.OptionSelect(stack.inner, "Bar height", Numbers(12, 40, 2), sizeGet, sizeSet)),
+			Only("bars", UI.OptionSelect(stack.inner, "Bar width", Numbers(100, 400, 20), bwGet, bwSet)),
 			UI.OptionSelect(stack.inner, "Space between icons", Numbers(0, 12, 1), gapGet, gapSet),
 			UI.OptionSelect(stack.inner, "Grow from", Bars.GROW, growGet, growSet,
 				{ tooltip = { "Grow from", "Where the icons start, so that edge stays put as icons hide and show. Vertical bars: left is the top, right the bottom." } }),
-			UI.OptionCheck(stack.inner, "Vertical", vertGet, vertSet),
-			UI.OptionSelect(stack.inner, "Icons per row", Numbers(1, 20, 1), perGet, perSet,
-				{ tooltip = { "Icons per row", "More start a new row (a new column, on a vertical bar)." } }),
+			Only("icons", UI.OptionCheck(stack.inner, "Vertical", vertGet, vertSet)),
+			Only("icons", UI.OptionSelect(stack.inner, "Icons per row", Numbers(1, 20, 1), perGet, perSet,
+				{ tooltip = { "Icons per row", "More start a new row (a new column, on a vertical bar)." } })),
 			UI.OptionCheck(stack.inner, "Show the GCD sweep", gcdGet, gcdSet,
 				{ "GCD sweep", "A short sweep on every icon after a spell that triggers the global cooldown." }),
 			UI.OptionSelect(stack.inner, "Items you have none of", { { "hide", "Hide them" }, { "grey", "Show them greyed" } },
 				emptyGet, emptySet,
 				{ tooltip = { "Items you have none of", "A potion or healthstone on this bar when your bags have none: hidden (its place closes up), or shown greyed with a 0." } }),
 			UI.OptionHeading(stack.inner, "Its look"),
+			Only("bars", UI.OptionSelect(stack.inner, "Bar texture", Bars.BAR_TEXTURES, btGet, btSet)),
+			Only("bars", UI.OptionSelect(stack.inner, "Bar colour", Bars.BAR_COLORS, bcGet, bcSet)),
+			Only("bars", UI.OptionCheck(stack.inner, "The name on the bar", bnGet, bnSet)),
 			UI.OptionSelect(stack.inner, "Border", Bars.BORDERS, borderGet, borderSet),
 			UI.OptionSelect(stack.inner, "Border colour", Bars.BORDER_COLORS, bcolGet, bcolSet),
 			UI.OptionSelect(stack.inner, "Icon zoom", Bars.ZOOMS, zoomGet, zoomSet,
@@ -548,7 +565,10 @@ ns.Window.Page({
 		stack:Reset()
 		local bar = Current()
 		if bar then
-			for _, row in ipairs(p.top) do stack:Add(row) end
+			local style = bar.style or "icons"
+			for _, row in ipairs(p.top) do
+				if not row.only or row.only == style then stack:Add(row) else row:Hide() end
+			end
 			for i, id in ipairs(bar.spells) do
 				local row = p.spellRows[i]
 				if not row then

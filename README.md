@@ -34,8 +34,11 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
 - **Icon bars:** your cooldowns in rows of icons. The dropdown at the top picks an icon bar;
   its last entry, "New icon bar...", makes one (it asks for a name). Everything below is about
   the bar picked:
-  - its name and layout: icon size, spacing, grow from (centre, left or right), vertical, icons
-    per row, the GCD sweep, and items you have none of (hidden, or greyed with a 0);
+  - its name and layout: **show as** icons or **timer bars** (the icon at the left, then a bar
+    filling as the cooldown comes back, full when ready, with the name and the time left: bar
+    height, width, texture, colour, the name on it), icon size, spacing, grow from (centre,
+    left or right), vertical, icons per row, the GCD sweep, and items you have none of (hidden,
+    or greyed with a 0);
   - its look: border and colour, icon zoom, the swipe (normal, reversed or none; its colour;
     a bright edge), countdown text size and, near the end (under a time you pick), a colour or a
     decimal, keybind text (the key of the

@@ -55,6 +55,7 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 #### Icon bars: your cooldowns
 
 - As many icon bars as you like; two are made for you from Blizzard's own list for your class.
+  Each shows its cooldowns as icons or as timer bars.
 - Each icon: the cooldown swipe and countdown, grey on cooldown, a short GCD sweep (or none),
   dark while you can't use it, red while your target is out of range.
 - Per spell: always shown, only when ready, only when ready and usable (Overpower, Execute), or

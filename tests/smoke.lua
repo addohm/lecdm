@@ -189,7 +189,7 @@ M.Fire("PLAYER_REGEN_ENABLED")
 local activeSlot = ActiveOf(charge)
 check(activeSlot and activeSlot.ids[100] and activeSlot.button.bound.SetDurationCooldown and activeSlot.button.bound.SetApplicationCount,
 	"no buff slot on the icon after combat")
-check(activeSlot.button.allPoints == charge, "the buff slot isn't on the icon")
+check(activeSlot.button.allPoints == charge.icon, "the buff slot isn't on the icon")
 ns.Bars.SetActive(cdBar, 100, false)
 check(not ActiveOf(charge), "the buff slot stayed after turning it off")
 -- The countdown near the end: a colour (the game's text binding, given the cooldown's duration;
@@ -231,6 +231,16 @@ check(ns.Bars.BestOrder(cdBar, "best:3")[1] == 5512 and ns.Bars.ItemOf("best:3")
 M.bag[9421] = nil
 ns.Bars.SetOnBar(cdBar, "best:3", false)
 check(cdBar.bestOrder == nil or cdBar.bestOrder["best:3"] == nil, "the order stayed after taking it off")
+-- As timer bars: the icon at the left, the bar filling from the cooldown's duration (full when
+-- ready), the name; the bar's width.
+cdBar.style = "bars"
+ns.Refresh()
+check(charge.w == 180 and charge.timer and charge.timer.shown and charge.timer.timerDuration and charge.timer.timerDuration.spell == 100,
+	"a cooldown's timer bar wrong")
+check(revenge.timerFull.shown and not revenge.timer.shown and revenge.timerName.text == "Revenge", "a ready spell's timer bar isn't full")
+cdBar.style = "icons"
+ns.Refresh()
+check(charge.w == 40 and not charge.timer.shown and not charge.timerFull.shown, "back to icons wrong")
 -- The swipe: reversed, its colour, the edge; none.
 cdBar.swipe, cdBar.swipeColor, cdBar.edge = "reverse", "gold", true
 ns.Refresh()

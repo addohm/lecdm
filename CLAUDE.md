@@ -76,7 +76,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     { key ... }, show = { [key] = "ready" | "usable" | "cooldown" }, size, gap, grow, vertical,
     perRow, gcd, pos }` and the look, `B.LOOK`: `tooltip` (`B.ShowTooltip`), `cdAlpha` among
     it; `forms[key]` "in:<form spell>" / "out:<id>" (0: no form; `B.FormNow`, `B.Forms`,
-    `B.SetForm`), `looks[key]` (its own border, borderColor, icon: `B.Own`, `B.SetLook`, the
+    `B.SetForm`), `style` "icons" | "bars" (timer bars: `TimerParts`, `TimerState`:
+    `StatusBar:SetTimerDuration` filling up, full when ready; `barWidth`, `barTexture`,
+    `barColor`, `barName`), `looks[key]` (its own border, borderColor, icon: `B.Own`, `B.SetLook`, the
     `LECDM_ICON` popup), the countdown near the end (`threshold`, `thresholdColor`: a
     `C_DurationUtil` text binding on `b.timeText`, `TimeBinding` / `Countdown`;
     `thresholdDecimals`: the Cooldown's own), `talents[key]` "with:<nodeID>" / "without:..." (`B.SetTalent`) and

@@ -70,7 +70,10 @@ the build and date.
 18. "Best in your bags" (the checklist): Best healing potion with two kinds of potion in the
     bags shows the better one, with its count and cooldown; drink the last: the other. Its ⚙,
     "Which first": move the lesser one up: it shows first.
-19. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+19. An icon bar "Show as: Timer bars": each spell a bar with its icon, name and time left;
+    cast one: the bar empties and fills back as the cooldown comes back, in combat too; full
+    when ready. Width, height, texture, colour follow the tab.
+20. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

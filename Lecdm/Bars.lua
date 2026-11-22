@@ -49,11 +49,36 @@ B.LOOK = {
 	grey = true, red = true, dark = true, showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "off",
 	cdAlpha = 1, zeroCharges = true, swipe = "normal", swipeColor = "dark", edge = false, activeColor = "gold",
 	threshold = 0, thresholdColor = "red", thresholdDecimals = false,
+	style = "icons", barWidth = 180, barTexture = "blizzard", barColor = "blue", barName = true,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
 		if bar[k] == nil then bar[k] = v end
 	end
+end
+
+-- Shown as icons, or as timer bars: the icon at the left, then a bar filling as the cooldown
+-- comes back (full when ready; the game drives it from the duration, SetTimerDuration), with the
+-- name and the time left.
+B.STYLES = { { "icons", "Icons" }, { "bars", "Timer bars" } }
+B.BAR_TEXTURES = { { "blizzard", "Blizzard" }, { "flat", "Flat" }, { "smooth", "Smooth" } }
+local BAR_FILES = { blizzard = "Interface\\TargetingFrame\\UI-StatusBar", flat = "Interface\\Buttons\\WHITE8X8",
+	smooth = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill" }
+B.BAR_COLORS = { { "blue", "Blue" }, { "class", "Class colour" }, { "gold", "Gold" }, { "green", "Green" },
+	{ "red", "Red" }, { "purple", "Purple" }, { "white", "White" } }
+local BAR_RGB = { blue = { 0.25, 0.6, 1 }, gold = { 1, 0.75, 0.1 }, green = { 0.25, 0.8, 0.3 }, red = { 0.9, 0.25, 0.2 },
+	purple = { 0.65, 0.4, 1 }, white = { 0.85, 0.85, 0.85 } }
+function B.BarRGB(color)
+	if color == "class" then
+		local _, class = UnitClass("player")
+		local c = class and RAID_CLASS_COLORS and RAID_CLASS_COLORS[class]
+		if c then return c.r, c.g, c.b end
+	end
+	local c = BAR_RGB[color] or BAR_RGB.blue
+	return c[1], c[2], c[3]
+end
+function B.BarFile(texture)
+	return BAR_FILES[texture] or BAR_FILES.blizzard
 end
 
 -- The swipe: drawn as the game does, reversed (the dark part shrinks instead), or not at all;
@@ -82,8 +107,9 @@ B.THRESHOLD_COLORS = { { "none", "None (as above)" }, { "red", "Red" }, { "orang
 local THRESHOLD_RGB = { red = { 1, 0.25, 0.25 }, orange = { 1, 0.55, 0.1 }, yellow = { 1, 0.9, 0.2 } }
 
 local function TimeBinding(b, bar)
-	local rgb = THRESHOLD_RGB[bar.thresholdColor]
-	local want = (bar.threshold or 0) > 0 and rgb and B.FONTS[bar.countdown] and C_DurationUtil
+	local rgb = (bar.threshold or 0) > 0 and THRESHOLD_RGB[bar.thresholdColor]
+	local bars = bar.style == "bars"
+	local want = (rgb or bars) and B.FONTS[bar.countdown] and C_DurationUtil
 		and C_DurationUtil.CreateDurationTextBinding and C_CurveUtil
 	if not want then
 		if b.timeBinding then
@@ -102,12 +128,43 @@ local function TimeBinding(b, bar)
 		binding:SetFontString(b.timeText)
 	end
 	pcall(b.timeText.SetFontObject, b.timeText, B.FONTS[bar.countdown])
+	b.timeText:ClearAllPoints()
+	if bars then b.timeText:SetPoint("RIGHT", b, "RIGHT", -4, 0) else b.timeText:SetPoint("CENTER", b.icon, "CENTER") end
 	local curve = C_CurveUtil.CreateColorCurve()
 	curve:SetType(Enum.LuaCurveType.Step)
-	curve:AddPoint(0, CreateColor(rgb[1], rgb[2], rgb[3], 1))
-	curve:AddPoint(bar.threshold, CreateColor(1, 1, 1, 1))
+	if rgb then
+		curve:AddPoint(0, CreateColor(rgb[1], rgb[2], rgb[3], 1))
+		curve:AddPoint(bar.threshold, CreateColor(1, 1, 1, 1))
+	else
+		curve:AddPoint(0, CreateColor(1, 1, 1, 1))
+	end
 	b.timeBinding:SetTextColorCurve(curve, Enum.DurationTextBindingProperty.RemainingDuration)
 	b.useBinding = true
+end
+
+-- A timer bar's parts, made the first time an icon is shown as one.
+local function TimerParts(b)
+	if b.timer then return end
+	b.timer = CreateFrame("StatusBar", nil, b)
+	b.timer:SetFrameLevel(b:GetFrameLevel())
+	b.timerBg = b:CreateTexture(nil, "BORDER")
+	b.timerBg:SetColorTexture(0, 0, 0, 0.5)
+	b.timerFull = b:CreateTexture(nil, "ARTWORK")
+	b.timerName = b.over:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+	b.timerName:SetJustifyH("LEFT")
+end
+
+-- What a timer bar shows: the cooldown (or recharge) filling up, or full when ready (dur nil).
+local function TimerState(b, bar, dur)
+	if bar.style ~= "bars" or not b.timer then return end
+	if dur and pcall(b.timer.SetTimerDuration, b.timer, dur, Enum.StatusBarInterpolation.Immediate,
+		Enum.StatusBarTimerDirection.ElapsedTime) then
+		b.timer:Show()
+		b.timerFull:Hide()
+	else
+		b.timer:Hide()
+		b.timerFull:Show()
+	end
 end
 
 -- The countdown a binding shows now: a duration object, or nil for none.
@@ -543,6 +600,7 @@ local function Charges(b, bar, id, onCooldown)
 		if okD and (ns.IsSecret(dur) or dur) then
 			pcall(b.cd.SetCooldownFromDurationObject, b.cd, dur)
 			Countdown(b, dur)
+			TimerState(b, bar, dur)
 		end
 	end
 	local n = ch.currentCharges
@@ -567,7 +625,7 @@ local function ActiveKey(bar, key)
 	local own = B.Own(bar, key)
 	return table.concat({ tostring(key), bar.size, tostring(bar.zoom), own.border or bar.border, own.borderColor or bar.borderColor,
 		tostring(bar.countdown),
-		tostring(bar.activeColor), tostring(bar.tooltip), Get("spells", key, "activeGlow"), Get("spells", key, "glowColor") }, ":")
+		tostring(bar.activeColor), tostring(bar.tooltip), tostring(bar.style), Get("spells", key, "activeGlow"), Get("spells", key, "glowColor") }, ":")
 end
 
 local function ActiveStyler(bar, key)
@@ -649,7 +707,7 @@ local function PlaceActive(b, bar)
 		end
 		a.container:SetAuraSlotCandidateFilters(want, { includeSpellIDs = ids })
 		slot:ClearAllPoints()
-		slot:SetAllPoints(b)
+		slot:SetAllPoints(b.icon)
 		a.container:SetAuraSlotEnabled(want, true)
 	end
 	for k in pairs(a.slots) do
@@ -697,8 +755,12 @@ local function SpellState(b, bar)
 			b.cd:Clear()
 		end
 		Countdown(b, onCooldown and okDur and dur or nil)
+		TimerState(b, bar, onCooldown and okDur and dur or nil)
 	end
-	if onGCD then Countdown(b, nil) end
+	if onGCD then
+		Countdown(b, nil)
+		TimerState(b, bar, nil)
+	end
 
 	local r, g, bl = 1, 1, 1
 	local okRange, inRange = pcall(C_Spell.IsSpellInRange, id)
@@ -739,13 +801,14 @@ local function ItemState(b, bar)
 	elseif not (ok and not plain and pcall(b.cd.SetCooldown, b.cd, start, duration)) then
 		b.cd:Clear()
 	end
-	if b.useBinding then
+	if b.useBinding or bar.style == "bars" then
 		local dur
-		if plain and onCooldown and C_DurationUtil.CreateDuration then
+		if plain and onCooldown and C_DurationUtil and C_DurationUtil.CreateDuration then
 			local okD, d = pcall(C_DurationUtil.CreateDuration)
 			if okD and d and pcall(d.SetTimeFromStart, d, start, duration) then dur = d end
 		end
 		Countdown(b, dur)
+		TimerState(b, bar, dur)
 	end
 	local okUse, usable = pcall(C_Item.IsUsableItem, B.ItemOf(b.key))
 	if not okUse or ns.IsSecret(usable) then usable = nil end
@@ -781,19 +844,21 @@ end
 -- Places the shown icons, closing the gaps of hidden ones.
 local function Layout(frame, bar)
 	local step = bar.size + bar.gap
-	local per = math.max(1, bar.perRow)
+	local bars = bar.style == "bars"
 	local shown = {}
 	for _, b in ipairs(frame.buttons) do
 		if b.wanted then shown[#shown + 1] = b else b:Hide() end
 	end
 	local n = #shown
+	local per = bars and math.max(1, n) or math.max(1, bar.perRow)
+	local vertical = bars or bar.vertical
 	local rows = math.ceil(n / per)
 	for k, b in ipairs(shown) do
 		local line, pos = math.floor((k - 1) / per), (k - 1) % per
 		local count = (line == rows - 1) and (n - line * per) or per
-		b:SetSize(bar.size, bar.size)
+		b:SetSize(bars and bar.barWidth or bar.size, bar.size)
 		b:ClearAllPoints()
-		if not bar.vertical then
+		if not vertical then
 			if bar.grow == "LEFT" then
 				b:SetPoint("TOPLEFT", frame, "TOPLEFT", pos * step, -line * step)
 			elseif bar.grow == "RIGHT" then
@@ -902,7 +967,11 @@ function B.Build()
 		local n = math.max(1, #bar.spells)
 		local cols, rows = math.min(n, per), math.ceil(n / per)
 		if bar.vertical then cols, rows = rows, cols end
-		frame:SetSize(cols * step - bar.gap, rows * step - bar.gap)
+		if bar.style == "bars" then
+			frame:SetSize(bar.barWidth, n * step - bar.gap)
+		else
+			frame:SetSize(cols * step - bar.gap, rows * step - bar.gap)
+		end
 		local pos = bar.pos or DefaultPos(i)
 		frame:ClearAllPoints()
 		frame:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])
@@ -947,6 +1016,42 @@ end
 function B.ApplyLook(b, bar)
 	local z = bar.zoom or 0.08
 	b.icon:SetTexCoord(z, 1 - z, z, 1 - z)
+	if bar.style == "bars" then
+		TimerParts(b)
+		b.icon:ClearAllPoints()
+		b.icon:SetPoint("TOPLEFT")
+		b.icon:SetSize(bar.size, bar.size)
+		for _, r in ipairs({ b.timer, b.timerBg, b.timerFull }) do
+			r:ClearAllPoints()
+			r:SetPoint("TOPLEFT", b, "TOPLEFT", bar.size + 1, 0)
+			r:SetPoint("BOTTOMRIGHT")
+		end
+		local file = B.BarFile(bar.barTexture)
+		b.timer:SetStatusBarTexture(file)
+		b.timer:SetStatusBarColor(B.BarRGB(bar.barColor))
+		b.timerFull:SetTexture(file)
+		b.timerFull:SetVertexColor(B.BarRGB(bar.barColor))
+		b.timerBg:Show()
+		b.timerName:ClearAllPoints()
+		b.timerName:SetPoint("LEFT", b.timer, "LEFT", 4, 0)
+		b.timerName:SetPoint("RIGHT", b.timer, "RIGHT", -40, 0)
+		b.timerName:SetText(bar.barName and not b.space and b.name or "")
+	else
+		if b.timer then
+			b.timer:Hide()
+			b.timerBg:Hide()
+			b.timerFull:Hide()
+			b.timerName:SetText("")
+		end
+		b.icon:ClearAllPoints()
+		b.icon:SetAllPoints()
+	end
+	b.cd:ClearAllPoints()
+	b.cd:SetAllPoints(b.icon)
+	b.count:ClearAllPoints()
+	b.count:SetPoint("BOTTOMRIGHT", b.icon, "BOTTOMRIGHT", -2, 2)
+	b.keyText:ClearAllPoints()
+	b.keyText:SetPoint("TOPRIGHT", b.icon, "TOPRIGHT", -2, -2)
 	local own = B.Own(bar, b.key)
 	local n = own.border or bar.border or 1
 	if b.space then n = 0 end
