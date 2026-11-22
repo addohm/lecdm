@@ -36,8 +36,9 @@ UI\Widgets.lua
 UI\Window.lua
 UI\Minimap.lua
 UI\Pages\General.lua
-UI\Pages\Bars.lua
 UI\Pages\BuffMenu.lua
+UI\Pages\SpellMenu.lua
+UI\Pages\Bars.lua
 UI\Pages\Buffs.lua
 UI\Pages\Alerts.lua
 UI\Pages\ButtonGlows.lua

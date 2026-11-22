@@ -177,7 +177,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     root)` in three parts; `ns.BuffPreviewRow`; `ns.BuffSamplesRow` with `K.DrawBuff`), `Buffs.lua`
     (the Buffs tab: its buffs first, the rest behind "Show them" (`showAll`), laid out like Icon bars:
     `LECDM_NEW_BUFFS` popup, Show as, look rows shown by style, the checklist of Blizzard's
-    buffs and the buffs on you now, a row per buff), `Bars.lua` (the Icon bars tab: the preview, `PreviewRow`, drag to
+    buffs and the buffs on you now, a row per buff), `SpellMenu.lua` (`ns.SpellMenu(bar, key, root)`: ready, on cooldown, proc; a spell's
+    own `grey` / `cdAlpha` in `bar.looks`; `ns.SpellSamplesRow`, `K.DrawSpell`), `Bars.lua` (the
+    Icon bars tab: its spells first, the rest behind "Show them"; the preview, `PreviewRow`, drag to
     order with `B.MoveTo`; a `DropdownButton` picks the
     bar, its "New icon bar..." entry opens the `LECDM_NEW_BAR` popup with a name box; below,
     only the bar picked: name field, look, Delete, then the spell checklist (MenuUtil) and a

@@ -9,6 +9,17 @@ local UI = ns.UI
 local Bars = ns.Bars
 
 local selected -- the bar shown on the tab (its id)
+local picked = {} -- bar id -> the entry whose samples show
+local showAll = false -- the bar's layout and look rows shown (a window state, not a setting)
+
+-- The entry picked on a bar (its first, until another is clicked).
+local function Picked(bar)
+	if not bar then return nil end
+	for _, key in ipairs(bar.spells) do
+		if key == picked[bar.id] then return key end
+	end
+	return bar.spells[1]
+end
 
 local function Current()
 	local bar = selected and Bars.Get(selected)
@@ -309,6 +320,7 @@ local function Conditions(root, key)
 		sub2:CreateRadio("Only without it", Is("without:" .. e[1]), Set("without:" .. e[1]))
 	end
 end
+ns.SpellConditions = Conditions
 
 -- Saved styles: a row with a menu to save the look shown under a name, and to apply or delete
 -- the saved ones. kind: "bars" or "buffs"; current: the bar or group shown; all: every one.
@@ -419,7 +431,7 @@ local function PreviewRow(parent)
 		icon.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 		icon:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
 		icon:RegisterForDrag("LeftButton")
-		icon:RegisterForClicks("RightButtonUp", "MiddleButtonUp")
+		icon:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
 		icon:SetScript("OnDragStart", function(self)
 			row.dragging = self.index
 			ghost.tex:SetTexture(self.tex:GetTexture())
@@ -439,14 +451,17 @@ local function PreviewRow(parent)
 				return
 			end
 			local key = self.key
-			MenuUtil.CreateContextMenu(self, function(_, root)
-				ns.AlertsMenu("spells", key, Bars.EntryName(key), root, function(r) Conditions(r, key) end)
-			end)
+			if button == "LeftButton" then
+				picked[bar.id] = key
+				ns.Window.Refresh()
+				return
+			end
+			MenuUtil.CreateContextMenu(self, function(_, root) ns.SpellMenu(bar, key, root) end)
 		end)
 		icon:SetScript("OnEnter", function(self)
 			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 			GameTooltip:AddLine(self.key and Bars.EntryName(self.key) or "")
-			GameTooltip:AddLine("Drag it onto another to move it there. Right-click: its ⚙ menu. Middle-click: take it off.", 1, 1, 1, true)
+			GameTooltip:AddLine("Click: its samples. Right-click: its settings. Drag it onto another to move it. Middle-click: take it off.", 1, 1, 1, true)
 			GameTooltip:Show()
 		end)
 		icon:SetScript("OnLeave", GameTooltip_Hide)
@@ -800,6 +815,14 @@ ns.Window.Page({
 			ChecklistRow(stack.inner),
 		}
 		p.preview = PreviewRow(stack.inner)
+		p.samples = ns.SpellSamplesRow(stack.inner, Current, function() return Picked(Current()) end)
+		p.more = UI.OptionButton(stack.inner, "Its layout and look, and each spell's row",
+			function() return showAll and "Hide them" or "Show them" end,
+			function()
+				showAll = not showAll
+				ns.Window.Refresh()
+			end)
+		p.eachHead = UI.OptionHeading(stack.inner, "Each spell")
 		p.empty = UI.OptionText(stack.inner, "No spells on this icon bar yet: tick some in the list above.", 24)
 		p.none = UI.OptionText(stack.inner, "There are no icon bars: pick \"New icon bar...\" in the dropdown above, or Start over below.", 24)
 		p.bottom = {
@@ -874,12 +897,25 @@ ns.Window.Page({
 		local bar = Current()
 		if bar then
 			local style = bar.style or "icons"
-			for _, row in ipairs(p.top) do
-				if not row.only or row.only == style then stack:Add(row) else row:Hide() end
-			end
+			-- Its name, then its spells (the checklist, the preview, the samples of one), then
+			-- the rest behind "Show them".
+			local top, n = p.top, #p.top
+			for i = 1, 4 do stack:Add(top[i]) end -- the picker, the heading, its name, Show as
+			stack:Add(top[n - 1])
+			stack:Add(top[n])
 			p.preview:Fill(bar)
 			stack:Add(p.preview)
-			for i, id in ipairs(bar.spells) do
+			if #bar.spells > 0 then stack:Add(p.samples) end
+			if #bar.spells == 0 then stack:Add(p.empty) end
+			stack:Add(p.more)
+			if showAll then
+				for i = 5, n - 2 do
+					local row = top[i]
+					if not row.only or row.only == style then stack:Add(row) end
+				end
+				stack:Add(p.eachHead)
+			end
+			for i, id in ipairs(showAll and bar.spells or {}) do
 				local row = p.spellRows[i]
 				if not row then
 					row = SpellRow(stack.inner)
@@ -888,7 +924,6 @@ ns.Window.Page({
 				row.index, row.key = i, id
 				stack:Add(row)
 			end
-			if #bar.spells == 0 then stack:Add(p.empty) end
 		else
 			stack:Add(p.picker)
 			stack:Add(p.none)

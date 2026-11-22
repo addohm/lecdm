@@ -8,6 +8,9 @@ All notable changes to lecdm. The format follows
 
 ### Added
 
+- Icon bars: three samples of the spell picked (ready, on cooldown, proc) and a right-click
+  menu with tick boxes in those parts; grey and opacity on cooldown can be a spell's own; the
+  bar's page opens with its spells, the rest behind "Show them".
 - Buffs: three samples of the buff picked (while up, fading, missing) drawn with its look, a
   preview of the group's buffs, and a right-click menu with tick boxes in those three parts
   (choices leave it open; "Use these for every buff"). The group's page opens with its buffs;

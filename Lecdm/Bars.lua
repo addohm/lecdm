@@ -1100,7 +1100,10 @@ local function SpellState(b, bar)
 		onGCD = info.isOnGCD == true
 		onCooldown = info.isActive == true and not onGCD
 	end
-	b.icon:SetDesaturated(onCooldown and bar.grey)
+	local own = B.Own(bar, b.key)
+	local greyOnCD = own.grey
+	if greyOnCD == nil then greyOnCD = bar.grey end
+	b.icon:SetDesaturated(onCooldown and greyOnCD)
 
 	if onGCD and not bar.gcd then
 		b.cd:Clear()
@@ -1150,7 +1153,9 @@ local function ItemState(b, bar)
 		onGCD = duration <= 1.5
 		onCooldown = not onGCD
 	end
-	b.icon:SetDesaturated(onCooldown and bar.grey)
+	local greyOnCD = B.Own(bar, b.key).grey
+	if greyOnCD == nil then greyOnCD = bar.grey end
+	b.icon:SetDesaturated(onCooldown and greyOnCD)
 	if plain and (onCooldown or (onGCD and bar.gcd)) then
 		b.cd:SetCooldown(start, duration)
 	elseif not (ok and not plain and pcall(b.cd.SetCooldown, b.cd, start, duration)) then
@@ -1188,7 +1193,7 @@ local function Update(b, bar)
 	if b.space then return true end
 	local onCooldown, usable = (b.spellID and SpellState or ItemState)(b, bar)
 	if ns.Alerts then ns.Alerts.OnIcon(b, bar, onCooldown, usable) end
-	b:SetAlpha(onCooldown and bar.cdAlpha or 1)
+	b:SetAlpha(onCooldown and (B.Own(bar, b.key).cdAlpha or bar.cdAlpha) or 1)
 	if not (FormAllows(bar, b.key) and TalentAllows(bar, b.key)) then return false end
 	local show = bar.show[b.key] or "always"
 	if show == "ready" then return not onCooldown end

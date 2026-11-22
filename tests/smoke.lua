@@ -1370,6 +1370,7 @@ check(ns.Window.IsShown(), "the addon compartment didn't open the window")
 -- The Bars tab: a row per spell of the bar shown; the checklist ticks spells on and off it, from
 -- Blizzard's sections and the spellbook.
 M.Slash("bars")
+ns.Window.CurrentPanel().parts.more.button.scripts.OnClick(ns.Window.CurrentPanel().parts.more.button)
 local panel = ns.Window.CurrentPanel()
 local first = ns.db.bars.list[1]
 check(panel.parts.spellRows[#first.spells] and panel.parts.spellRows[1].key == first.spells[1], "spell rows missing")
@@ -1421,7 +1422,25 @@ check(first.spells[2] == firstKey and first.spells[1] == secondKey, "dragging in
 ns.Bars.MoveTo(first, 2, 1)
 check(first.spells[1] == firstKey, "moving back didn't")
 panel.parts.preview.icons[1].scripts.OnClick(panel.parts.preview.icons[1], "RightButton")
-check(M.contextMenu.children[1].text == "Sound when it's ready", "right-click didn't open its ⚙ menu")
+local spellMenu = M.contextMenu
+check(spellMenu.children[1].text:find("^Sound as it's ready"), "right-click didn't open its menu")
+-- Its samples: ready, on cooldown, proc; the menu's Grey and Opacity are the spell's own.
+local function MenuItem(m, prefix)
+	for _, c in ipairs(m.children) do
+		if c.text:sub(1, #prefix) == prefix then return c end
+	end
+end
+local spellKey1 = first.spells[1]
+MenuItem(spellMenu, "Grey").setSelected()
+MenuItem(MenuItem(spellMenu, "Opacity"), "60%").setSelected()
+check(first.looks and first.looks[spellKey1] and first.looks[spellKey1].grey == false and first.looks[spellKey1].cdAlpha == 0.6,
+	"the spell menu's Grey or Opacity didn't set its own")
+local ready, onCD, proc = panel.parts.samples.samples[1], panel.parts.samples.samples[2], panel.parts.samples.samples[3]
+check(ready.shown and not onCD.icon.desaturated and onCD.alpha == 0.6 and onCD.cd.cooldown and not ready.cd.cooldown,
+	"the spell samples don't follow its look")
+first.looks[spellKey1] = nil
+ns.Refresh()
+check(onCD.icon.desaturated and onCD.alpha == 1, "back to the bar's look wrong")
 local count = #first.spells
 local lastKey = first.spells[count]
 panel.parts.preview.icons[count].scripts.OnClick(panel.parts.preview.icons[count], "MiddleButton")

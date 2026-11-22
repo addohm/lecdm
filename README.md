@@ -32,8 +32,13 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
 - **General:** Enable Lecdm, the minimap button, the login reminder, a class-coloured window,
   Reset all settings, the chat commands.
 - **Icon bars:** your cooldowns in rows of icons. The dropdown at the top picks an icon bar;
-  its last entry, "New icon bar...", makes one (it asks for a name). Everything below is about
-  the bar picked:
+  its last entry, "New icon bar...", makes one (it asks for a name). A bar's page opens with its
+  name, Show as, and **its spells**: "Add or remove spells", the preview (click one to pick it)
+  and **three samples** of the one picked: **ready**, **on cooldown** and **proc**.
+  **Right-click** a spell (or a sample) for one menu with tick boxes: ready (a sound, a glow),
+  on cooldown (grey, opacity, a glow), a proc (a glow), when it shows, its name on screen, More
+  (charges, its buff on it, stance, talent, its own look), "Use these for every spell". "Show
+  them" opens the rest about the bar picked:
   - its name and layout: **show as** icons or **timer bars** (the icon at the left, then a bar
     filling as the cooldown comes back, full when ready, with the name and the time left: bar
     height, width, texture, colour, the name on it and its size, the icon on the right, a
