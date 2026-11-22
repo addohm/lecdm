@@ -53,6 +53,7 @@ B.LOOK = {
 	style = "icons", barWidth = 180, barTexture = "blizzard", barColor = "blue", barName = true,
 	shape = "square", background = 0, rowsBack = false, row2Size = 0, maxIcons = 0,
 	anchorSide = "below", strata = "MEDIUM", minIcons = 0,
+	fontFace = "default", fontOutline = "OUTLINE", countPos = "BOTTOMRIGHT", keyPos = "TOPRIGHT", keyBadge = 0,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -296,6 +297,37 @@ B.BORDER_COLORS = { { "black", "Black" }, { "class", "Class colour" }, { "gold",
 B.ZOOMS = { { 0, "None" }, { 0.08, "A little" }, { 0.15, "More" } }
 B.TEXT_SIZES = { { "off", "Off" }, { "small", "Small" }, { "normal", "Normal" }, { "large", "Large" }, { "huge", "Huge" } }
 B.FONTS = { small = "NumberFontNormalSmall", normal = "NumberFontNormal", large = "NumberFontNormalLarge", huge = "NumberFontNormalHuge" }
+
+-- The text's font: the game's number fonts (default), or a face with an outline at the size's
+-- pixels; the count's and keybind's places; a dark badge behind the keybind.
+B.FONT_FACES = { { "default", "The game's numbers" }, { "friz", "Friz Quadrata" }, { "arial", "Arial Narrow" },
+	{ "skurri", "Skurri" }, { "morpheus", "Morpheus" } }
+local FACE_FILES = { friz = "Fonts\\FRIZQT__.TTF", arial = "Fonts\\ARIALN.TTF", skurri = "Fonts\\skurri.ttf",
+	morpheus = "Fonts\\MORPHEUS.TTF" }
+B.OUTLINES = { { "", "None" }, { "OUTLINE", "Outline" }, { "THICKOUTLINE", "Thick outline" } }
+B.CORNERS = { { "BOTTOMRIGHT", "Bottom right" }, { "BOTTOMLEFT", "Bottom left" }, { "TOPRIGHT", "Top right" },
+	{ "TOPLEFT", "Top left" }, { "CENTER", "Centre" }, { "BOTTOM", "Bottom" }, { "TOP", "Top" } }
+B.BADGES = { { 0, "None" }, { 0.5, "Dark, 50%" }, { 0.8, "Dark, 80%" } }
+local TEXT_PX = { small = 10, normal = 13, large = 17, huge = 22 }
+
+-- Sets a font string's font: the font object for the size (default face), else the face file at
+-- the size's pixels with the outline.
+function B.SetFont(fs, face, outline, size, fontObject)
+	if not fs then return end
+	local file = FACE_FILES[face]
+	if file then
+		pcall(fs.SetFont, fs, file, TEXT_PX[size] or 13, outline or "")
+	elseif fontObject then
+		pcall(fs.SetFontObject, fs, fontObject)
+	end
+end
+
+local function Corner(fs, region, point)
+	local dx = point:find("LEFT") and 2 or point:find("RIGHT") and -2 or 0
+	local dy = point:find("TOP") and -2 or point:find("BOTTOM") and 2 or 0
+	fs:ClearAllPoints()
+	fs:SetPoint(point, region, point, dx, dy)
+end
 
 function B.BorderRGB(color)
 	if color == "class" then
@@ -1222,10 +1254,18 @@ function B.ApplyLook(b, bar)
 	end
 	b.cd:ClearAllPoints()
 	b.cd:SetAllPoints(b.icon)
-	b.count:ClearAllPoints()
-	b.count:SetPoint("BOTTOMRIGHT", b.icon, "BOTTOMRIGHT", -2, 2)
-	b.keyText:ClearAllPoints()
-	b.keyText:SetPoint("TOPRIGHT", b.icon, "TOPRIGHT", -2, -2)
+	Corner(b.count, b.icon, bar.countPos or "BOTTOMRIGHT")
+	Corner(b.keyText, b.icon, bar.keyPos or "TOPRIGHT")
+	B.SetFont(b.count, bar.fontFace, bar.fontOutline, "normal", "NumberFontNormal")
+	B.SetFont(b.keyText, bar.fontFace, bar.fontOutline, "small", "NumberFontNormalSmallGray")
+	if not b.keyBadge then
+		b.keyBadge = b.over:CreateTexture(nil, "ARTWORK")
+		b.keyBadge:SetColorTexture(0, 0, 0, 1)
+	end
+	b.keyBadge:ClearAllPoints()
+	b.keyBadge:SetPoint("TOPLEFT", b.keyText, "TOPLEFT", -2, 1)
+	b.keyBadge:SetPoint("BOTTOMRIGHT", b.keyText, "BOTTOMRIGHT", 2, -1)
+	b.keyBadge:SetAlpha(bar.keyBadge or 0)
 	local own = B.Own(bar, b.key)
 	local n = own.border or bar.border or 1
 	if b.space then n = 0 end
@@ -1245,7 +1285,12 @@ function B.ApplyLook(b, bar)
 	TimeBinding(b, bar)
 	b.cd:SetHideCountdownNumbers(font == nil or b.useBinding)
 	pcall(b.cd.SetCountdownMillisecondsThreshold, b.cd, bar.thresholdDecimals and bar.threshold or 0)
-	if font then pcall(b.cd.SetCountdownFont, b.cd, font) end
+	if font then
+		pcall(b.cd.SetCountdownFont, b.cd, font)
+		local ok, fs = pcall(b.cd.GetCountdownFontString, b.cd)
+		if ok and fs then B.SetFont(fs, bar.fontFace, bar.fontOutline, bar.countdown) end
+		B.SetFont(b.timeText, bar.fontFace, bar.fontOutline, bar.countdown, font)
+	end
 	B.ShowKey(b, bar)
 end
 
@@ -1256,6 +1301,7 @@ function B.ShowKey(b, bar)
 		text = ns.Keybinds.For(kind == "spell" and b.name or ("item:" .. tostring(B.ItemOf(b.key))))
 	end
 	b.keyText:SetText(text or "")
+	if b.keyBadge then b.keyBadge:SetShown((text or "") ~= "" and (bar.keyBadge or 0) > 0) end
 end
 
 -- Every icon's keybind text again (Keybinds.lua, when bars or bindings change).

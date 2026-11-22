@@ -92,7 +92,10 @@ the build and date.
 26. Anchoring: an icon bar "Anchor it to" a buff group, below it: it sits under the group and
     moves with it (/lecdm move, drag the group); drag the bar: it's free again. "The mouse
     cursor": the bar follows the cursor. Strata High: above the action bars.
-27. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+27. Text font Arial Narrow, Thick outline, on an icon bar: the countdown, count and keybind
+    change; the count at Top left; a keybind badge at 80%. On a buff group: the time and
+    stacks.
+28. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

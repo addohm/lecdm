@@ -542,6 +542,11 @@ ns.Window.Page({
 		local r2Get, r2Set = Field("row2Size")
 		local maxGet, maxSet = Field("maxIcons")
 		local anGet, anSet = Field("anchorTo")
+		local faceGet, faceSet = Field("fontFace")
+		local outGet, outSet = Field("fontOutline")
+		local cpGet, cpSet = Field("countPos")
+		local kpGet, kpSet = Field("keyPos")
+		local kbGet, kbSet = Field("keyBadge")
 		local sideGet, sideSet = Field("anchorSide")
 		local strataGet, strataSet = Field("strata")
 		local minGet, minSet = Field("minIcons")
@@ -644,6 +649,12 @@ ns.Window.Page({
 				{ "A decimal", "The game's countdown shows a decimal under that time; it can't colour its numbers, so the decimal shows when the colour is None." }),
 			UI.OptionCheck(stack.inner, "Keybind text", keyGet, keySet,
 				{ "Keybind text", "The key of the first action button on screen holding the spell or item, from any bar addon." }),
+			UI.OptionSelect(stack.inner, "...its place", Bars.CORNERS, kpGet, kpSet),
+			UI.OptionSelect(stack.inner, "...a badge behind it", Bars.BADGES, kbGet, kbSet),
+			UI.OptionSelect(stack.inner, "Text font", Bars.FONT_FACES, faceGet, faceSet,
+				{ tooltip = { "Text font", "The countdown, count and keybind: the game's number fonts, or a face with an outline." } }),
+			UI.OptionSelect(stack.inner, "...its outline", Bars.OUTLINES, outGet, outSet),
+			UI.OptionSelect(stack.inner, "The count's place (stacks, charges, items)", Bars.CORNERS, cpGet, cpSet),
 			UI.OptionSelect(stack.inner, "Tooltip on hover", Bars.TOOLTIPS, tipGet, tipSet,
 				{ tooltip = { "Tooltip on hover", "The game's tooltip for the spell or item when your mouse is over its icon. Off lets clicks through to the world." } }),
 			UI.OptionCheck(stack.inner, "Grey while on cooldown", greyGet, greySet),

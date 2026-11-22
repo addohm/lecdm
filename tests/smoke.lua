@@ -264,6 +264,13 @@ ns.Refresh()
 check(ns.Auras.AnchorOf(ns.db.buffs.list[1].id).points[1][2] == cooldowns and cooldowns.scripts.OnUpdate == nil, "a buff group anchored to an icon bar wrong")
 ns.db.buffs.list[1].anchorTo, ns.db.buffs.list[1].anchorSide = nil, "below"
 ns.Refresh()
+-- Fonts: a face with an outline on the count and keybind; the count's place; the badge.
+cdBar.fontFace, cdBar.fontOutline, cdBar.countPos, cdBar.keyBadge = "arial", "THICKOUTLINE", "TOPLEFT", 0.5
+ns.Refresh()
+check(charge.count.font and charge.count.font[1]:find("ARIALN") and charge.count.font[3] == "THICKOUTLINE"
+	and charge.count.points[1][1] == "TOPLEFT" and charge.keyBadge.alpha == 0.5, "fonts, the count's place or the badge wrong")
+cdBar.fontFace, cdBar.fontOutline, cdBar.countPos, cdBar.keyBadge = "default", "OUTLINE", "BOTTOMRIGHT", 0
+ns.Refresh()
 -- Overflow: past the most, the rest go on to another bar, after its own; rows up.
 cdBar.maxIcons, cdBar.overflowTo = 1, ns.db.bars.list[2].id
 ns.Refresh()
@@ -730,6 +737,14 @@ local lastSeconds = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark
 check(lastSeconds and lastSeconds.button.bound.SetDurationBar and lastSeconds.button.bound.SetDurationCooldown.parent == lastSeconds.button.bound.SetIcon.parent,
 	"hidden until the warning time wrong")
 BD.upAlpha = 1
+ns.Refresh()
+-- A buff group's font and stacks' place: in the key; the face on the time text.
+buffs[1].fontFace, buffs[1].countPos = "friz", "BOTTOMLEFT"
+ns.Refresh()
+local fonted = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark:friz-OUTLINE:BOTTOMLEFT/")
+check(fonted and fonted.button.bound.SetDurationText.font and fonted.button.bound.SetDurationText.font[1]:find("FRIZQT")
+	and fonted.button.bound.SetApplicationCount.points[1][1] == "BOTTOMLEFT", "a buff group's font or stacks' place wrong")
+buffs[1].fontFace, buffs[1].countPos = "default", "TOPRIGHT"
 ns.Refresh()
 -- A buff group's shape: in the key, the mask on the button's icon; a background.
 buffs[1].shape, buffs[1].background = "Hexagon", 0.25

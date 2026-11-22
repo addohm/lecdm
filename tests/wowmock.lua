@@ -54,6 +54,7 @@ local function NewRegion(kind, name, parent)
 	function f:RegisterEvent(e) self.events[e] = true end
 	function f:RegisterUnitEvent(e) self.events[e] = true end
 	function f:SetText(t) self.text = t end
+	function f:SetFont(file, size, flags) self.font = { file, size, flags } end
 	function f:GetText() return self.text end
 	function f:SetChecked(v) self.checked = v end
 	function f:GetChecked() return self.checked end

@@ -508,6 +508,7 @@ A.LOOK = {
 	barTexture = "blizzard", barColor = "blue", barBg = 0.5, barIcon = true, barName = true, barTime = true,
 	showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "on", swipe = "normal", swipeColor = "dark",
 	shape = "square", background = 0, anchorSide = "below", strata = "MEDIUM",
+	fontFace = "default", fontOutline = "OUTLINE", countPos = "TOPRIGHT",
 }
 function A.FillLook(group)
 	for k, v in pairs(A.LOOK) do
@@ -543,6 +544,8 @@ function A.LookKey(group)
 	local parts = { group.style, group.size, bars and group.barWidth or 0, group.border, group.borderColor,
 		group.zoom, group.timeText, group.tooltip, group.swipe, group.swipeColor }
 	if not bars and group.shape and group.shape ~= "square" then parts[#parts + 1] = group.shape end
+	if group.fontFace and group.fontFace ~= "default" then parts[#parts + 1] = group.fontFace .. "-" .. tostring(group.fontOutline) end
+	if not bars and group.countPos and group.countPos ~= "TOPRIGHT" then parts[#parts + 1] = group.countPos end
 	if bars then
 		for _, k in ipairs({ "barTexture", "barColor", "barBg", "barIcon", "barName", "barTime" }) do
 			parts[#parts + 1] = tostring(group[k])
@@ -593,6 +596,7 @@ local function Styler(group, name)
 		top:SetAllPoints(button)
 		top:SetFrameLevel(button:GetFrameLevel() + 5)
 		local count = top:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+		ns.Bars.SetFont(count, group.fontFace, group.fontOutline, "normal", "NumberFontNormal")
 		count:SetAlpha(alpha)
 		button:SetApplicationCount(count)
 		if bars then
@@ -633,6 +637,7 @@ local function Styler(group, name)
 				local time = barTop:CreateFontString(nil, "OVERLAY", font)
 				time:SetPoint("RIGHT", -4, 0)
 				if not timeOptions then time:SetTextColor(timeRGB[1], timeRGB[2], timeRGB[3]) end
+				ns.Bars.SetFont(time, group.fontFace, group.fontOutline, own.timeText or group.timeText, font)
 				button:SetDurationText(time, timeOptions)
 			end
 			count:SetPoint("BOTTOMRIGHT", icon, -1, 1)
@@ -686,9 +691,11 @@ local function Styler(group, name)
 					time:SetAlpha(alpha)
 					time:SetTextColor(timeRGB[1], timeRGB[2], timeRGB[3])
 				end
+				ns.Bars.SetFont(time, group.fontFace, group.fontOutline, own.timeText or group.timeText, font)
 				button:SetDurationText(time, timeOptions)
 			end
-			count:SetPoint("TOPRIGHT", -1, -1)
+			local cp = group.countPos or "TOPRIGHT"
+			count:SetPoint(cp, cp:find("LEFT") and 1 or cp:find("RIGHT") and -1 or 0, cp:find("TOP") and -1 or cp:find("BOTTOM") and 1 or 0)
 		end
 		AddStackGlow(button, Get("buffs", name, "stackGlow"), color, size, Get("buffs", name, "stackOp"), Get("buffs", name, "stackCount"))
 		-- The glow while it's up: part of the button, so it shows with it; its animations play

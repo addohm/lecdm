@@ -71,6 +71,7 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 - A spell's own buff on its icon while it's up (Death Wish, Shield Block, Slice and Dice): its
   time, stacks and a glow, in combat too.
 - Icon shapes: square, round, rounded, diamond, hexagon; a background behind a bar.
+- Fonts and outlines for the text, where the count and keybind sit, a keybind badge.
 - Anchor bars and buff groups to each other (or a bar to your cursor), so they move together.
 - Rows going up or down, a second row's size, and overflow: past so many icons the rest go on
   to another bar.

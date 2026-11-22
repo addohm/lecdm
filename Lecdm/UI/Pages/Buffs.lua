@@ -349,6 +349,9 @@ ns.Window.Page({
 		p.anchorSide = Row("select", "...on which side", Bars.ANCHOR_SIDES, "anchorSide")
 		p.strata = Row("select", "Strata (above or below other frames)", Bars.STRATAS, "strata")
 		p.background = Row("select", "Background behind it", Bars.BACKGROUNDS, "background")
+		p.fontFace = Row("select", "Text font", Bars.FONT_FACES, "fontFace")
+		p.fontOutline = Row("select", "...its outline", Bars.OUTLINES, "fontOutline")
+		p.countPos = Row("select", "The stacks' place", Bars.CORNERS, "countPos")
 		p.swipe = Row("select", "Swipe", Bars.SWIPES, "swipe")
 		p.swipeColor = Row("select", "Swipe colour", Bars.SWIPE_COLORS, "swipeColor")
 		p.tooltip = Row("select", "Tooltip on hover", Bars.TOOLTIPS, "tooltip",
@@ -489,6 +492,9 @@ ns.Window.Page({
 				for _, row in ipairs({ p.barTexture, p.barColor, p.barBg, p.barIcon, p.barName, p.barTime }) do stack:Add(row) end
 			end
 			stack:Add(p.timeText)
+			stack:Add(p.fontFace)
+			stack:Add(p.fontOutline)
+			if not bars then stack:Add(p.countPos) end
 			if not bars then
 				stack:Add(p.swipe)
 				stack:Add(p.swipeColor)

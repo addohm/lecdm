@@ -25,6 +25,9 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- Text for icon bars and buff groups: a font (the game's numbers or Friz Quadrata, Arial
+  Narrow, Skurri, Morpheus) with an outline; the count's place; the keybind's place and a
+  badge behind it.
 - Anchoring: an icon bar or buff group against another (below, above, left or right of it),
   moving with it; an icon bar following the mouse cursor; frame strata; icon bars at least so
   many icons wide.
