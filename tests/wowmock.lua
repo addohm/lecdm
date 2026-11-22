@@ -86,6 +86,11 @@ local function NewRegion(kind, name, parent)
 	function f:SetTexCoord(...) self.texcoord = { ... } end
 	function f:SetHideCountdownNumbers(v) self.hideNumbers = v end
 	function f:SetReverse(v) self.reverse = v end
+	function f:SetReverseFill(v) self.reverseFill = v end
+	function f:GetStatusBarTexture()
+		self.fillTexture = self.fillTexture or NewRegion("Texture", nil, self)
+		return self.fillTexture
+	end
 	function f:SetTimerDuration(d) self.timerDuration = d end
 	function f:SetCountdownMillisecondsThreshold(v) self.msThreshold = v end
 	function f:SetDrawEdge(v) self.edge = v end

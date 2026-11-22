@@ -262,6 +262,9 @@ local function Conditions(root, key)
 	root:CreateButton("Icon..." .. (Bars.Own(bar, key).icon and " (its own)" or ""), function()
 		StaticPopup_Show("LECDM_ICON", nil, nil, { bar = bar, key = key })
 	end)
+	root:CreateButton("Its name on a timer bar..." .. (Bars.Own(bar, key).label and " (its own)" or ""), function()
+		StaticPopup_Show("LECDM_LABEL", nil, nil, { set = function(text) Bars.SetLook(bar, key, "label", text) end })
+	end)
 	if type(key) == "number" then
 		local active = root:CreateButton("While its buff is up")
 		active:CreateRadio("Show the cooldown", function() return not (bar.active and bar.active[key]) end,
@@ -537,6 +540,11 @@ ns.Window.Page({
 		local btGet, btSet = Field("barTexture")
 		local bcGet, bcSet = Field("barColor")
 		local bnGet, bnSet = Field("barName")
+		local bnsGet, bnsSet = Field("barNameSize")
+		local birGet, birSet = Field("barIconRight")
+		local spkGet, spkSet = Field("barSpark")
+		local grdGet, grdSet = Field("barGradient")
+		local revGet, revSet = Field("barReverse")
 		local shapeGet, shapeSet = Field("shape")
 		local backGet, backSet = Field("rowsBack")
 		local r2Get, r2Set = Field("row2Size")
@@ -637,6 +645,11 @@ ns.Window.Page({
 			Only("bars", UI.OptionSelect(stack.inner, "Bar texture", Bars.BAR_TEXTURES, btGet, btSet)),
 			Only("bars", UI.OptionSelect(stack.inner, "Bar colour", Bars.BAR_COLORS, bcGet, bcSet)),
 			Only("bars", UI.OptionCheck(stack.inner, "The name on the bar", bnGet, bnSet)),
+			Only("bars", UI.OptionSelect(stack.inner, "...its size", Bars.NAME_SIZES, bnsGet, bnsSet)),
+			Only("bars", UI.OptionCheck(stack.inner, "The icon on the right", birGet, birSet)),
+			Only("bars", UI.OptionCheck(stack.inner, "A spark at the bar's end", spkGet, spkSet)),
+			Only("bars", UI.OptionSelect(stack.inner, "A gradient on the bar", Bars.GRADIENTS, grdGet, grdSet)),
+			Only("bars", UI.OptionCheck(stack.inner, "Fill from the right", revGet, revSet)),
 			Only("icons", UI.OptionSelect(stack.inner, "Icon shape", Bars.SHAPES, shapeGet, shapeSet)),
 			UI.OptionSelect(stack.inner, "Background behind it", Bars.BACKGROUNDS, bgGet, bgSet),
 			UI.OptionSelect(stack.inner, "Border", Bars.BORDERS, borderGet, borderSet),

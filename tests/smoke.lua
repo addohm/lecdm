@@ -244,9 +244,15 @@ ns.Refresh()
 check(charge.w == 180 and charge.timer and charge.timer.shown and charge.timer.timerDuration and charge.timer.timerDuration.spell == 100,
 	"a cooldown's timer bar wrong")
 check(revenge.timerFull.shown and not revenge.timer.shown and revenge.timerName.text == "Revenge", "a ready spell's timer bar isn't full")
+cdBar.barIconRight, cdBar.barReverse = true, true
+ns.Bars.SetLook(cdBar, 100, "label", "Go!")
+check(charge.icon.points[1][1] == "TOPRIGHT" and charge.timer.reverseFill and charge.spark and charge.spark.shown
+	and charge.timerName.text == "Go!", "the timer bar's extras or its own name wrong")
+ns.Bars.SetLook(cdBar, 100, "label", nil)
+cdBar.barIconRight, cdBar.barReverse = false, false
 cdBar.style = "icons"
 ns.Refresh()
-check(charge.w == 40 and not charge.timer.shown and not charge.timerFull.shown, "back to icons wrong")
+check(charge.w == 40 and not charge.timer.shown and not charge.timerFull.shown and not charge.spark.shown, "back to icons wrong")
 -- Shapes: a mask on the icon and the swipe, a ring instead of the square border; square again;
 -- a background behind the bar.
 cdBar.shape, cdBar.background = "Round", 0.5
@@ -814,7 +820,11 @@ ns.Refresh()
 -- A group's look is in its aura groups' keys; timer bars' own options too.
 buffs[1].style, buffs[1].barColor, buffs[1].barIcon = "bars", "class", false
 ns.Refresh()
-check(G("Battle Shout/bars:32:200:1:black:0.08:small:on:normal:dark:blizzard:class:0.5:false:true:true/"), "timer bar look not in the key")
+check(G("Battle Shout/bars:32:200:1:black:0.08:small:on:normal:dark:blizzard:class:0.5:false:true:true:true:none:false:false:small/"), "timer bar look not in the key")
+ns.Auras.SetLook(buffs[1], "Battle Shout", "label", "Shout!")
+local labelled = G("Battle Shout/bars:")
+check(labelled and not labelled.button.bound.SetSpellName and labelled.button.spark and labelled.button.spark.shown, "a buff timer bar's own name or spark wrong")
+ns.Auras.SetLook(buffs[1], "Battle Shout", "label", nil)
 buffs[1].style, buffs[1].barColor, buffs[1].barIcon = "icons", "blue", true
 buffs[1].showWhen = "combat"
 ns.Refresh()

@@ -367,7 +367,7 @@ function A.OwnKey(group, name)
 	local own = A.Own(group, name)
 	if not next(own) then return "" end
 	return ":" .. tostring(own.border) .. ":" .. tostring(own.borderColor) .. ":" .. tostring(own.timeText) .. ":"
-		.. tostring(own.timePos) .. ":" .. tostring(own.timeColor)
+		.. tostring(own.timePos) .. ":" .. tostring(own.timeColor) .. ":" .. tostring(own.label)
 end
 
 local function Margin(size)
@@ -508,6 +508,7 @@ A.LOOK = {
 	barTexture = "blizzard", barColor = "blue", barBg = 0.5, barIcon = true, barName = true, barTime = true,
 	showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "on", swipe = "normal", swipeColor = "dark",
 	shape = "square", background = 0, anchorSide = "below", strata = "MEDIUM",
+	barSpark = true, barGradient = "none", barReverse = false, barIconRight = false, barNameSize = "small",
 	fontFace = "default", fontOutline = "OUTLINE", countPos = "TOPRIGHT",
 }
 -- Copies a group's look and layout (everything in A.LOOK) to every other buff group.
@@ -557,7 +558,8 @@ function A.LookKey(group)
 	if group.fontFace and group.fontFace ~= "default" then parts[#parts + 1] = group.fontFace .. "-" .. tostring(group.fontOutline) end
 	if not bars and group.countPos and group.countPos ~= "TOPRIGHT" then parts[#parts + 1] = group.countPos end
 	if bars then
-		for _, k in ipairs({ "barTexture", "barColor", "barBg", "barIcon", "barName", "barTime" }) do
+		for _, k in ipairs({ "barTexture", "barColor", "barBg", "barIcon", "barName", "barTime", "barSpark", "barGradient",
+			"barReverse", "barIconRight", "barNameSize" }) do
 			parts[#parts + 1] = tostring(group[k])
 		end
 	end
@@ -615,17 +617,22 @@ local function Styler(group, name)
 			button:SetIcon(icon)
 			button:SetSize(width, size)
 			local iconW = group.barIcon and size or 0
+			local right = group.barIconRight
 			icon:SetSize(math.max(iconW, 1), size)
-			icon:SetPoint("LEFT")
+			icon:SetPoint(right and "RIGHT" or "LEFT")
 			icon:SetShown(group.barIcon)
 			edge:SetPoint("TOPLEFT", button, -n, n)
 			edge:SetPoint("BOTTOMRIGHT", button, n, -n)
 			edge:SetColorTexture(er, eg, eb, n > 0 and 1 or 0)
 			local bar = CreateFrame("StatusBar", nil, face)
-			bar:SetPoint("TOPLEFT", button, "TOPLEFT", iconW > 0 and (iconW + 1) or 0, 0)
-			bar:SetPoint("BOTTOMRIGHT")
+			local inset = iconW > 0 and (iconW + 1) or 0
+			bar:SetPoint("TOPLEFT", button, "TOPLEFT", right and 0 or inset, 0)
+			bar:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", right and -inset or 0, 0)
 			bar:SetStatusBarTexture(TEXTURE_FILES[group.barTexture] or TEXTURE_FILES.blizzard)
-			if grey then bar:SetStatusBarColor(0.5, 0.5, 0.5) else bar:SetStatusBarColor(BarRGB(group.barColor)) end
+			local br, bgc, bb = 0.5, 0.5, 0.5
+			if not grey then br, bgc, bb = BarRGB(group.barColor) end
+			bar:SetStatusBarColor(br, bgc, bb)
+			ns.Bars.BarExtras(button, bar, group, br, bgc, bb, size)
 			local bg = bar:CreateTexture(nil, "BACKGROUND")
 			bg:SetAllPoints()
 			bg:SetColorTexture(0, 0, 0, group.barBg or 0.5)
@@ -637,11 +644,12 @@ local function Styler(group, name)
 			barTop:SetAllPoints(bar)
 			barTop:SetFrameLevel(bar:GetFrameLevel() + 2)
 			if group.barName then
-				local label = barTop:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+				local label = barTop:CreateFontString(nil, "OVERLAY", ns.Bars.NAME_FONTS[group.barNameSize] or "GameFontHighlightSmall")
 				label:SetPoint("LEFT", 4, 0)
 				label:SetPoint("RIGHT", -40, 0)
 				label:SetJustifyH("LEFT")
-				button:SetSpellName(label)
+				-- Its own name (the buff's ⚙), else the game's for the aura.
+				if own.label then label:SetText(own.label) else button:SetSpellName(label) end
 			end
 			if group.barTime and font then
 				local time = barTop:CreateFontString(nil, "OVERLAY", font)

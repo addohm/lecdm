@@ -103,7 +103,10 @@ the build and date.
     addon. Say if a bar addon's presses don't show.
 30. "Copy to every bar" on one icon bar (after changing its shape and size): every other bar
     takes its look, keeping its own spells and place. The same for buff groups.
-31. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+31. Timer bars (a buff group and an icon bar as timer bars): a spark at the fill's end, a
+    gradient, "Drain to the right" / "Fill from the right", the icon on the right, the name's
+    size; a buff's or spell's ⚙ "Its name on a timer bar...": your name shows instead.
+32. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

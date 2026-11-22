@@ -153,10 +153,13 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 **Timer bars**
 
-- [ ] Spark, gradient fill, reverse fill, the icon left or right, height and width
+- [x] Spark, gradient fill, reverse fill, the icon left or right, height and width (2026-11-22)
 - [ ] Ticks and stack thresholds (up to five, with colours), max stacks, stack-based bars
-- [ ] A colour change at the warning time
-- [ ] Custom names; name, time and stacks text size and position; a decimal under a set time
+- [ ] A colour change at the warning time: icon bars' timer bars only (a buff's aura button
+      takes one duration bar, the one it shows, so its fill can't be timed twice; its time
+      text turns red already)
+- [x] Custom names; the name's size (time and stacks text: the look rows) (2026-11-22)
+- [ ] A decimal under a set time on buff timer bars (needs the game's number formatter)
 - [ ] Saved styles, applied to a bar or a group
 
 **Visibility**

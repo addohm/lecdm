@@ -36,7 +36,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   the bar picked:
   - its name and layout: **show as** icons or **timer bars** (the icon at the left, then a bar
     filling as the cooldown comes back, full when ready, with the name and the time left: bar
-    height, width, texture, colour, the name on it), icon size, spacing, grow from (centre,
+    height, width, texture, colour, the name on it and its size, the icon on the right, a
+    spark, a gradient, filling from the right), icon size, spacing, grow from (centre,
     left or right), vertical, icons per row, rows going up (columns left), the rows after the
     first bigger or smaller, at most so many icons with the rest on another bar, at least so
     many icons wide, anchored to another icon bar or buff group (below, above, left or right
@@ -86,7 +87,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   zoom, time text, the swipe
   and its colour, the game's
   tooltip on hover: on, out of combat only, or off; for timer bars texture, colour, background,
-  and icon, name and time each on or off), when it shows, and
+  icon, name and time each on or off, the icon on the right, the name's size, a spark, a
+  gradient, draining the other way), when it shows, and
   its buffs: tick them from **Lecdm's list** (your class's buffs, your procs and cooldowns,
   buffs other classes put on you, your race's, world buffs, consumables: every rank, and group
   versions count too, so Prayer of Fortitude is Power Word: Fortitude; weapon enchants: oils,
@@ -94,7 +96,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   your buffs in
   Blizzard's list, or from the buffs on you now (out of combat), order them, choose how each shows (**while it's up**, **keep up**: a fixed place with
   a copy of it and a glow while it's down, or **only while missing**), and its own alerts and
-  looks (its ⚙: border, border colour, the time text's size, place and colour).
+  looks (its ⚙: border, border colour, the time text's size, place and colour, its own name on a
+  timer bar).
   Every rank of a buff, whoever cast it, and its full duration are learned the first time Lecdm
   sees it on you out of combat. Changes made in combat apply when it ends.
 

@@ -260,7 +260,36 @@ local function BuffLooks(root, name)
 	LookMenu("Time text", "timeText", ns.Bars.TEXT_SIZES, group.timeText)
 	LookMenu("Time text's place (icons)", "timePos", Auras.TIME_POSITIONS, "BOTTOM")
 	LookMenu("Time text's colour", "timeColor", Auras.TIME_COLORS, "white")
+	root:CreateButton("Its name on a timer bar..." .. (Auras.Own(group, name).label and " (its own)" or ""), function()
+		StaticPopup_Show("LECDM_LABEL", nil, nil, { set = function(text) Auras.SetLook(group, name, "label", text) end })
+	end)
 end
+
+-- The popup for an own name (a timer bar's label); empty: its own again.
+StaticPopupDialogs.LECDM_LABEL = {
+	text = "Its name on the bar (empty: its own):",
+	button1 = OKAY,
+	button2 = CANCEL,
+	hasEditBox = true,
+	maxLetters = 40,
+	OnShow = function(dialog)
+		local box = dialog:GetEditBox()
+		box:SetText("")
+		box:SetFocus()
+	end,
+	OnAccept = function(dialog, data)
+		local text = strtrim(dialog:GetEditBox():GetText() or "")
+		data.set(text ~= "" and text or nil)
+	end,
+	EditBoxOnEnterPressed = function(box)
+		local dialog = box:GetParent()
+		if dialog and dialog.GetButton1 then dialog:GetButton1():Click() end
+	end,
+	EditBoxOnEscapePressed = function(box) box:GetParent():Hide() end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+}
 
 -- A buff in the group: its icon and name, how it shows, then up / down / remove and its ⚙.
 local function BuffRow(parent)
@@ -362,6 +391,11 @@ ns.Window.Page({
 		p.barIcon = Row("check", "Icon at the left", nil, "barIcon")
 		p.barName = Row("check", "The buff's name", nil, "barName")
 		p.barTime = Row("check", "The time left", nil, "barTime")
+		p.barIconRight = Row("check", "The icon on the right", nil, "barIconRight")
+		p.barNameSize = Row("select", "The name's size", Bars.NAME_SIZES, "barNameSize")
+		p.barSpark = Row("check", "A spark at the bar's end", nil, "barSpark")
+		p.barGradient = Row("select", "A gradient on the bar", Bars.GRADIENTS, "barGradient")
+		p.barReverse = Row("check", "Drain to the right (from the left)", nil, "barReverse")
 		p.showHead = UI.OptionHeading(stack.inner, "When it shows")
 		p.showWhen = Row("select", "Show it", V.SHOW, "showWhen")
 		p.alpha = Row("select", "Opacity", V.ALPHAS, "alpha")
@@ -496,7 +530,8 @@ ns.Window.Page({
 			stack:Add(p.borderColor)
 			stack:Add(p.zoom)
 			if bars then
-				for _, row in ipairs({ p.barTexture, p.barColor, p.barBg, p.barIcon, p.barName, p.barTime }) do stack:Add(row) end
+				for _, row in ipairs({ p.barTexture, p.barColor, p.barBg, p.barIcon, p.barIconRight, p.barName, p.barNameSize,
+					p.barTime, p.barSpark, p.barGradient, p.barReverse }) do stack:Add(row) end
 			end
 			stack:Add(p.timeText)
 			stack:Add(p.fontFace)

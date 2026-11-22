@@ -55,6 +55,7 @@ B.LOOK = {
 	anchorSide = "below", strata = "MEDIUM", minIcons = 0,
 	fontFace = "default", fontOutline = "OUTLINE", countPos = "BOTTOMRIGHT", keyPos = "TOPRIGHT", keyBadge = 0,
 	itemCount = "always", itemQuality = false, passiveTrinkets = false, pressMirror = false,
+	barSpark = true, barGradient = "none", barReverse = false, barIconRight = false, barNameSize = "small",
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -84,6 +85,38 @@ function B.BarRGB(color)
 end
 function B.BarFile(texture)
 	return BAR_FILES[texture] or BAR_FILES.blizzard
+end
+
+-- A timer bar's extras (icon bars' and buff groups' alike, cfg: the bar's or group's settings):
+-- a gradient on the fill, filling from the right, a spark at the fill's end (made once, on
+-- `owner`, its parts kept there).
+B.GRADIENTS = { { "none", "None" }, { "darker", "Darker at the start" }, { "lighter", "Lighter at the end" } }
+B.NAME_SIZES = { { "small", "Small" }, { "normal", "Normal" }, { "large", "Large" } }
+B.NAME_FONTS = { small = "GameFontHighlightSmall", normal = "GameFontHighlight", large = "GameFontHighlightLarge" }
+function B.BarExtras(owner, statusBar, cfg, r, g, b, height)
+	local tex = statusBar:GetStatusBarTexture()
+	pcall(statusBar.SetReverseFill, statusBar, cfg.barReverse and true or false)
+	if tex and CreateColor then
+		if cfg.barGradient == "darker" then
+			pcall(tex.SetGradient, tex, "HORIZONTAL", CreateColor(r * 0.45, g * 0.45, b * 0.45, 1), CreateColor(r, g, b, 1))
+		elseif cfg.barGradient == "lighter" then
+			pcall(tex.SetGradient, tex, "HORIZONTAL", CreateColor(r, g, b, 1),
+				CreateColor(math.min(1, r * 1.5 + 0.15), math.min(1, g * 1.5 + 0.15), math.min(1, b * 1.5 + 0.15), 1))
+		end
+	end
+	if cfg.barSpark and tex then
+		if not owner.spark then
+			owner.spark = statusBar:CreateTexture(nil, "OVERLAY")
+			owner.spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
+			owner.spark:SetBlendMode("ADD")
+		end
+		owner.spark:SetSize(12, height * 2.2)
+		owner.spark:ClearAllPoints()
+		owner.spark:SetPoint("CENTER", tex, cfg.barReverse and "LEFT" or "RIGHT")
+		owner.spark:Show()
+	elseif owner.spark then
+		owner.spark:Hide()
+	end
 end
 
 -- Icon shapes: square, or a mask on the icon and its swipe, with a ring for its border (the
@@ -1244,30 +1277,35 @@ function B.ApplyLook(b, bar)
 	b.icon:SetTexCoord(z, 1 - z, z, 1 - z)
 	if bar.style == "bars" then
 		TimerParts(b)
+		local right = bar.barIconRight
 		b.icon:ClearAllPoints()
-		b.icon:SetPoint("TOPLEFT")
+		b.icon:SetPoint(right and "TOPRIGHT" or "TOPLEFT")
 		b.icon:SetSize(bar.size, bar.size)
 		for _, r in ipairs({ b.timer, b.timerBg, b.timerFull }) do
 			r:ClearAllPoints()
-			r:SetPoint("TOPLEFT", b, "TOPLEFT", bar.size + 1, 0)
-			r:SetPoint("BOTTOMRIGHT")
+			r:SetPoint("TOPLEFT", b, "TOPLEFT", right and 0 or (bar.size + 1), 0)
+			r:SetPoint("BOTTOMRIGHT", b, "BOTTOMRIGHT", right and -(bar.size + 1) or 0, 0)
 		end
 		local file = B.BarFile(bar.barTexture)
 		b.timer:SetStatusBarTexture(file)
 		b.timer:SetStatusBarColor(B.BarRGB(bar.barColor))
 		b.timerFull:SetTexture(file)
 		b.timerFull:SetVertexColor(B.BarRGB(bar.barColor))
+		local br, bg, bb = B.BarRGB(bar.barColor)
+		B.BarExtras(b, b.timer, bar, br, bg, bb, bar.size)
 		b.timerBg:Show()
 		b.timerName:ClearAllPoints()
 		b.timerName:SetPoint("LEFT", b.timer, "LEFT", 4, 0)
 		b.timerName:SetPoint("RIGHT", b.timer, "RIGHT", -40, 0)
-		b.timerName:SetText(bar.barName and not b.space and b.name or "")
+		pcall(b.timerName.SetFontObject, b.timerName, B.NAME_FONTS[bar.barNameSize] or B.NAME_FONTS.small)
+		b.timerName:SetText(bar.barName and not b.space and (B.Own(bar, b.key).label or b.name) or "")
 	else
 		if b.timer then
 			b.timer:Hide()
 			b.timerBg:Hide()
 			b.timerFull:Hide()
 			b.timerName:SetText("")
+			if b.spark then b.spark:Hide() end
 		end
 		b.icon:ClearAllPoints()
 		b.icon:SetAllPoints()
