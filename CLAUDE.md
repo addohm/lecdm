@@ -73,8 +73,11 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     stopped by Blizzard's "removed"; `A.Reschedule()` on each `ns.Refresh()`. Going into combat: the keep-up buffs
     missing at the last look (`combatMissing`, `combatChat`).
   - `Bars.lua`: the icon bars (`ns.db.bars`: `list` of bars, each `{ id, name, spells =
-    { key ... }, show = { [key] = "ready" | "cooldown" }, size, gap, grow, vertical, perRow,
-    gcd, pos }` and the look, `B.LOOK`: `tooltip` among it, `B.ShowTooltip`; `seeded`, `nextID`,
+    { key ... }, show = { [key] = "ready" | "usable" | "cooldown" }, size, gap, grow, vertical,
+    perRow, gcd, pos }` and the look, `B.LOOK`: `tooltip` (`B.ShowTooltip`), `cdAlpha` among
+    it; `forms[key]` "in:<form spell>" / "out:<id>" (0: no form; `B.FormNow`, `B.Forms`,
+    `B.SetForm`) and `talents[key]` "with:<nodeID>" / "without:..." (`B.SetTalent`), set from
+    the spell's ⚙ (the extra entries `ns.AlertsGear` takes); `seeded`, `nextID`,
     `hideBlizzard`). A key is a spellID (number), `"slot:N"`
     (an equipment slot: what's equipped there, shown while it has a use effect) or
     `"item:ID"` (a bag item, shown while you have one, with the count): `B.Kind`,
