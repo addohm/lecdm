@@ -25,6 +25,9 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- Alerts: all of Blizzard's Cooldown Manager's sounds in every sound picker (by group), three
+  more of the game's, the Alerts tab's sound pickers as dropdowns; a spell's or buff's name on
+  screen with its sounds; a sound when a spell is back to full charges.
 - Button glows (a new tab): glows on your action buttons, any bar addon's, by rule: while ready
   and usable, while a buff is up or missing, at a number of stacks, while the target's or your
   health is under or over a mark, or late in a swing; only in combat if asked.

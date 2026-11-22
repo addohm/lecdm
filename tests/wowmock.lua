@@ -573,6 +573,15 @@ C_UnitAuras = {
 	end,
 }
 
+-- Blizzard's Cooldown Manager's sounds, as its data file has them.
+Enum.CooldownViewerSoundCategory = { Animals = 1, War3 = 7 }
+COOLDOWN_VIEWER_SETTINGS_SOUND_ALERT_CATEGORY_ANIMALS = "Animals"
+COOLDOWN_VIEWER_SETTINGS_SOUND_ALERT_CATEGORY_WAR3 = "Warcraft III"
+CooldownViewerSoundData = {
+	[1] = { { soundEnum = 1, soundKitID = 316401, text = "Cat" }, { soundEnum = 10, soundKitID = 316415, text = "Wolf" } },
+	[7] = { { soundEnum = 60, soundKitID = 316500, text = "Fanfare" } },
+}
+
 -- Blizzard's viewers: an item pool, and OnAcquireItemFrame as the real mixin has.
 M.viewers = {}
 for _, global in ipairs({ "EssentialCooldownViewer", "UtilityCooldownViewer", "BuffIconCooldownViewer", "BuffBarCooldownViewer" }) do

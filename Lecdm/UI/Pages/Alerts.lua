@@ -10,16 +10,19 @@ local YESNO = { { true, "Yes" }, { false, "No" } }
 local FIELDS = {
 	spells = {
 		{ "ready", "Sound when it's ready", Alerts.SOUNDS },
+		{ "screen", "Its name on screen with its sounds", YESNO },
 		{ "readyGlow", "Glow while it's ready", ns.Glow.STYLES },
 		{ "procGlow", "Glow while the game highlights it (a proc)", ns.Glow.STYLES },
 		{ "cdGlow", "Glow while it's on cooldown", ns.Glow.STYLES },
 		{ "fullGlow", "Glow at full charges (spells with charges)", ns.Glow.STYLES },
+		{ "fullSound", "Sound when it's back to full charges", Alerts.SOUNDS },
 		{ "activeGlow", "Glow while its buff is up (shown on it)", ns.Glow.STYLES },
 		{ "glowColor", "Glow colour", ns.Glow.COLORS },
 	},
 	buffs = {
 		{ "applied", "Sound when it's applied", Alerts.SOUNDS },
 		{ "removed", "Sound when it drops", Alerts.SOUNDS },
+		{ "screen", "Its name on screen with its sounds", YESNO },
 		{ "runningOut", "Sound as it runs out (at the warning time)", Alerts.SOUNDS },
 		{ "combatMissing", "Sound going into combat without it (keep-up buffs)", Alerts.SOUNDS },
 		{ "combatChat", "Say in chat which ones are missing then", YESNO },
@@ -40,6 +43,7 @@ local FIELDS = {
 	blizzard = {
 		{ "applied", "Sound when it's applied", Alerts.SOUNDS },
 		{ "removed", "Sound when it drops", Alerts.SOUNDS },
+		{ "screen", "Its name on screen with its sounds", YESNO },
 		{ "deaths", "Also when your target dies", YESNO },
 	},
 }
@@ -54,22 +58,31 @@ function ns.AlertsMenu(category, key, words, root, extra)
 		if f[4] then root:CreateDivider() end
 		local sub = root:CreateButton(label)
 		local default = ns.db.alerts.defaults[category][field]
+		if list == Alerts.SOUNDS then Alerts.AddBlizzardSounds() end
 		sub:CreateRadio("Default (" .. Alerts.Label(list, default) .. ")",
 			function()
 				local own = ns.db.alerts[category][key]
 				return not (own and own[field] ~= nil)
 			end,
 			function() Alerts.Set(category, key, field, nil) end)
-		for _, v in ipairs(list) do
-			sub:CreateRadio(v[2],
+		local function Radio(menu, value, text)
+			menu:CreateRadio(text,
 				function()
 					local own = ns.db.alerts[category][key]
-					return own ~= nil and own[field] == v[1]
+					return own ~= nil and own[field] == value
 				end,
 				function()
-					Alerts.Set(category, key, field, v[1])
-					if list == Alerts.SOUNDS then Alerts.Play(v[1], words) end
+					Alerts.Set(category, key, field, value)
+					if list == Alerts.SOUNDS then Alerts.Play(value, words) end
 				end)
+		end
+		local plain = list == Alerts.SOUNDS and Alerts.BASE_SOUNDS or #list
+		for i = 1, plain do Radio(sub, list[i][1], list[i][2]) end
+		if list == Alerts.SOUNDS then
+			for _, group in ipairs(Alerts.SOUND_GROUPS) do
+				local g = sub:CreateButton(group[1])
+				for _, v in ipairs(group[2]) do Radio(g, v[1], v[2]) end
+			end
 		end
 	end
 	if extra then
@@ -122,9 +135,52 @@ local function Sample(row, category, field)
 	end
 end
 
--- A default's row: a picker, for sounds a Test button, for glows a sample.
+-- A sound default's row: a dropdown (the game's sounds, then Blizzard's Cooldown Manager's by
+-- group) and a Test button.
+local function SoundRow(parent, category, field, label)
+	local row = CreateFrame("Frame", nil, parent)
+	row:SetHeight(36)
+	row.label = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+	row.label:SetPoint("LEFT", 16, 0)
+	row.label:SetPoint("RIGHT", row, "LEFT", 320, 0)
+	row.label:SetJustifyH("LEFT")
+	row.label:SetText(label)
+	row.dropdown = CreateFrame("DropdownButton", nil, row, "WowStyle1FilterDropdownTemplate")
+	row.dropdown:SetPoint("LEFT", 330, 0)
+	row.dropdown:SetSize(170, 24)
+	local function Pick(value)
+		ns.db.alerts.defaults[category][field] = value
+		Alerts.Play(value, "Battle Shout")
+		ns.Refresh()
+		row.Sync()
+	end
+	row.dropdown:SetupMenu(function(_, root)
+		Alerts.AddBlizzardSounds()
+		local function Radio(menu, value, text)
+			menu:CreateRadio(text, function() return ns.db.alerts.defaults[category][field] == value end, function() Pick(value) end)
+		end
+		for i = 1, Alerts.BASE_SOUNDS do Radio(root, Alerts.SOUNDS[i][1], Alerts.SOUNDS[i][2]) end
+		for _, group in ipairs(Alerts.SOUND_GROUPS) do
+			local g = root:CreateButton(group[1])
+			for _, v in ipairs(group[2]) do Radio(g, v[1], v[2]) end
+		end
+	end)
+	local test = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
+	test:SetSize(54, 22)
+	test:SetPoint("LEFT", row.dropdown, "RIGHT", 6, 0)
+	test:SetText("Test")
+	test:SetScript("OnClick", function() Alerts.Play(ns.db.alerts.defaults[category][field], "Battle Shout") end)
+	row.Sync = function()
+		Alerts.AddBlizzardSounds()
+		row.dropdown:SetText(Alerts.Label(Alerts.SOUNDS, ns.db.alerts.defaults[category][field]))
+	end
+	return row
+end
+
+-- A default's row: a picker, for sounds a dropdown and a Test button, for glows a sample.
 local function DefaultRow(parent, category, f)
 	local field, label, list = f[1], f[2], f[3]
+	if list == Alerts.SOUNDS then return SoundRow(parent, category, field, label) end
 	local row = UI.OptionSelect(parent, label, list,
 		function() return ns.db.alerts.defaults[category][field] end,
 		function(v)

@@ -49,7 +49,11 @@ A.SOUNDS = {
 	{ "ALARM_CLOCK_WARNING_3", "Alarm clock" },
 	{ "TELL_MESSAGE", "Whisper" },
 	{ "MAP_PING", "Map ping" },
+	{ "IG_PLAYER_INVITE", "Invite chime" },
+	{ "PVP_THROUGH_QUEUE", "Queue ready" },
+	{ "IG_QUEST_LIST_COMPLETE", "Quest complete" },
 }
+A.BASE_SOUNDS = #A.SOUNDS -- the rest are Blizzard's Cooldown Manager's (A.AddBlizzardSounds)
 A.ALPHAS = { { 1, "100%" }, { 0.9, "90%" }, { 0.75, "75%" }, { 0.6, "60%" }, { 0.5, "50%" }, { 0.4, "40%" }, { 0.25, "25%" } }
 -- While a buff is up its opacity can be 0: hidden until the warning time, then shown (its last
 -- seconds), as the warning glow is timed.
@@ -108,16 +112,81 @@ local function Speak(text)
 	end)
 end
 
--- Plays a sound choice; "say" speaks `words` (a spell's or buff's name).
-function A.Play(sound, words, why)
+-- Blizzard's Cooldown Manager's own sounds (CooldownViewerSoundData, read only), added to the
+-- choices the first time they're needed: "kit:<sound kit ID>", by its categories.
+A.SOUND_GROUPS = {} -- { name, { { value, label } ... } } for the menus
+local cdmAdded = false
+function A.AddBlizzardSounds()
+	if cdmAdded or type(CooldownViewerSoundData) ~= "table" then return end
+	cdmAdded = true
+	local names = {}
+	for key, value in pairs(Enum.CooldownViewerSoundCategory or {}) do names[value] = key end
+	local cats = {}
+	for cat in pairs(CooldownViewerSoundData) do cats[#cats + 1] = cat end
+	table.sort(cats)
+	for _, cat in ipairs(cats) do
+		local list = CooldownViewerSoundData[cat]
+		local key = names[cat]
+		local title = (key and _G["COOLDOWN_VIEWER_SETTINGS_SOUND_ALERT_CATEGORY_" .. key:upper()]) or key or ("Sounds " .. cat)
+		local group = { title, {} }
+		for _, s in ipairs(type(list) == "table" and list or {}) do
+			if type(s) == "table" and s.soundKitID and s.text then
+				local v = { "kit:" .. s.soundKitID, title .. ": " .. s.text }
+				table.insert(A.SOUNDS, v)
+				table.insert(group[2], { v[1], s.text })
+			end
+		end
+		if #group[2] > 0 then table.insert(A.SOUND_GROUPS, group) end
+	end
+end
+
+-- The on-screen text: a spell's or buff's name and what happened, fading (one of three lines).
+local textFrame, textLines, nextLine
+local function ShowText(text)
+	if not textFrame then
+		textFrame = CreateFrame("Frame", nil, UIParent)
+		textFrame:SetSize(600, 90)
+		textFrame:SetPoint("TOP", UIParent, "TOP", 0, -170)
+		textFrame:SetFrameStrata("HIGH")
+		textLines, nextLine = {}, 1
+		for i = 1, 3 do
+			local fs = textFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+			fs:SetPoint("TOP", 0, -(i - 1) * 30)
+			local fade = fs:CreateAnimationGroup()
+			local a = fade:CreateAnimation("Alpha")
+			a:SetFromAlpha(1)
+			a:SetToAlpha(0)
+			a:SetStartDelay(1.2)
+			a:SetDuration(0.8)
+			fade:SetScript("OnFinished", function() fs:SetText("") end)
+			textLines[i] = { fs = fs, fade = fade }
+		end
+	end
+	local line = textLines[nextLine]
+	nextLine = nextLine % 3 + 1
+	A.lastText = text
+	line.fade:Stop()
+	line.fs:SetText(text)
+	line.fs:SetAlpha(1)
+	line.fade:Play()
+end
+A.ShowText = ShowText
+
+-- Plays a sound choice; "say" speaks `words` (a spell's or buff's name). category, key: whose
+-- (for its on-screen text), what: the word for it ("ready", "dropped").
+function A.Play(sound, words, why, category, key, what)
 	if not sound or sound == "none" then return end
 	if why then ns.Log("sound: " .. why) end
 	if ns.SoundLog then ns.SoundLog.Reason(why or words) end
+	if category and key ~= nil and A.Get(category, key, "screen") then
+		ShowText(tostring(words) .. (what and (" " .. what) or ""))
+	end
 	if sound == "say" then
 		Speak(words)
 		return
 	end
-	local id = SOUNDKIT and SOUNDKIT[sound]
+	local kit = type(sound) == "string" and tonumber(sound:match("^kit:(%d+)$"))
+	local id = kit or (SOUNDKIT and SOUNDKIT[sound])
 	if id then PlaySound(id, "Master") end
 end
 
@@ -132,9 +201,13 @@ function A.OnIcon(b, bar, onCooldown, usable)
 	local key, name = b.key, b.name
 	local seen = last[b]
 	if seen and seen.key == key and seen.onCooldown and not onCooldown then
-		A.Play(A.Get("spells", key, "ready"), name, "ready: " .. tostring(name))
+		A.Play(A.Get("spells", key, "ready"), name, "ready: " .. tostring(name), "spells", key, "ready")
 	end
-	last[b] = { key = key, onCooldown = onCooldown }
+	-- Back to full charges (whether it's recharging is never secret).
+	if seen and seen.key == key and seen.full == false and b.fullCharges == true then
+		A.Play(A.Get("spells", key, "fullSound"), name, "full charges: " .. tostring(name), "spells", key, "full")
+	end
+	last[b] = { key = key, onCooldown = onCooldown, full = b.fullCharges }
 	local style = "none"
 	local quiet = ns.db.alerts.combatOnly and not ns.InCombat()
 	if b.shown ~= false and not quiet then
@@ -177,7 +250,7 @@ function A.OnAnnounced(event, name, onTarget)
 	heardAt[name] = GetTime()
 	local category = Category(name)
 	if event == "OnAuraApplied" then
-		A.Play(A.Get(category, name, "applied"), name, "applied: " .. name)
+		A.Play(A.Get(category, name, "applied"), name, "applied: " .. name, category, name, "up")
 	elseif event == "OnAuraRemoved" then
 		if category == "buffs" and not onTarget then A.StopRunningOut(name) end
 		local sound = A.Get(category, name, "removed")
@@ -190,10 +263,10 @@ function A.OnAnnounced(event, name, onTarget)
 					ns.Log("quiet: " .. name .. " went with its target")
 					return
 				end
-				A.Play(sound, name, "removed: " .. name)
+				A.Play(sound, name, "removed: " .. name, category, name, "dropped")
 			end)
 		else
-			A.Play(sound, name, "removed: " .. name)
+			A.Play(sound, name, "removed: " .. name, category, name, "dropped")
 		end
 	end
 end
@@ -237,7 +310,7 @@ local function PlayRunningOut(name, ends, why)
 		return
 	end
 	playedFor[name] = ends
-	A.Play(A.Get("buffs", name, "runningOut"), name, "running out: " .. name .. why)
+	A.Play(A.Get("buffs", name, "runningOut"), name, "running out: " .. name .. why, "buffs", name, "running out")
 end
 
 function A.StopRunningOut(name)
@@ -307,7 +380,7 @@ local function CombatStarted()
 	end
 	if #missing == 0 then return end
 	local list = table.concat(missing, ", ")
-	if sound then A.Play(sound, missing[1], "into combat without: " .. list) end
+	if sound then A.Play(sound, missing[1], "into combat without: " .. list, "buffs", missing[1], "missing") end
 	if chat then ns.Print("into combat without " .. list) end
 end
 
@@ -331,12 +404,12 @@ function A.OnBuffsRead(buffs)
 		local t = GetTime()
 		for name in pairs(now) do
 			if not shownBefore[name] and not (heardAt[name] and t - heardAt[name] < 1) then
-				A.Play(A.Get("buffs", name, "applied"), name, "applied: " .. name)
+				A.Play(A.Get("buffs", name, "applied"), name, "applied: " .. name, "buffs", name, "up")
 			end
 		end
 		for name in pairs(shownBefore) do
 			if not now[name] and not (heardAt[name] and t - heardAt[name] < 1) then
-				A.Play(A.Get("buffs", name, "removed"), name, "removed: " .. name)
+				A.Play(A.Get("buffs", name, "removed"), name, "removed: " .. name, "buffs", name, "dropped")
 			end
 		end
 	end

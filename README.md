@@ -121,11 +121,16 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   their size is Edit Mode's.
 - **Alerts:** the sounds and glows every spell and buff gets unless it has its own (the ⚙ on
   its row: a submenu per setting, "Default (...)" first). Each glow picker has a sample icon
-  showing the glow and colour picked; each sound picker a Test button. Sounds are the game's (raid warning,
+  showing the glow and colour picked; each sound picker a Test button. The sounds: the game's
+  (raid warning, ready check, alarm clock, invite chime, queue ready...), "Say it", and all of
+  Blizzard's Cooldown Manager's (animals, devices, instruments, Warcraft II and III...), by
+  group. **Its name on screen with its sounds**: "Charge ready", "Battle Shout dropped",
+  fading near the top of the screen. Sounds are the game's (raid warning,
   ready check, alarm clock ...) or "Say it", which speaks the name.
   - Icon bars: a sound when it's ready (off cooldown, not the GCD), a glow while it's ready and
     usable, a glow while the game highlights it (a proc), a glow while it's on cooldown, a glow
-    at full charges, a glow while its buff is up (for spells showing it); glow colour.
+    at full charges and a sound when it's back to full, a glow while its buff is up (for spells
+    showing it); glow colour.
   - Buff groups: sounds when it's applied and when it drops (in combat only for buffs
     Blizzard's `/cdm` also tracks, from its announcement; out of combat for every buff on you);
     a sound as it **runs out**, at the warning time (out of combat from its own timer; in combat

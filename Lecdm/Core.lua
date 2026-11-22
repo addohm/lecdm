@@ -16,14 +16,14 @@ local DEFAULTS = {
 	-- the alerts (Alerts.lua): defaults, and spells' and buffs' own settings by key or name
 	alerts = {
 		defaults = {
-			spells = { ready = "none", readyGlow = "none", procGlow = "modern", cdGlow = "none", fullGlow = "none", activeGlow = "none",
+			spells = { ready = "none", fullSound = "none", screen = false, readyGlow = "none", procGlow = "modern", cdGlow = "none", fullGlow = "none", activeGlow = "none",
 				glowColor = "gold" },
-			buffs = { applied = "none", removed = "none", upGlow = "none", warn = 5, warnGlow = "none", glowColor = "gold",
+			buffs = { applied = "none", removed = "none", screen = false, upGlow = "none", warn = 5, warnGlow = "none", glowColor = "gold",
 				runningOut = "none", combatMissing = "none", combatChat = false,
 				upAlpha = 1, upGrey = false, missingLook = "red", missingAlpha = 1,
 				stackGlow = "none", stackOp = ">=", stackCount = 5,
 				missingGlow = "pixel", missingColor = "red" },
-			blizzard = { applied = "none", removed = "none", deaths = false },
+			blizzard = { applied = "none", removed = "none", screen = false, deaths = false },
 		},
 		spells = {}, buffs = {}, blizzard = {},
 		pixel = { lines = 2, thickness = 2, speed = 0.6 }, -- the pixel glow's look (Glow.lua)

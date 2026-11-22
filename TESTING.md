@@ -123,7 +123,11 @@ the build and date.
     action button glows once a target is under 20%, in combat too, and stops on a new target
     above it. Battle Shout "While a buff is missing" (Battle Shout): the button glows while
     it's down. Heroic Strike "Late in a swing" 0.5 s. "Only in combat". With a bar addon too.
-38. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+38. Alerts tab: a sound picker's dropdown has the game's sounds and Blizzard's groups (Animals,
+    Devices...); pick one: it plays. "Its name on screen with its sounds": "Charge ready" near
+    the top as the sound plays, fading. "Sound when it's back to full charges", if your class
+    has a charge spell.
+39. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

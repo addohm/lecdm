@@ -315,6 +315,27 @@ M.RunTimers()
 check(not charge.pushed.shown, "the pressed look didn't go")
 cdBar.pressMirror = false
 M.actions[9] = nil
+-- Blizzard's sounds in the choices, by group; a kit plays; the name on screen with a sound.
+ns.Alerts.AddBlizzardSounds()
+check(#ns.Alerts.SOUND_GROUPS == 2 and ns.Alerts.SOUND_GROUPS[1][1] == "Animals" and ns.Alerts.Label(ns.Alerts.SOUNDS, "kit:316415") == "Animals: Wolf",
+	"Blizzard's sounds not in the choices")
+heard = #M.sounds
+ns.Alerts.Play("kit:316500", "Charge", "test")
+check(M.sounds[#M.sounds] == 316500, "a Blizzard sound didn't play")
+ns.db.alerts.defaults.spells.screen = true
+ns.Alerts.Play("MAP_PING", "Charge", "test", "spells", 100, "ready")
+check(ns.Alerts.lastText == "Charge ready", "the name didn't show on screen with its sound")
+ns.db.alerts.defaults.spells.screen = false
+-- Charges: back to full plays its sound.
+M.charges = { [6572] = { 1, 2, true } }
+ns.Bars.UpdateAll()
+ns.db.alerts.defaults.spells.fullSound = "READY_CHECK"
+M.charges[6572] = { 2, 2, false }
+heard = #M.sounds
+ns.Bars.UpdateAll()
+check(M.sounds[#M.sounds] == SOUNDKIT.READY_CHECK, "no sound back at full charges")
+M.charges, ns.db.alerts.defaults.spells.fullSound = nil, "none"
+ns.Bars.UpdateAll()
 -- The swing timer: Heroic Strike's icon sweeps the main hand's swing, and is highlighted while
 -- queued; on an action button holding it too, when asked.
 M.known = { [78] = true }

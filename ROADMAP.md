@@ -180,9 +180,10 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 **Sounds and alerts**
 
-- [ ] On-screen text
-- [ ] A sound when a charge comes back
-- [ ] More sounds to pick from
+- [x] On-screen text (the name with its sounds) (2026-11-22)
+- [x] A sound when a charge comes back (back to full: in combat each charge can't be told)
+      (2026-11-22)
+- [x] More sounds to pick from (Blizzard's Cooldown Manager's whole library) (2026-11-22)
 
 **The rest**
 

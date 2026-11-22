@@ -72,7 +72,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     (a presence container), `stacks` (an aura slot's application bar), health (a hidden bar
     given UnitHealth, secret in combat) opening clipped windows; aura parts out of combat only
     (`pending`). The tab: `UI/Pages/ButtonGlows.lua` (id "buttons").
-  - `Alerts.lua`: sounds (`A.SOUNDS`, `A.Play`: SOUNDKIT names or "say", text to speech) and
+  - `Alerts.lua`: sounds (`A.SOUNDS`, `A.Play`: SOUNDKIT names, "kit:<id>" (Blizzard's Cooldown
+    Manager's, from `CooldownViewerSoundData`: `A.AddBlizzardSounds`, `A.SOUND_GROUPS`) or "say",
+    text to speech; the `screen` text, `A.ShowText`) and
     when they play; `ns.db.alerts`: `defaults.spells / .buffs / .blizzard` and each spell's
     (`spells[key]`) or buff's (`buffs[name]`, `blizzard[name]`) own (`A.Get`, `A.Set`,
     `A.HasOwn`). `A.OnIcon` (Bars.lua calls it per icon: the ready sound on the change off
