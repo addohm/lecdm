@@ -25,6 +25,8 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- Icon bars: an opacity while on cooldown, a glow while on cooldown, and "only when ready and
+  usable" (Overpower, Revenge, Execute: hidden until you can use them).
 - A sample icon next to each glow picker on the Alerts tab, showing the glow and colour.
 - The sound log (Diagnostics, `/lecdm soundlog on`): every sound any addon plays goes in the
   log, with the addon that played it and, for Lecdm's own, why.

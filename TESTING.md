@@ -45,7 +45,10 @@ the build and date.
    (`/lecdm log`) names the sound and the addon; Lecdm's own say why. Stop: nothing more.
 9. `/lecdm buff` lists the groups' buffs; `/lecdm buff fort keep` (as a priest) gives Fortitude
    a fixed place; `/lecdm buff fort out` takes it out.
-10. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+10. Icon bars: "Opacity while on cooldown" 50%: icons fade while on cooldown, back when
+    ready; Alerts tab "Glow while it's on cooldown": the glow on cooldown only; a spell set to
+    "Only when ready and usable" (Overpower, Revenge) shows only when you can use it, in combat.
+11. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

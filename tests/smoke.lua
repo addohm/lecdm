@@ -157,6 +157,18 @@ check(charge.icon.desaturated == true and revenge.icon.desaturated == false, "gr
 check(revenge.icon.vertex == 0.4, "unusable spell not dark")
 check(charge.cd.duration and charge.cd.duration.spell == 100, "swipe not given the duration")
 check(M.viewers.EssentialCooldownViewer.alpha == 0 and M.viewers.UtilityCooldownViewer.alpha == 0, "Blizzard's Essential/Utility not invisible")
+-- On cooldown: its own opacity and glow; "only when ready and usable" hides an unusable one.
+local cdBar = ns.Bars.Get(cooldowns.barID)
+cdBar.cdAlpha = 0.5
+ns.db.alerts.defaults.spells.cdGlow = "pixel"
+ns.Refresh()
+check(charge.alpha == 0.5 and revenge.alpha == 1, "opacity on cooldown wrong")
+check(charge.glow.glows and charge.glow.glows["pixel:gold:40"] and charge.glow.glows["pixel:gold:40"].regions[1].shown, "no glow on cooldown")
+cdBar.show[6572] = "usable"
+ns.Refresh()
+check(not revenge.shown, "an unusable spell shown with only when ready and usable")
+cdBar.show[6572], cdBar.cdAlpha, ns.db.alerts.defaults.spells.cdGlow = nil, 1, "none"
+ns.Refresh()
 -- Tooltips on hover: off by default (clicks go through); on, the game's tooltip for the spell;
 -- out of combat only, none in combat.
 check(not charge.mouse, "an icon takes the mouse with tooltips off")
@@ -394,7 +406,7 @@ ns.Refresh()
 -- A spell's ⚙ menu: a submenu per setting, Default first; picking sets its own, Default clears.
 local alertMenu = M.Menu()
 ns.AlertsMenu("spells", 100, "Charge", alertMenu)
-check(#alertMenu.children == 4 and alertMenu.children[1].text == "Sound when it's ready", "alert menu wrong")
+check(#alertMenu.children == 5 and alertMenu.children[1].text == "Sound when it's ready", "alert menu wrong")
 local soundSub = alertMenu.children[1]
 check(soundSub.children[1].text == "Default (None)" and soundSub.children[1].isSelected(), "Default not first and ticked")
 soundSub.children[4].setSelected()

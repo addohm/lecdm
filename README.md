@@ -38,14 +38,15 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     per row, the GCD sweep, and items you have none of (hidden, or greyed with a 0);
   - its look: border and colour, icon zoom, countdown text size, keybind text (the key of the
     first action button on screen holding it, from any bar addon), the game's tooltip on hover
-    (off by default, so clicks go through; on; or out of combat only), grey on cooldown, red out
-    of range, dark when unusable;
+    (off by default, so clicks go through; on; or out of combat only), grey on cooldown and its
+    opacity then, red out of range, dark when unusable;
   - when it shows: always, only in combat, or in combat or with a target; opacity; out of
     combat the same, faded or hidden; and Delete;
   - its spells and items: tick them in the checklist (Blizzard's Essential and Utility lists,
     your spellbook, your equipped trinkets and on-use gear, usable items in your bags; an entry
     on another bar says "(on ...)" and ticking moves it), order them with the arrows, choose
-    when each shows (always, only when ready, only on cooldown; the others close up), and its
+    when each shows (always, only when ready, only when ready and usable: Overpower, Revenge,
+    Execute; only on cooldown; the others close up), and its
     own alerts (⚙). A trinket slot shows whatever's equipped there while it has a use effect;
     spells you haven't learned appear once you do.
 
@@ -83,7 +84,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   showing the glow and colour picked; each sound picker a Test button. Sounds are the game's (raid warning,
   ready check, alarm clock ...) or "Say it", which speaks the name.
   - Icon bars: a sound when it's ready (off cooldown, not the GCD), a glow while it's ready and
-    usable, a glow while the game highlights it (a proc); glow colour.
+    usable, a glow while the game highlights it (a proc), a glow while it's on cooldown; glow
+    colour.
   - Buff groups: sounds when it's applied and when it drops (in combat only for buffs
     Blizzard's `/cdm` also tracks, from its announcement; out of combat for every buff on you);
     a sound as it **runs out**, at the warning time (out of combat from its own timer; in combat

@@ -5,7 +5,8 @@
 --   Icon bars (Lecdm's own icons: Lua knows their state, in combat too):
 --     ready      a sound when a spell or item comes off a real cooldown;
 --     readyGlow  a glow while it's ready (and usable);
---     procGlow   a glow while the game highlights it (SPELL_ACTIVATION_OVERLAY_GLOW_SHOW).
+--     procGlow   a glow while the game highlights it (SPELL_ACTIVATION_OVERLAY_GLOW_SHOW);
+--     cdGlow     a glow while it's on a real cooldown.
 --   Buff groups (the game fills them; Lua only hears what Blizzard's Cooldown Manager announces
 --   in combat, and reads your buffs out of combat):
 --     applied, removed   sounds; in combat only for buffs Blizzard also tracks (its announcement);
@@ -130,6 +131,9 @@ function A.OnIcon(b, bar, onCooldown, usable)
 		end
 		if style == "none" and not onCooldown and usable ~= false then
 			style = A.Get("spells", key, "readyGlow")
+		end
+		if style == "none" and onCooldown then
+			style = A.Get("spells", key, "cdGlow") or "none"
 		end
 	end
 	if b.glow then ns.Glow.Show(b.glow, style or "none", A.Get("spells", key, "glowColor"), bar.size) end

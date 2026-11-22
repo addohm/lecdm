@@ -276,6 +276,7 @@ ns.Window.Page({
 		local keyGet, keySet = Field("keybind")
 		local tipGet, tipSet = Field("tooltip")
 		local greyGet, greySet = Field("grey")
+		local cdaGet, cdaSet = Field("cdAlpha")
 		local redGet, redSet = Field("red")
 		local darkGet, darkSet = Field("dark")
 		local showGet, showSet = Field("showWhen")
@@ -322,6 +323,7 @@ ns.Window.Page({
 			UI.OptionSelect(stack.inner, "Tooltip on hover", Bars.TOOLTIPS, tipGet, tipSet,
 				{ tooltip = { "Tooltip on hover", "The game's tooltip for the spell or item when your mouse is over its icon. Off lets clicks through to the world." } }),
 			UI.OptionCheck(stack.inner, "Grey while on cooldown", greyGet, greySet),
+			UI.OptionSelect(stack.inner, "Opacity while on cooldown", ns.Alerts.ALPHAS, cdaGet, cdaSet),
 			UI.OptionCheck(stack.inner, "Red while your target is out of range", redGet, redSet),
 			UI.OptionCheck(stack.inner, "Dark while you can't use it", darkGet, darkSet),
 			UI.OptionHeading(stack.inner, "When it shows"),

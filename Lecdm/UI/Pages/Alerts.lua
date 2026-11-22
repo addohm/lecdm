@@ -12,6 +12,7 @@ local FIELDS = {
 		{ "ready", "Sound when it's ready", Alerts.SOUNDS },
 		{ "readyGlow", "Glow while it's ready", ns.Glow.STYLES },
 		{ "procGlow", "Glow while the game highlights it (a proc)", ns.Glow.STYLES },
+		{ "cdGlow", "Glow while it's on cooldown", ns.Glow.STYLES },
 		{ "glowColor", "Glow colour", ns.Glow.COLORS },
 	},
 	buffs = {

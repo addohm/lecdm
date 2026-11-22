@@ -22,7 +22,8 @@ local _, ns = ...
 local B = {}
 ns.Bars = B
 
-B.SHOW = { { "always", "Always" }, { "ready", "Only when ready" }, { "cooldown", "Only on cooldown" } }
+B.SHOW = { { "always", "Always" }, { "ready", "Only when ready" }, { "usable", "Only when ready and usable" },
+	{ "cooldown", "Only on cooldown" } }
 B.GROW = { { "CENTER", "Centre" }, { "LEFT", "Left / top" }, { "RIGHT", "Right / bottom" } }
 B.BLIZZARD = { "EssentialCooldownViewer", "UtilityCooldownViewer" }
 B.BLIZZARD_BUFFS = { "BuffIconCooldownViewer", "BuffBarCooldownViewer" }
@@ -46,6 +47,7 @@ B.LOOK = {
 	size = 40, gap = 4, grow = "CENTER", vertical = false, perRow = 12, gcd = true, emptyItems = "hide",
 	border = 1, borderColor = "black", zoom = 0.08, countdown = "normal", keybind = false,
 	grey = true, red = true, dark = true, showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "off",
+	cdAlpha = 1,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -397,8 +399,10 @@ local function Update(b, bar)
 	if not b.known then return false end
 	local onCooldown, usable = (b.spellID and SpellState or ItemState)(b, bar)
 	if ns.Alerts then ns.Alerts.OnIcon(b, bar, onCooldown, usable) end
+	b:SetAlpha(onCooldown and bar.cdAlpha or 1)
 	local show = bar.show[b.key] or "always"
 	if show == "ready" then return not onCooldown end
+	if show == "usable" then return not onCooldown and usable ~= false end
 	if show == "cooldown" then return onCooldown end
 	return true
 end

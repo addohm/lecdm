@@ -113,10 +113,10 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 **Cooldown icons**
 
-- [ ] Glow while on cooldown; lower opacity on cooldown; keep colour on cooldown (also when
-      short of the resource)
-- [ ] Hidden until usable; hidden in or outside a stance or form; shown only with talents
-      taken or not
+- [x] Glow while on cooldown; lower opacity on cooldown; keep colour on cooldown (also when
+      short of the resource: untick grey and dark) (2026-11-22)
+- [x] Hidden until usable ("Only when ready and usable") (2026-11-22)
+- [ ] Hidden in or outside a stance or form; shown only with talents taken or not
 - [ ] Charges: the count (hidden at 0), a glow at max charges, swipe and edge options
 - [ ] Swipe off or reversed, the cooldown edge always, swipe colour
 - [ ] The spell's own buff on its icon: a swipe colour, glow or border while it's up, or the
