@@ -9,6 +9,7 @@
 --                it's quiet while someone else of that class is in your group.
 --   warn         its own warning time in seconds (the "Each buff's own" choice)
 --   note         shown in its tooltip
+--   enchant      a temporary weapon enchant: "MainHand" or "OffHand" (no spell IDs)
 -- Sections are the checklist's submenus, in this order. Forever has no Blessing of Salvation or
 -- Sanctuary, Greater Blessing of Light or Elemental Mastery (its SpellName table, 2026-11-22).
 local _, ns = ...
@@ -204,6 +205,13 @@ Section("Consumables", {
 	{ "Infallible Mind", warn = 120, note = "Cerebral Cortex Compound." },
 	{ "Spiritual Domination", warn = 120, note = "Gizzard Gum." },
 	{ "Well Fed", warn = 120, note = "Food." },
+})
+
+-- Temporary weapon enchants: not auras, but Blizzard's containers show them too (enchant: the
+-- AuraContainerItemEnchantmentSlot). They always have a fixed place in their group.
+Section("Weapon enchants", {
+	{ "Main hand enchant", enchant = "MainHand", warn = 120, note = "Oils, sharpening stones, poisons, a shaman's weapon spells." },
+	{ "Off hand enchant", enchant = "OffHand", warn = 120, note = "Oils, sharpening stones, poisons, a shaman's weapon spells." },
 })
 
 -- The entry a name belongs to (any of its names), or nil.

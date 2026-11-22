@@ -23,6 +23,9 @@ All notable changes to lecdm. The format follows
   class, with every rank and their group versions (Prayer of Fortitude counts as Power Word:
   Fortitude), each with its own warning time, and which class can recast it (the running-out
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
+- Weapon enchants in buff groups (main and off hand: oils, sharpening stones, poisons, shaman
+  weapon spells), shown by the game in a place of their own, kept up or only while missing like
+  a buff, with their sounds (applied, dropped, running out) out of combat.
 
 ### Changed
 

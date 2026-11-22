@@ -165,7 +165,36 @@ function A.IDs(name)
 	return ids, n
 end
 
+-- A weapon enchant entry's container slot (AuraContainerItemEnchantmentSlot), or nil.
+function A.EnchantSlot(name)
+	local e = ns.BuffList.Entry(name)
+	if e and e.enchant and AuraContainerItemEnchantmentSlot then return AuraContainerItemEnchantmentSlot[e.enchant] end
+end
+
+local INVSLOT = { MainHand = 16, OffHand = 17 }
+
+-- The weapon enchants on you now, out of combat: { name, expires } for each.
+function A.ReadEnchants()
+	local list = {}
+	if InCombatLockdown() or not GetWeaponEnchantInfo then return list end
+	local ok, hasMain, mainMs, _, _, hasOff, offMs = pcall(GetWeaponEnchantInfo)
+	if not ok then return list end
+	local now = GetTime()
+	local function Add(has, ms, name)
+		if ns.IsSecret(has) or ns.IsSecret(ms) or not has then return end
+		list[#list + 1] = { name = name, expires = type(ms) == "number" and now + ms / 1000 or nil, enchant = true }
+	end
+	Add(hasMain, mainMs, "Main hand enchant")
+	Add(hasOff, offMs, "Off hand enchant")
+	return list
+end
+
 function A.Icon(name)
+	local e = ns.BuffList.Entry(name)
+	if e and e.enchant then
+		local ok, icon = pcall(GetInventoryItemTexture, "player", INVSLOT[e.enchant])
+		return ok and not ns.IsSecret(icon) and icon or 136244
+	end
 	local icons = LecdmDB.auraIcons or {}
 	if icons[name] then return icons[name] end
 	local ok, info = pcall(C_Spell.GetSpellInfo, name)
@@ -221,7 +250,12 @@ local function LearnFromBuffs()
 			end
 		end
 	end
-	if ns.Alerts then ns.Alerts.OnBuffsRead(buffs) end
+	if ns.Alerts then
+		local all = {}
+		for _, b in ipairs(buffs) do all[#all + 1] = b end
+		for _, b in ipairs(A.ReadEnchants()) do all[#all + 1] = b end
+		ns.Alerts.OnBuffsRead(all)
+	end
 	return changed
 end
 
@@ -522,7 +556,7 @@ local function Frame(group)
 	keep:SetPoint("TOPLEFT", anchor, "TOPLEFT")
 	keep:SetFrameLevel(anchor:GetFrameLevel() + 6)
 	keep:Show()
-	f = { anchor = anchor, container = container, made = {}, keep = keep, slots = {}, presence = {} }
+	f = { anchor = anchor, container = container, made = {}, keep = keep, slots = {}, presence = {}, enchants = {} }
 	frames[group.id] = f
 	return f
 end
@@ -598,12 +632,16 @@ local function Presence(f, name)
 	p.container:SetUnit("player")
 	p.container:SetSize(1, 1)
 	p.container:Show()
-	local ids = A.IDs(name)
-	p.container:AddAuraGroup("buff", "HELPFUL", {
-		candidateFilters = { includeSpellIDs = ids },
-		maxFrameCount = 1,
-		initializeFrame = Invisible,
-	})
+	p.slot = A.EnchantSlot(name)
+	if p.slot then
+		p.container:AddItemEnchantment(p.slot, { initializeFrame = Invisible, hidePermanent = true })
+	else
+		p.container:AddAuraGroup("buff", "HELPFUL", {
+			candidateFilters = { includeSpellIDs = A.IDs(name) },
+			maxFrameCount = 1,
+			initializeFrame = Invisible,
+		})
+	end
 	p.clip = CreateFrame("Frame", nil, f.anchor, "DisableUntrustedLayoutScriptsTemplate")
 	p.clip:SetClipsChildren(true)
 	p.clip:SetFrameLevel(f.anchor:GetFrameLevel() + 2)
@@ -622,9 +660,14 @@ local function PlaceMissing(f, group, name, x, y, w, h)
 	local p = Presence(f, name)
 	local margin = Margin(h)
 	local span = w + 2 * margin
-	p.container:SetAuraGroupCandidateFilters("buff", { includeSpellIDs = A.IDs(name) })
-	p.container:SetAuraGroupLayout("buff", { elementWidth = span + 1, elementHeight = 1 })
-	p.container:SetAuraGroupEnabled("buff", true)
+	if p.slot then
+		p.container:SetItemEnchantmentLayout({ elementWidth = span + 1, elementHeight = 1 })
+		p.container:SetItemEnchantmentEnabled(p.slot, true)
+	else
+		p.container:SetAuraGroupCandidateFilters("buff", { includeSpellIDs = A.IDs(name) })
+		p.container:SetAuraGroupLayout("buff", { elementWidth = span + 1, elementHeight = 1 })
+		p.container:SetAuraGroupEnabled("buff", true)
+	end
 	p.container:ClearAllPoints()
 	p.container:SetPoint("TOPLEFT", f.anchor, "TOPLEFT", x - margin - 1, -y + margin)
 	p.clip:ClearAllPoints()
@@ -659,7 +702,28 @@ local function HideMissing(f, name)
 	local p = f.presence[name]
 	if not p then return end
 	p.clip:Hide()
-	p.container:SetAuraGroupEnabled("buff", false)
+	if p.slot then
+		p.container:SetItemEnchantmentEnabled(p.slot, false)
+	else
+		p.container:SetAuraGroupEnabled("buff", false)
+	end
+end
+
+-- A weapon enchant's button: its own small container (one per look: a button's parts are fixed
+-- when the game makes it, and a container takes each enchant slot once).
+local function Enchant(f, group, name, key, slot)
+	local en = f.enchants[key]
+	if not en then
+		en = { slot = slot }
+		en.container = CreateFrame("AuraContainer", nil, f.anchor, "CustomAuraContainerTemplate")
+		en.container:SetUnit("player")
+		en.container:SetSize(1, 1)
+		en.container:SetFrameLevel(f.anchor:GetFrameLevel() + 6)
+		en.container:Show()
+		en.button = en.container:AddItemEnchantment(slot, { initializeFrame = Styler(group, name), hidePermanent = true })
+		f.enchants[key] = en
+	end
+	return en
 end
 
 -- The default place of the i-th group: above the middle of the screen, one above another.
@@ -680,7 +744,7 @@ local function PlaceGroup(f, group, i)
 	-- vertical groups; the top rows, for timer bars); the rest flow after them, closing gaps.
 	local fixed, flow = {}, {}
 	for j, name in ipairs(group.entries) do
-		if A.Mode(group, name) == "up" then flow[#flow + 1] = name else fixed[#fixed + 1] = name end
+		if A.Mode(group, name) == "up" and not A.EnchantSlot(name) then flow[#flow + 1] = name else fixed[#fixed + 1] = name end
 	end
 	local K, F = #fixed, #flow
 	local stepX, stepY = w + gap, h + gap
@@ -703,7 +767,7 @@ local function PlaceGroup(f, group, i)
 
 	local look = A.LookKey(group)
 	-- The fixed places.
-	local wantSlot, keepNames = {}, {}
+	local wantSlot, keepNames, wantEnchant = {}, {}, {}
 	for k, name in ipairs(fixed) do
 		local x, y
 		if bars then
@@ -719,9 +783,22 @@ local function PlaceGroup(f, group, i)
 		end
 		keepNames[name] = true
 		local ids, count = A.IDs(name)
-		if count > 0 then
+		local slot, mode = A.EnchantSlot(name), A.Mode(group, name)
+		if slot then
+			-- A weapon enchant: "up" leaves its place empty while there's none.
+			if mode == "up" then HideMissing(f, name) else PlaceMissing(f, group, name, x, y, w, h) end
+			if mode ~= "missing" then
+				local key = name .. "/" .. look .. "/" .. A.AlertLook(name)
+				wantEnchant[key] = true
+				local en = Enchant(f, group, name, key, slot)
+				en.container:ClearAllPoints()
+				en.container:SetPoint("TOPLEFT", f.anchor, "TOPLEFT", x, -y)
+				en.container:SetItemEnchantmentLayout({ elementWidth = w, elementHeight = h })
+				en.container:SetItemEnchantmentEnabled(slot, true)
+			end
+		elseif count > 0 then
 			PlaceMissing(f, group, name, x, y, w, h)
-			if A.Mode(group, name) == "keep" then
+			if mode == "keep" then
 				local key = name .. "/" .. look .. "/" .. A.AlertLook(name)
 				wantSlot[key] = true
 				local button = f.slots[key]
@@ -741,6 +818,9 @@ local function PlaceGroup(f, group, i)
 	end
 	for key in pairs(f.slots) do
 		if not wantSlot[key] then f.keep:SetAuraSlotEnabled(key, false) end
+	end
+	for key, en in pairs(f.enchants) do
+		if not wantEnchant[key] then en.container:SetItemEnchantmentEnabled(en.slot, false) end
 	end
 	for name in pairs(f.presence) do
 		if not keepNames[name] then HideMissing(f, name) end
@@ -854,6 +934,7 @@ function A.Build()
 			for key in pairs(f.made) do pcall(f.container.SetAuraGroupEnabled, f.container, key, false) end
 			for key in pairs(f.slots) do pcall(f.keep.SetAuraSlotEnabled, f.keep, key, false) end
 			for name in pairs(f.presence) do pcall(HideMissing, f, name) end
+			for _, en in pairs(f.enchants) do pcall(en.container.SetItemEnchantmentEnabled, en.container, en.slot, false) end
 		end
 	end
 end
@@ -865,10 +946,11 @@ end
 local events = CreateFrame("Frame")
 events:RegisterEvent("PLAYER_REGEN_ENABLED")
 events:RegisterUnitEvent("UNIT_AURA", "player")
+events:RegisterEvent("WEAPON_ENCHANT_CHANGED")
 events:SetScript("OnEvent", function(_, event, unit)
 	if not ns.db then return end
-	if event == "UNIT_AURA" then
-		if unit ~= "player" or InCombatLockdown() then return end
+	if event == "UNIT_AURA" or event == "WEAPON_ENCHANT_CHANGED" then
+		if (event == "UNIT_AURA" and unit ~= "player") or InCombatLockdown() then return end
 		if LearnFromBuffs() then A.Build() end
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		local learned = LearnFromBuffs()

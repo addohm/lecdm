@@ -680,6 +680,38 @@ check(not keepC.slots[slotKey].enabled and presence.groups.buff.enabled, "only-w
 ns.Auras.SetMode(buffs[1], "Battle Shout", "up")
 check(not presence.groups.buff.enabled and G("Battle Shout/icons:32:0:") and container.points[1][5] == 0, "back to while-up wrong")
 
+-- Weapon enchants: always a fixed place, the game's button in a container of its own; keep up
+-- adds the missing look; while up only, the place stays empty without one; the alerts hear them
+-- come and go out of combat.
+local MH = AuraContainerItemEnchantmentSlot.MainHand
+local function EnchantOf(display)
+	for _, c in ipairs(M.containers) do
+		local en = c.parent == anchorFrame and c.enchants[MH]
+		if en and (en.button.bound.SetIcon ~= nil) == display and en.enabled then return c end
+	end
+end
+ns.Auras.SetInGroup(buffs[1], "Main hand enchant", true)
+local enC = EnchantOf(true)
+check(enC and enC.points[1][5] == 0 and enC.enchants[MH].hidePermanent, "no fixed place for the main hand enchant")
+check(container.points[1][5] == -36, "the flowing buffs aren't after the enchant's place")
+check(not EnchantOf(false), "a while-up enchant has the missing look")
+ns.Auras.SetMode(buffs[1], "Main hand enchant", "keep")
+local enP = EnchantOf(false)
+check(enP and enP.enchantLayout.elementWidth == 32 + 2 * 11 + 1, "a keep-up enchant has no missing look")
+check(ns.Auras.Icon("Main hand enchant") == 135225, "the enchant's icon isn't the weapon's")
+BD.applied, BD.removed = "MAP_PING", "RAID_WARNING"
+M.now = M.now + 10
+M.enchant = { mainMs = 1800000 }
+heard = #M.sounds
+M.Fire("WEAPON_ENCHANT_CHANGED")
+check(#M.sounds == heard + 1 and M.sounds[#M.sounds] == SOUNDKIT.MAP_PING, "no sound when a weapon enchant came")
+M.enchant = nil
+M.Fire("WEAPON_ENCHANT_CHANGED")
+check(M.sounds[#M.sounds] == SOUNDKIT.RAID_WARNING, "no sound when a weapon enchant went")
+BD.applied, BD.removed = "none", "none"
+ns.Auras.SetInGroup(buffs[1], "Main hand enchant", false)
+check(not EnchantOf(true) and not EnchantOf(false), "the enchant's place stayed after taking it out")
+
 -- /lecdm check, in combat with secret cooldown times: SECRET shown, nothing compared.
 M.combat, M.secretCooldowns = true, true
 M.Slash("check")
@@ -857,7 +889,7 @@ check(MenuNamed(MenuNamed(listMenu, "Your procs and cooldowns"), "Flurry"), "Lec
 local others = MenuNamed(listMenu, "From other classes")
 check(MenuNamed(others, "Arcane Intellect") and not MenuNamed(others, "Inner Fire"), "Lecdm's list: other classes' buffs wrong")
 check(MenuNamed(MenuNamed(listMenu, "Your race's"), "Perception") and not MenuNamed(MenuNamed(listMenu, "Your race's"), "Berserking"), "Lecdm's list: racials wrong")
-check(MenuNamed(listMenu, "World buffs") and MenuNamed(listMenu, "Consumables"), "Lecdm's list: world buffs or consumables missing")
+check(MenuNamed(listMenu, "World buffs") and MenuNamed(listMenu, "Consumables") and MenuNamed(MenuNamed(listMenu, "Weapon enchants"), "Main hand enchant"), "Lecdm's list: world buffs, consumables or weapon enchants missing")
 check(ns.Auras.IDs("Power Word: Fortitude")[21562] and ns.Auras.IDs("Battle Shout")[11551], "every rank and the group version aren't the buff's IDs")
 MenuNamed(others, "Arcane Intellect").setSelected()
 check(ns.Auras.GroupOf("Arcane Intellect") == ns.db.buffs.list[1] and G("Arcane Intellect/") and G("Arcane Intellect/").ids[23028], "ticking Lecdm's list's Arcane Intellect didn't add it with Arcane Brilliance")

@@ -64,8 +64,7 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     learned duration). Running out: a `C_Timer.NewTimer` per buff to its warning time, from its
     expiration read out of combat or your own cast (`UNIT_SPELLCAST_SUCCEEDED`) with the learned
     duration; quiet in combat when someone of the buff's `castBy` class (else yours) is grouped;
-    stopped by Blizzard's
-    "removed"; `A.Reschedule()` on each `ns.Refresh()`. Going into combat: the keep-up buffs
+    stopped by Blizzard's "removed"; `A.Reschedule()` on each `ns.Refresh()`. Going into combat: the keep-up buffs
     missing at the last look (`combatMissing`, `combatChat`).
   - `Bars.lua`: the icon bars (`ns.db.bars`: `list` of bars, each `{ id, name, spells =
     { key ... }, show = { [key] = "ready" | "cooldown" }, size, gap, grow, vertical, perRow,
@@ -95,7 +94,11 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     invisible 1 px button sized by the game) with the copy (`StyleCopy`: `missingLook` red,
     normal or grey, `missingAlpha`) and missing glow clipped to its edge (`PlaceMissing`); while
     up, a button's face has `upAlpha` / `upGrey`, an icon revealed at the warning time
-    (`AddTimedGlow`'s reveal); the rest flow in the group's container after them.
+    (`AddTimedGlow`'s reveal); the rest flow in the group's container after them. Weapon
+    enchants (`A.EnchantSlot`, BuffList's `enchant`) always have a fixed place: the game's
+    button in a container of their own per look (`AddItemEnchantment`, `hidePermanent`), the
+    presence container by item enchantment; `A.ReadEnchants()` (out of combat,
+    `GetWeaponEnchantInfo`) feeds the alerts with the buffs.
   - `Hosted.lua`: Blizzard's icons and timer bars, hidden by default (the owner: Lecdm shows
     only what the player sets up; profiles from 0.9.0-alpha switch once, `hiddenByDefault`),
     or taken in (`ns.db.buffs.blizzard.icons` / `.bars`: `mode` "hide" | "take" | "leave", `gap`, `grow`, `vertical`, `perRow`, `pos`).
@@ -141,7 +144,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
 - `TESTING.md`: what to check in game, and what's been confirmed.
 - Reference material, outside the repo:
   - Blizzard's Forever UI source (Gethe/wow-ui-source, `forever` branch, sparse):
-    `/srv/claude/workspaces/_wfscratch/lecdm/ui`.
+    `/srv/claude/workspaces/_wfscratch/lecdm/ui`; the aura container's
+    (`Blizzard_CustomAuraContainer.lua`, `Blizzard_AuraContainerShared.lua`, ...) in
+    `/srv/claude/workspaces/leboof/.scratch/ui`.
   - EllesmereUI v9.9.1: `/srv/claude/workspaces/_wfscratch/eui/src`; notes on its Cooldown
     Manager in `/srv/claude/workspaces/_wfscratch/lecdm/notes/`.
 

@@ -105,7 +105,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
       (2026-11-22)
 - [x] Built-in buff lists per class, with every rank and group version (Prayer of Fortitude
       counts as Fortitude), world buffs (2026-11-22: all classes, racials and consumables too)
-- [ ] Weapon enchants (oils, sharpening stones; shaman weapon imbues)
+- [x] Weapon enchants (oils, sharpening stones, poisons, shaman weapon spells) (2026-11-22)
 - [ ] Tooltips on hover (buff groups, icon bars)
 - [ ] Glow previews on sample icons in the window
 - [ ] A sound log: every sound any addon plays, and why Lecdm played its own

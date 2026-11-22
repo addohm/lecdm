@@ -32,7 +32,11 @@ the build and date.
    a priest's Prayer of Fortitude on you shows in its place, in combat too. Missing from
    Forever's data, so left out: Blessing of Salvation and Sanctuary, Greater Blessing of Light,
    Elemental Mastery; say if any of them do exist in game.
-5. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+5. Weapon enchants (Lecdm's list, "Weapon enchants", Main hand enchant, on Keep up): with no
+   oil or stone, the weapon's icon as the missing copy; apply one: the game's button with the
+   time left, in combat too, and the copy gone. On "While it's up", the place stays empty
+   without one. With "Sound when it's applied" set, applying one out of combat plays it.
+6. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

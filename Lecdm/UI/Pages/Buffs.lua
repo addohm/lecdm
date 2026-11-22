@@ -109,6 +109,7 @@ local LIST_MENUS = {
 	{ "Your race's", function(e, s, _, race) return s == "Racials" and e.race == race end },
 	{ "World buffs", function(_, s) return s == "World buffs" end },
 	{ "Consumables", function(_, s) return s == "Consumables" end },
+	{ "Weapon enchants", function(_, s) return s == "Weapon enchants" end },
 }
 
 -- The checklist: Lecdm's list, your buffs from Blizzard's list, and the buffs on you now (out of
@@ -132,7 +133,7 @@ local function BuildMenu(_, root)
 		local entries = {}
 		for _, section in ipairs(ns.BuffList.sections) do
 			for _, e in ipairs(section.entries) do
-				if ns.BuffIDs[e.name] and menu[2](e, section.name, class, race) then entries[#entries + 1] = e end
+				if (ns.BuffIDs[e.name] or e.enchant) and menu[2](e, section.name, class, race) then entries[#entries + 1] = e end
 			end
 		end
 		if #entries > 0 then

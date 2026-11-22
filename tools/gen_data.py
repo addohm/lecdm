@@ -41,6 +41,9 @@ def wanted_names():
     names = []
     for m in re.finditer(r'"((?:[^"\\]|\\.)*)"', source):
         before = source[:m.start()].rstrip()
+        line = source[source.rfind("\n", 0, m.start()) + 1:source.find("\n", m.end())]
+        if "enchant =" in line:
+            continue  # a weapon enchant: no spell
         if before.endswith("{") or before.endswith(","):
             name = m.group(1).replace('\\"', '"').replace("\\\\", "\\")
             if name not in names:

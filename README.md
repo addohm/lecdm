@@ -58,7 +58,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   bars texture, colour, background, and icon, name and time each on or off), when it shows, and
   its buffs: tick them from **Lecdm's list** (your class's buffs, your procs and cooldowns,
   buffs other classes put on you, your race's, world buffs, consumables: every rank, and group
-  versions count too, so Prayer of Fortitude is Power Word: Fortitude), from your buffs in
+  versions count too, so Prayer of Fortitude is Power Word: Fortitude; weapon enchants: oils,
+  sharpening stones, poisons, a shaman's weapon spells, always in a place of their own), from
+  your buffs in
   Blizzard's list, or from the buffs on you now (out of combat), order them, choose how each shows (**while it's up**, **keep up**: a fixed place with
   a copy of it and a glow while it's down, or **only while missing**), and its own alerts and
   looks.

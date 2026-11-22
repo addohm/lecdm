@@ -160,6 +160,25 @@ local function Container(c)
 		Open()
 		self.groups[key].enabled = on
 	end
+	c.enchants = {}
+	function c:AddItemEnchantment(slot, options)
+		Open()
+		assert(not self.enchants[slot], "item enchantment already exists with this slot.")
+		local b = NewRegion("Button", nil, self)
+		b.bound = {}
+		for _, binder in ipairs(BINDERS) do b[binder] = function(btn, x) btn.bound[binder] = x end end
+		if options.initializeFrame then options.initializeFrame(b) end
+		self.enchants[slot] = { enabled = true, button = b, hidePermanent = options.hidePermanent }
+		return b
+	end
+	function c:SetItemEnchantmentLayout(layout)
+		Open()
+		self.enchantLayout = layout
+	end
+	function c:SetItemEnchantmentEnabled(slot, on)
+		Open()
+		self.enchants[slot].enabled = on
+	end
 	function c:SetFlowLayoutAxis(axis) self.axis = axis end
 	function c:SetFlowLayoutGrowthDirection(h, v) self.growth = { h, v } end
 	function c:SetFlowLayoutAnchorPoint(point) self.flowPoint = point end
@@ -356,6 +375,14 @@ C_Secrets = {
 C_SpellActivationOverlay = { IsSpellOverlayed = function() return false end }
 
 AuraContainerSortMethod = { Default = 0, Expiration = 2 }
+AuraContainerItemEnchantmentSlot = { MainHand = 0, OffHand = 1, Ranged = 2 }
+-- M.enchant = { mainMs = ... } while the main hand has a temporary enchant.
+function GetWeaponEnchantInfo()
+	local e = M.enchant
+	if not e then return false, 0, 0, 0, false, 0, 0, 0 end
+	return e.mainMs ~= nil, e.mainMs or 0, 0, 1, e.offMs ~= nil, e.offMs or 0, 0, 2
+end
+function GetInventoryItemTexture(_, slot) return slot == 16 and 135225 or nil end
 C_CurveUtil = {
 	CreateColorCurve = function()
 		local c = { points = {} }
