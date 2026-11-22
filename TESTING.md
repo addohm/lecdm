@@ -67,7 +67,10 @@ the build and date.
     the icon is a potion's; empty: its own again.
 17. Icon bars' checklist, at the end: "An empty space" keeps a gap on the bar; "A spell or
     item by its ID...": item:13446 adds a potion, 6673 Battle Shout, 424242 says no such spell.
-18. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+18. "Best in your bags" (the checklist): Best healing potion with two kinds of potion in the
+    bags shows the better one, with its count and cooldown; drink the last: the other. Its ⚙,
+    "Which first": move the lesser one up: it shows first.
+19. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

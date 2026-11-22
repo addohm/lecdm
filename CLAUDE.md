@@ -84,7 +84,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     slot per look, `PlaceActive`, out of combat only, `activePending`; `B.SetActive`), set from
     the spell's ⚙ (the extra entries `ns.AlertsGear` takes); `seeded`, `nextID`,
     `hideBlizzard`). A key is a spellID (number), `"space:N"` (an empty
-    space: `B.AddSpace`), `"slot:N"`
+    space: `B.AddSpace`), `"best:N"` (the best you carry of `B.BEST[N]`, in `bestOrder[key]`:
+    `B.BestOrder`, `B.MoveBest`; `B.ItemOf` resolves it), `"slot:N"`
     (an equipment slot: what's equipped there, shown while it has a use effect) or
     `"item:ID"` (a bag item, shown while you have one, with the count): `B.Kind`,
     `B.EntryName`, `B.EntryIcon`, `B.EntryKnown`, `B.Missing`, `B.ItemOf`, `B.Equipped()`,

@@ -61,7 +61,8 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
   only on cooldown, and the others close up; faded or glowing while on cooldown; only in a
   stance or form, or only with a talent.
 - Add spells from a checklist: Blizzard's list, your spellbook, your trinkets and on-use gear,
-  and potions, healthstones and other usable items in your bags (with the count); or by ID;
+  and potions, healthstones and other usable items in your bags (with the count); "best in
+  your bags" (one icon for the best potion or healthstone you carry); or by ID;
   and empty spaces to group them.
 - Spells with charges: the count, the recharge swipe, a glow at full charges.
 - Each spell's own border, colour, glow colour and icon.

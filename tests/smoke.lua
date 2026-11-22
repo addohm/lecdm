@@ -220,6 +220,17 @@ check(ns.Bars.AddByID(cdBar, "item:5512") and ns.Bars.BarOf("item:5512") == cdBa
 ns.Bars.SetOnBar(cdBar, "item:5512", false)
 ns.Bars.SetOnBar(cdBar, spaceKey, false)
 check(#cdBar.spells == spellsBefore, "the space or the item stayed")
+-- Best in your bags: one entry showing the best you carry (a Healthstone in the bags here), in
+-- the bar's order for it.
+ns.Bars.SetOnBar(cdBar, "best:3", true)
+check(ns.Bars.ItemOf("best:3") == 5512 and ns.Bars.EntryKnown("best:3"), "the best healthstone isn't the one in the bags")
+M.bag[9421] = 1
+check(ns.Bars.ItemOf("best:3") == 9421, "a Major Healthstone isn't the best")
+for i = 15, 2, -1 do ns.Bars.MoveBest(cdBar, "best:3", i, -1) end
+check(ns.Bars.BestOrder(cdBar, "best:3")[1] == 5512 and ns.Bars.ItemOf("best:3") == 5512, "the order set didn't pick first")
+M.bag[9421] = nil
+ns.Bars.SetOnBar(cdBar, "best:3", false)
+check(cdBar.bestOrder == nil or cdBar.bestOrder["best:3"] == nil, "the order stayed after taking it off")
 -- The swipe: reversed, its colour, the edge; none.
 cdBar.swipe, cdBar.swipeColor, cdBar.edge = "reverse", "gold", true
 ns.Refresh()
@@ -1009,7 +1020,8 @@ check(root.children[1].text == "Blizzard's Essential" and root.children[2].text 
 local book = root.children[3]
 check(book and book.text == "Spellbook: Protection" and #book.children == 1, "spellbook section wrong")
 check(root.children[4].text:find("^Equipped") and #root.children[4].children == 2, "equipped section wrong")
-check(root.children[5].text:find("^In your bags") and root.children[5].children[1].text:find("Healthstone"), "bags section wrong")
+check(root.children[5].text:find("^Best in your bags") and #root.children[5].children == #ns.Bars.BEST, "best-in-bags section wrong")
+check(root.children[6].text:find("^In your bags") and root.children[6].children[1].text:find("Healthstone"), "bags section wrong")
 check(root.children[4].children[2].text:find("Bottom trinket: empty") and root.children[4].children[2].text:find("nothing with a use effect"), "empty slot not explained: " .. tostring(root.children[4].children[2].text))
 local chargeItem = root.children[1].children[1]
 check(chargeItem.isSelected() == true, "Charge not ticked")

@@ -126,8 +126,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - [x] Per-spell looks: its own border and glow colour; its own icon (2026-11-22)
 - [x] Empty spacer slots, racials (in the spellbook's lines), custom spell and item IDs
       (2026-11-22)
-- [ ] "Best in your bags": one entry for healing potions or healthstones, the best you carry, in
-      a priority order you set
+- [x] "Best in your bags": one entry for healing potions or healthstones, the best you carry, in
+      a priority order you set (mana potions and runes too; 2026-11-22)
 - [ ] A cooldown shown as a timer bar
 - [ ] Drag to order, click for settings, in a preview in the window
 

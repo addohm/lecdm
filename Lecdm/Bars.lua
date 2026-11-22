@@ -190,6 +190,7 @@ function B.SetOnBar(bar, spellID, on)
 		if other.talents then other.talents[spellID] = nil end
 		if other.active then other.active[spellID] = nil end
 		if other.looks then other.looks[spellID] = nil end
+		if other.bestOrder then other.bestOrder[spellID] = nil end
 	end
 	if on then table.insert(bar.spells, spellID) end
 	ns.Refresh()
@@ -352,6 +353,46 @@ function B.ItemOf(key)
 	local kind, id = B.Kind(key)
 	if kind == "slot" then return SlotItem(id) end
 	if kind == "item" then return id end
+	if kind == "best" then
+		local order = B.BestOrder(nil, key)
+		for _, itemID in ipairs(order) do
+			if B.ItemCount(itemID) > 0 then return itemID end
+		end
+		return order[1]
+	end
+end
+
+-- "Best in your bags" ("best:N"): one entry for a kind of item, showing the best you carry, in
+-- the bar's order for it (bar.bestOrder[key], else the best first).
+B.BEST = {
+	{ name = "Best healing potion", items = { 13446, 3928, 1710, 929, 858, 118 } },
+	{ name = "Best mana potion", items = { 13444, 13443, 6149, 3827, 3385, 2455 } },
+	{ name = "Best healthstone", items = { 19013, 19012, 9421, 19011, 19010, 5510, 19009, 19008, 5509,
+		19007, 19006, 5511, 19005, 19004, 5512 } },
+	{ name = "Best rune (Dark or Demonic)", items = { 20520, 12662 } },
+}
+
+-- An entry's item order: the bar's own for it, else the list's (bar nil: the bar it's on).
+function B.BestOrder(bar, key)
+	local _, n = B.Kind(key)
+	local def = B.BEST[n]
+	if not def then return {} end
+	bar = bar or B.BarOf(key)
+	local own = bar and bar.bestOrder and bar.bestOrder[key]
+	if own and #own == #def.items then return own end
+	return def.items
+end
+
+-- Moves an item up (-1) or down (1) in an entry's order.
+function B.MoveBest(bar, key, index, dir)
+	local order = {}
+	for i, id in ipairs(B.BestOrder(bar, key)) do order[i] = id end
+	local j = index + dir
+	if j < 1 or j > #order then return end
+	order[index], order[j] = order[j], order[index]
+	bar.bestOrder = bar.bestOrder or {}
+	bar.bestOrder[key] = order
+	ns.Refresh()
 end
 
 local function ItemName(itemID)
@@ -369,6 +410,7 @@ function B.EntryName(key)
 	local kind, id = B.Kind(key)
 	if kind == "spell" then return B.SpellName(id) end
 	if kind == "space" then return "Empty space" end
+	if kind == "best" then return B.BEST[id] and B.BEST[id].name or ("best " .. id) end
 	if kind == "slot" then
 		local itemID = SlotItem(id)
 		return (B.SLOTS[id] or ("Slot " .. id)) .. ": " .. (itemID and ItemName(itemID) or "empty")
@@ -392,6 +434,10 @@ function B.EntryKnown(key)
 	if kind == "spell" then return B.Known(id) end
 	if kind == "space" then return true end
 	if kind == "slot" then return HasUse(SlotItem(id)) end
+	if kind == "best" then
+		local itemID = B.ItemOf(key)
+		return itemID ~= nil and B.ItemCount(itemID) > 0
+	end
 	return B.ItemCount(id) > 0
 end
 
@@ -467,6 +513,7 @@ function B.ShowTooltip(b)
 	local bar = b.bar
 	if not (bar and b.key) or bar.tooltip == "off" or (bar.tooltip == "ooc" and InCombatLockdown()) then return end
 	local kind, id = B.Kind(b.key)
+	if kind == "best" then kind, id = "item", B.ItemOf(b.key) end
 	GameTooltip:SetOwner(b, "ANCHOR_RIGHT")
 	if kind == "spell" then
 		pcall(GameTooltip.SetSpellByID, GameTooltip, id)
@@ -671,6 +718,7 @@ end
 -- (a 1.5 s one or shorter is the GCD).
 local function ItemState(b, bar)
 	local kind, id = B.Kind(b.key)
+	if kind == "best" then kind, id = "item", B.ItemOf(b.key) end
 	local ok, start, duration, enable
 	if kind == "slot" then
 		ok, start, duration, enable = pcall(GetInventoryItemCooldown, "player", id)
@@ -866,7 +914,7 @@ function B.Build()
 			b.space = kind == "space" or nil
 			b.name = kind == "spell" and B.SpellName(id) or B.EntryName(key)
 			-- A bag item you have none of: hidden, or shown greyed with "0" (the bar's choice).
-			b.known = B.EntryKnown(key) or (kind == "item" and bar.emptyItems == "grey")
+			b.known = B.EntryKnown(key) or ((kind == "item" or kind == "best") and bar.emptyItems == "grey")
 			b.wanted = nil
 			b.icon:SetTexture(B.Own(bar, key).icon or B.EntryIcon(key))
 			if b.spellID then pcall(C_Spell.EnableSpellRangeCheck, id, true) end

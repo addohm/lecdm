@@ -108,6 +108,9 @@ local function BuildMenu(_, root)
 		Checks("Spellbook: " .. tostring(line.name), ids)
 	end
 	Checks("Equipped (trinkets, on-use gear)", Bars.Equipped())
+	local best = {}
+	for i in ipairs(Bars.BEST) do best[i] = "best:" .. i end
+	Checks("Best in your bags (one icon: the best you carry)", best)
 	Checks("In your bags (potions, healthstones ...)", Bars.BagItems())
 	root:CreateDivider()
 	root:CreateButton("An empty space", function() Bars.AddSpace(bar) end)
@@ -236,6 +239,14 @@ StaticPopupDialogs.LECDM_ICON = {
 local function Conditions(root, key)
 	local bar = Current()
 	if not (bar and key) then return end
+	if tostring(key):find("^best:") then
+		local order = root:CreateButton("Which first (the first you carry shows)")
+		for i, itemID in ipairs(Bars.BestOrder(bar, key)) do
+			local item = order:CreateButton(i .. ". " .. Bars.EntryName("item:" .. itemID))
+			item:CreateButton("Move up", function() Bars.MoveBest(bar, key, i, -1) end)
+			item:CreateButton("Move down", function() Bars.MoveBest(bar, key, i, 1) end)
+		end
+	end
 	root:CreateTitle("Its look")
 	local function LookMenu(label, field, list)
 		local sub = root:CreateButton(label)

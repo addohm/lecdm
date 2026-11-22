@@ -34,6 +34,8 @@ All notable changes to lecdm. The format follows
   icon (in combat too): its time as a swipe in the bar's colour for it, its stacks, a glow.
 - Icon bars: near the end of a cooldown (under a time you pick), the countdown in a colour (the
   game's duration text binding, so in combat too) or with a decimal (8.7).
+- Icon bars: best in your bags: one entry for healing potions, mana potions, healthstones (the
+  improved ones too) or runes, showing the best you carry, in an order you can change.
 - Icon bars: empty spaces that keep a place, and a spell or item added by its ID.
 - A spell's own look on its icon bar (its ⚙): border, border colour, and its icon (another
   spell's, an item's, or any icon by file ID).
