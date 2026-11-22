@@ -546,6 +546,7 @@ ns.Window.Page({
 		local icGet, icSet = Field("itemCount")
 		local iqGet, iqSet = Field("itemQuality")
 		local ptGet, ptSet = Field("passiveTrinkets")
+		local pmGet, pmSet = Field("pressMirror")
 		local outGet, outSet = Field("fontOutline")
 		local cpGet, cpSet = Field("countPos")
 		local kpGet, kpSet = Field("keyPos")
@@ -664,6 +665,8 @@ ns.Window.Page({
 			UI.OptionSelect(stack.inner, "The count's place (stacks, charges, items)", Bars.CORNERS, cpGet, cpSet),
 			UI.OptionSelect(stack.inner, "Tooltip on hover", Bars.TOOLTIPS, tipGet, tipSet,
 				{ tooltip = { "Tooltip on hover", "The game's tooltip for the spell or item when your mouse is over its icon. Off lets clicks through to the world." } }),
+			UI.OptionCheck(stack.inner, "Show it pressed when you press its key", pmGet, pmSet,
+				{ "Key presses", "When you use the spell or item from an action button (its key or a click; on cooldown too), its icon here shows the pressed look for a moment." }),
 			UI.OptionCheck(stack.inner, "Grey while on cooldown", greyGet, greySet),
 			UI.OptionSelect(stack.inner, "Opacity while on cooldown", ns.Alerts.ALPHAS, cdaGet, cdaSet),
 			UI.OptionCheck(stack.inner, "Show 0 charges", zeroGet, zeroSet,

@@ -98,7 +98,10 @@ the build and date.
 28. Icon bars with potions: "Items' count: Out of combat only": the count goes in combat and
     comes back after; "quality colour": a blue potion's border is blue; "Trinkets without a use
     effect too": a passive trinket shows in its slot.
-29. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+29. "Show it pressed when you press its key": pressing a spell's key (or clicking its action
+    button) flashes its icon pressed, on cooldown too, with Blizzard's bars and with a bar
+    addon. Say if a bar addon's presses don't show.
+30. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

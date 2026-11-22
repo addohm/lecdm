@@ -54,7 +54,7 @@ B.LOOK = {
 	shape = "square", background = 0, rowsBack = false, row2Size = 0, maxIcons = 0,
 	anchorSide = "below", strata = "MEDIUM", minIcons = 0,
 	fontFace = "default", fontOutline = "OUTLINE", countPos = "BOTTOMRIGHT", keyPos = "TOPRIGHT", keyBadge = 0,
-	itemCount = "always", itemQuality = false, passiveTrinkets = false,
+	itemCount = "always", itemQuality = false, passiveTrinkets = false, pressMirror = false,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -1407,6 +1407,49 @@ function B.Spellbook()
 		end
 	end
 	return lines
+end
+
+-- Key presses: when an action is used (UseAction: any bar addon's action buttons, by key or
+-- click, on cooldown too), the icons on bars with pressMirror holding that spell or item show the
+-- pressed look for a moment. A secure hook: it only hears.
+local function Pressed(name, itemID)
+	if not ns.db then return end
+	for _, bar in ipairs(ns.db.bars.list) do
+		local frame = bar.pressMirror and frames[bar.id]
+		if frame and frame:IsShown() then
+			for _, b in ipairs(frame.buttons) do
+				local match = b.key and ((b.spellID and b.name == name) or (itemID and B.ItemOf(b.key) == itemID))
+				if match and b:IsShown() then
+					if not b.pushed then
+						b.pushed = b.over:CreateTexture(nil, "OVERLAY", nil, 6)
+						b.pushed:SetTexture("Interface\\Buttons\\UI-Quickslot-Depress")
+						b.pushed:SetTexCoord(0.14, 0.86, 0.14, 0.86)
+					end
+					b.pushed:SetAllPoints(b.icon)
+					b.pushed:Show()
+					local token = {}
+					b.pushedToken = token
+					C_Timer.After(0.15, function()
+						if b.pushedToken == token then b.pushed:Hide() end
+					end)
+				end
+			end
+		end
+	end
+end
+
+if UseAction then
+	hooksecurefunc("UseAction", function(slot)
+		if ns.IsSecret(slot) then return end
+		local ok, kind, id, sub = pcall(GetActionInfo, slot)
+		if not ok or ns.IsSecret(kind) or ns.IsSecret(id) or ns.IsSecret(sub) then return end
+		if kind == "spell" or (kind == "macro" and sub == "spell") then
+			local okName, name = pcall(C_Spell.GetSpellName, id)
+			if okName and not ns.IsSecret(name) and name then Pressed(name) end
+		elseif kind == "item" then
+			Pressed(nil, id)
+		end
+	end)
 end
 
 local events = CreateFrame("Frame")

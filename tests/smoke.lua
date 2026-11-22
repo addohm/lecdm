@@ -284,6 +284,16 @@ ns.Refresh()
 check(stone.edge.color[3] == 0.87 and charge.edge.color[1] == 0, "the quality border wrong")
 cdBar.itemQuality = false
 ns.Bars.SetOnBar(cdBar, "item:5512", false)
+-- Key presses: using the action holding a spell shows its icon pressed for a moment.
+cdBar.pressMirror = true
+ns.Refresh()
+M.actions[9] = { "spell", 100 }
+UseAction(9)
+check(charge.pushed and charge.pushed.shown, "the pressed look didn't show")
+M.RunTimers()
+check(not charge.pushed.shown, "the pressed look didn't go")
+cdBar.pressMirror = false
+M.actions[9] = nil
 -- Fonts: a face with an outline on the count and keybind; the count's place; the badge.
 cdBar.fontFace, cdBar.fontOutline, cdBar.countPos, cdBar.keyBadge = "arial", "THICKOUTLINE", "TOPLEFT", 0.5
 ns.Refresh()

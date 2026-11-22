@@ -215,6 +215,7 @@ function GetActionInfo(slot)
 	if a then return a[1], a[2], a[3] end
 end
 function GetBindingKey(command) return M.bindings[command] end
+function UseAction() end
 RANGE_INDICATOR = "●"
 
 function CreateFrame(kind, name, parent, template)
