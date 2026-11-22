@@ -538,6 +538,21 @@ ns.Window.Page({
 		local bcGet, bcSet = Field("barColor")
 		local bnGet, bnSet = Field("barName")
 		local shapeGet, shapeSet = Field("shape")
+		local backGet, backSet = Field("rowsBack")
+		local r2Get, r2Set = Field("row2Size")
+		local maxGet, maxSet = Field("maxIcons")
+		local ovGet, ovSet = Field("overflowTo")
+		local function OtherBars()
+			local list, bar = { { nil, "None (they stay here)" } }, Current()
+			for _, b in ipairs(ns.db.bars.list) do
+				if not bar or b.id ~= bar.id then list[#list + 1] = { b.id, b.name } end
+			end
+			return list
+		end
+		local MOST = { { 0, "No limit" } }
+		for i = 1, 20 do MOST[#MOST + 1] = { i, tostring(i) } end
+		local ROW2 = {}
+		for d = -12, 12, 2 do ROW2[#ROW2 + 1] = { d, d == 0 and "The same" or ((d > 0 and "+" or "") .. d) } end
 		local bgGet, bgSet = Field("background")
 		-- A row only for one style ("icons" or "bars").
 		local function Only(kind, row)
@@ -580,6 +595,11 @@ ns.Window.Page({
 			Only("icons", UI.OptionCheck(stack.inner, "Vertical", vertGet, vertSet)),
 			Only("icons", UI.OptionSelect(stack.inner, "Icons per row", Numbers(1, 20, 1), perGet, perSet,
 				{ tooltip = { "Icons per row", "More start a new row (a new column, on a vertical bar)." } })),
+			Only("icons", UI.OptionCheck(stack.inner, "Rows go up (columns left, vertical)", backGet, backSet)),
+			Only("icons", UI.OptionSelect(stack.inner, "The rows after the first: size", ROW2, r2Get, r2Set)),
+			UI.OptionSelect(stack.inner, "At most this many icons", MOST, maxGet, maxSet,
+				{ tooltip = { "At most", "Past this many shown icons, the rest go on the bar below (or are shown here if there's none)." } }),
+			UI.OptionSelect(stack.inner, "...the rest on", OtherBars, ovGet, ovSet),
 			UI.OptionCheck(stack.inner, "Show the GCD sweep", gcdGet, gcdSet,
 				{ "GCD sweep", "A short sweep on every icon after a spell that triggers the global cooldown." }),
 			UI.OptionSelect(stack.inner, "Items you have none of", { { "hide", "Hide them" }, { "grey", "Show them greyed" } },

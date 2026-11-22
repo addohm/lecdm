@@ -251,6 +251,16 @@ check(parts and charge.icon.masks[parts.mask] and parts.ring.shown and not charg
 cdBar.shape, cdBar.background = "square", 0
 ns.Refresh()
 check(not charge.icon.masks[parts.mask] and not parts.ring.shown and charge.edge.shown and not cooldowns.bg.shown, "back to square wrong")
+-- Overflow: past the most, the rest go on to another bar, after its own; rows up.
+cdBar.maxIcons, cdBar.overflowTo = 1, ns.db.bars.list[2].id
+ns.Refresh()
+check(revenge.shown and revenge.points[1][2] == utility, "an icon past the most didn't go on to the other bar")
+cdBar.maxIcons, cdBar.overflowTo = 0, nil
+cdBar.rowsBack = true
+ns.Refresh()
+check(charge.points[1][1] == "BOTTOM" and revenge.points[1][2] == cooldowns, "rows going up wrong")
+cdBar.rowsBack = false
+ns.Refresh()
 -- The swipe: reversed, its colour, the edge; none.
 cdBar.swipe, cdBar.swipeColor, cdBar.edge = "reverse", "gold", true
 ns.Refresh()

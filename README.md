@@ -37,8 +37,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   - its name and layout: **show as** icons or **timer bars** (the icon at the left, then a bar
     filling as the cooldown comes back, full when ready, with the name and the time left: bar
     height, width, texture, colour, the name on it), icon size, spacing, grow from (centre,
-    left or right), vertical, icons per row, the GCD sweep, and items you have none of (hidden,
-    or greyed with a 0);
+    left or right), vertical, icons per row, rows going up (columns left), the rows after the
+    first bigger or smaller, at most so many icons with the rest on another bar, the GCD
+    sweep, and items you have none of (hidden, or greyed with a 0);
   - its look: the icon shape (square, round, rounded square, diamond, hexagon), a background
     behind the bar, border and colour, icon zoom, the swipe (normal, reversed or none; its colour;
     a bright edge), countdown text size and, near the end (under a time you pick), a colour or a

@@ -86,7 +86,10 @@ the build and date.
 24. Icon shape Round / Rounded / Diamond / Hexagon on an icon bar and a buff group: the icon,
     its swipe and its border take the shape (a fresh game start: new texture files); a
     background behind the bar at 50%.
-25. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+25. Icon bars: "At most this many icons" 3, "...the rest on" another bar: with more than 3
+    showing, the rest appear on the other bar after its own, in combat too, and come back
+    as icons hide. "Rows go up"; "The rows after the first: size" +6.
+26. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

@@ -50,7 +50,7 @@ B.LOOK = {
 	cdAlpha = 1, zeroCharges = true, swipe = "normal", swipeColor = "dark", edge = false, activeColor = "gold",
 	threshold = 0, thresholdColor = "red", thresholdDecimals = false,
 	style = "icons", barWidth = 180, barTexture = "blizzard", barColor = "blue", barName = true,
-	shape = "square", background = 0,
+	shape = "square", background = 0, rowsBack = false, row2Size = 0, maxIcons = 0,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -891,41 +891,81 @@ local function Update(b, bar)
 	return true
 end
 
--- Places the shown icons, closing the gaps of hidden ones.
-local function Layout(frame, bar)
-	local step = bar.size + bar.gap
+-- Places icons on a frame by its bar's layout: rows (columns, vertical) of perRow, growing from
+-- the bar's edge or centre, the rows going down (or up; columns right or left), rows after the
+-- first sized by row2Size; timer bars one under another.
+local function Place(frame, bar, list)
 	local bars = bar.style == "bars"
-	local shown = {}
-	for _, b in ipairs(frame.buttons) do
-		if b.wanted then shown[#shown + 1] = b else b:Hide() end
-	end
-	local n = #shown
+	local n = #list
 	local per = bars and math.max(1, n) or math.max(1, bar.perRow)
 	local vertical = bars or bar.vertical
 	local rows = math.ceil(n / per)
-	for k, b in ipairs(shown) do
+	local size1 = bar.size
+	local size2 = bars and bar.size or math.max(12, bar.size + (bar.row2Size or 0))
+	local back = bar.rowsBack -- rows up (columns left, vertical)
+	local lineOff, off = {}, 0
+	for line = 0, rows - 1 do
+		lineOff[line] = off
+		off = off + (line == 0 and size1 or size2) + bar.gap
+	end
+	for k, b in ipairs(list) do
 		local line, pos = math.floor((k - 1) / per), (k - 1) % per
 		local count = (line == rows - 1) and (n - line * per) or per
-		b:SetSize(bars and bar.barWidth or bar.size, bar.size)
+		local s = line == 0 and size1 or size2
+		local step = s + bar.gap
+		local lo = lineOff[line]
+		b:SetSize(bars and bar.barWidth or s, s)
 		b:ClearAllPoints()
 		if not vertical then
+			local edge, y = back and "BOTTOM" or "TOP", back and lo or -lo
 			if bar.grow == "LEFT" then
-				b:SetPoint("TOPLEFT", frame, "TOPLEFT", pos * step, -line * step)
+				b:SetPoint(edge .. "LEFT", frame, edge .. "LEFT", pos * step, y)
 			elseif bar.grow == "RIGHT" then
-				b:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -pos * step, -line * step)
+				b:SetPoint(edge .. "RIGHT", frame, edge .. "RIGHT", -pos * step, y)
 			else
-				b:SetPoint("TOP", frame, "TOP", (pos - (count - 1) / 2) * step, -line * step)
+				b:SetPoint(edge, frame, edge, (pos - (count - 1) / 2) * step, y)
 			end
 		else
+			local side, x = back and "RIGHT" or "LEFT", back and -lo or lo
 			if bar.grow == "LEFT" then
-				b:SetPoint("TOPLEFT", frame, "TOPLEFT", line * step, -pos * step)
+				b:SetPoint("TOP" .. side, frame, "TOP" .. side, x, -pos * step)
 			elseif bar.grow == "RIGHT" then
-				b:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", line * step, pos * step)
+				b:SetPoint("BOTTOM" .. side, frame, "BOTTOM" .. side, x, pos * step)
 			else
-				b:SetPoint("LEFT", frame, "LEFT", line * step, -(pos - (count - 1) / 2) * step)
+				b:SetPoint(side, frame, side, x, -(pos - (count - 1) / 2) * step)
 			end
 		end
 		b:Show()
+	end
+end
+
+-- Lays every bar out, closing the gaps of hidden icons. A bar with a most (maxIcons) and an
+-- overflow bar (overflowTo) sends its icons past the most on to that bar, after its own.
+local function LayoutAll()
+	if not ns.db then return end
+	local plans, incoming = {}, {}
+	for _, bar in ipairs(ns.db.bars.list) do
+		local frame = frames[bar.id]
+		if frame and frame:IsShown() then
+			local shown = {}
+			for _, b in ipairs(frame.buttons) do
+				if b.wanted then shown[#shown + 1] = b else b:Hide() end
+			end
+			local max, target = bar.maxIcons or 0, bar.overflowTo and frames[bar.overflowTo]
+			if max > 0 and #shown > max and target and target:IsShown() and bar.overflowTo ~= bar.id then
+				incoming[bar.overflowTo] = incoming[bar.overflowTo] or {}
+				for k = max + 1, #shown do
+					table.insert(incoming[bar.overflowTo], shown[k])
+					shown[k] = nil
+				end
+			end
+			plans[#plans + 1] = { frame, bar, shown }
+		end
+	end
+	for _, plan in ipairs(plans) do
+		local list = plan[3]
+		for _, b in ipairs(incoming[plan[2].id] or {}) do list[#list + 1] = b end
+		Place(plan[1], plan[2], list)
 	end
 end
 
@@ -940,7 +980,7 @@ local function UpdateBar(frame, bar)
 			end
 		end
 	end
-	if changed then Layout(frame, bar) end
+	return changed
 end
 
 -- One spell's icon (a range change comes per spell); the bar is laid out again if it hid or showed.
@@ -953,7 +993,7 @@ function B.UpdateSpell(spellID)
 			local wanted = Update(b, bar)
 			if wanted ~= b.wanted then
 				b.wanted = wanted
-				Layout(frame, bar)
+				LayoutAll()
 			end
 		end
 	end
@@ -961,10 +1001,12 @@ end
 
 function B.UpdateAll()
 	if not ns.db then return end
+	local changed = false
 	for _, bar in ipairs(ns.db.bars.list) do
 		local frame = frames[bar.id]
-		if frame and frame:IsShown() then UpdateBar(frame, bar) end
+		if frame and frame:IsShown() and UpdateBar(frame, bar) then changed = true end
 	end
+	if changed then LayoutAll() end
 end
 
 -- The default place of the i-th bar: under the middle of the screen, one under another.
@@ -1018,12 +1060,15 @@ function B.Build()
 		local step = bar.size + bar.gap
 		local per = math.max(1, bar.perRow)
 		local n = math.max(1, #bar.spells)
-		local cols, rows = math.min(n, per), math.ceil(n / per)
-		if bar.vertical then cols, rows = rows, cols end
 		if bar.style == "bars" then
 			frame:SetSize(bar.barWidth, n * step - bar.gap)
 		else
-			frame:SetSize(cols * step - bar.gap, rows * step - bar.gap)
+			-- rows after the first can be another size
+			local size2 = math.max(12, bar.size + (bar.row2Size or 0))
+			local lines = math.ceil(n / per)
+			local across = math.min(n, per) * step - bar.gap
+			local deep = bar.size + (lines - 1) * (size2 + bar.gap)
+			if bar.vertical then frame:SetSize(deep, across) else frame:SetSize(across, deep) end
 		end
 		local pos = bar.pos or DefaultPos(i)
 		frame:ClearAllPoints()
@@ -1059,11 +1104,11 @@ function B.Build()
 		frame:Show()
 		frame:SetAlpha(ns.Visibility.Alpha(bar))
 		UpdateBar(frame, bar)
-		Layout(frame, bar)
 	end
 	for id, frame in pairs(frames) do
 		if not live[id] then frame:Hide() end
 	end
+	LayoutAll()
 	B.ApplyBlizzard()
 end
 

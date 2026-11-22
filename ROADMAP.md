@@ -141,7 +141,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 **Icon bars and layout**
 
 - [x] Icon shapes (square, round, ...) and a bar background (2026-11-22)
-- [ ] Rows: how many, which way, a second row's size; overflow into another bar past a number
+- [x] Rows: how many, which way, a second row's size; overflow into another bar past a number
+      (2026-11-22)
 - [ ] Anchored to another bar or to the cursor; strata; a minimum width in icons
 - [ ] Fonts, outline, sizes and positions for the countdown and the count; a keybind badge
       (background, border, padding)
