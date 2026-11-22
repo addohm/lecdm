@@ -75,24 +75,109 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
     timer bars taken in (your debuffs on the target, picked in `/cdm`);
   - alerts: sounds ("Say it" too) and glows, defaults and per spell or buff;
   - diagnostics; the release kit (icon, banner, LISTING.md, zip, tag).
+- Since the alpha: Blizzard's own buff icons and timer bars hidden by default (2026-11-21: only
+  what the player sets up shows); how a buff looks while up and while missing (2026-11-22).
 
 ## Next
 
-1. **The alpha in game** (TESTING.md): above all the alerts, keep-up buffs, Blizzard's icons
-   taken in, and item cooldowns in combat.
-2. **Icon bars:** drag to order in the window, per-spell looks (its own border, glow colour),
-   charges, a cooldown shown as a timer bar.
-3. **Items:** "best in your bags" (one entry for any healing potion or healthstone, the best you
-   carry).
-4. **Timer bars:** thresholds and ticks, a colour change at the warning time.
-5. **Blizzard's icons taken in:** their size from Lecdm instead of Edit Mode, if it can be done
-   without fighting Blizzard's scale; their own alerts per aura from Lecdm's window.
-6. **Alerts:** a warning sound as a buff runs out (out of combat from its real time; in combat
-   only where it can be timed), on-screen text, charges.
-7. **The rest of the feature reference's list:** glows on action-bar buttons by buff state, a
-   focus interrupt bar, a swing-timer sweep for on-next-swing attacks (Heroic Strike, Cleave),
-   a queued-attack highlight, a key-press mirror, import/export.
-8. **Release:** the first upload to CurseForge and Wago (LISTING.md), then a beta.
+1. **The alpha in game** (TESTING.md): above all the alerts, keep-up buffs and the looks,
+   Blizzard's icons taken in, and item cooldowns in combat.
+2. **Parity** (the owner, 2026-11-22: everything leBoof and the feature reference can do): the
+   checklist below, top to bottom, a push at a time with tests. Anything that turns out not to
+   work on Forever moves to "Can't be done" above, with the reason, before it's dropped.
+3. **Release:** the first upload to CurseForge and Wago (LISTING.md), then a beta.
+
+## Parity checklist
+
+**From leBoof**
+
+- [x] Grey and faded while up, the icon back at the warning time; the missing copy in full
+      colour, grey or dimmed red, at its own opacity (2026-11-22)
+- [ ] A sound as a buff runs out, at the warning time: out of combat from its timer; in combat
+      timed from your own cast with the learned duration (not for shared buffs while another of
+      that class is grouped); once per cast
+- [ ] Going into combat with a keep-up buff missing: a sound, and the missing ones in chat
+- [ ] Built-in buff lists per class, with every rank and group version (Prayer of Fortitude
+      counts as Fortitude), world buffs, weapon enchants (oils, sharpening stones)
+- [ ] Tooltips on hover (buff groups, icon bars)
+- [ ] Glow previews on sample icons in the window
+- [ ] A sound log: every sound any addon plays, and why Lecdm played its own
+- [ ] Chat commands per buff (`/lecdm <buff> keep|missing|up`)
+
+**Cooldown icons**
+
+- [ ] Glow while on cooldown; lower opacity on cooldown; keep colour on cooldown (also when
+      short of the resource)
+- [ ] Hidden until usable; hidden in or outside a stance or form; shown only with talents
+      taken or not
+- [ ] Charges: the count (hidden at 0), a glow at max charges, swipe and edge options
+- [ ] Swipe off or reversed, the cooldown edge always, swipe colour
+- [ ] The spell's own buff on its icon: a swipe colour, glow or border while it's up, or the
+      buff in its slot while up; the buff's stacks on the icon
+- [ ] The countdown in a colour and with a decimal under a set time
+- [ ] Per-spell looks: its own border and glow colour; its own icon
+- [ ] Empty spacer slots, racials, custom spell and item IDs
+- [ ] "Best in your bags": one entry for healing potions or healthstones, the best you carry, in
+      a priority order you set
+- [ ] A cooldown shown as a timer bar
+- [ ] Drag to order, click for settings, in a preview in the window
+
+**Buff icons**
+
+- [ ] A glow at a number of stacks (fewer, at most, exactly, at least, more)
+- [ ] Shown only for its last seconds
+- [ ] Swipe colour, reversed swipe; text (size, colour, position) and border per buff
+
+**Icon bars and layout**
+
+- [ ] Icon shapes (square, round, ...) and a bar background
+- [ ] Rows: how many, which way, a second row's size; overflow into another bar past a number
+- [ ] Anchored to another bar or to the cursor; strata; a minimum width in icons
+- [ ] Fonts, outline, sizes and positions for the countdown and the count; a keybind badge
+      (background, border, padding)
+- [ ] Item count never, always or out of combat; item quality; trinkets without a use
+- [ ] Key-press mirror (the pressed look when you press its key)
+- [ ] Copy a setting to all bars
+
+**Timer bars**
+
+- [ ] Spark, gradient fill, reverse fill, the icon left or right, height and width
+- [ ] Ticks and stack thresholds (up to five, with colours), max stacks, stack-based bars
+- [ ] A colour change at the warning time
+- [ ] Custom names; name, time and stacks text size and position; a decimal under a set time
+- [ ] Saved styles, applied to a bar or a group
+
+**Visibility**
+
+- [ ] Party, raid or solo; instances and dungeons; mounted; resting; in a vehicle; an enemy
+      target; match all or any of them
+
+**Glows**
+
+- [ ] Pixel glow: line count, thickness, speed, background
+- [ ] A solid fill style
+- [ ] Glows only in combat (for everything)
+- [ ] Glows on action-bar buttons (any bar addon): while a buff is up or missing, while usable,
+      health above or below a %, at stacks, only in combat; late in a swing
+
+**Sounds and alerts**
+
+- [ ] On-screen text
+- [ ] A sound when a charge comes back
+- [ ] More sounds to pick from
+
+**The rest**
+
+- [ ] Swing sweep on Heroic Strike and Cleave (icons and action buttons); a queued-attack
+      highlight
+- [ ] A focus interrupt bar, with a sound when the focus starts casting
+- [ ] Import and export (profiles, icon bars, buff groups)
+- [ ] Shared entries (trinkets, potions, racials) kept in step across profiles
+- [ ] Blizzard's icons taken in: their size from Lecdm instead of Edit Mode (if it can be done
+      without fighting Blizzard's scale), their own alerts per aura from Lecdm's window
+
+Not on the list, not in Classic: Skyriding and housing visibility, Bloodlust-style presets,
+hero talents, rotation assist (see "Can't be done").
 
 ## Ideas
 

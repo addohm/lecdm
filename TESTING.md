@@ -9,6 +9,17 @@ the build and date.
    "Blizzard's icons": What happens to them: Hide them), and stay gone after `/reload`. Lecdm's
    own buff groups and icon bars are all that shows. In-combat drop sounds for buffs tracked in
    /cdm still play.
+2. The owner's look (2026-11-22), with Battle Shout on **Keep up** in a buff group (Buffs tab),
+   and on the Alerts tab under "Buff groups: how a buff looks": Grey while it's up: Yes;
+   Opacity while it's up: 40%; Look while it's missing: Full colour; a glow while it's missing.
+   - While it's up: the icon is grey and faded (border and swipe too), the time text faded;
+     glows at full strength.
+   - Under the warning time (5 s by default; the buff's duration must have been seen out of
+     combat once): the icon comes back to full colour, in combat too, and the time turns red.
+   - Let it drop: the place shows the icon in full colour, at full strength, glowing; cast it:
+     the grey faded icon is back, the copy and glow gone.
+   - Each buff's ⚙ (Buffs tab) has the same choices; as timer bars: grey bar and faded while
+     up, the copy a full-colour bar while missing.
 
 ## To check (0.9.0-alpha, 2026-11-21)
 

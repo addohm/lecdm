@@ -58,7 +58,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   bars texture, colour, background, and icon, name and time each on or off), when it shows, and
   its buffs: tick them from your buffs in Blizzard's list or from the buffs on you now (out of
   combat), order them, choose how each shows (**while it's up**, **keep up**: a fixed place with
-  a dimmed red copy and a glow while it's down, or **only while missing**), and its own alerts.
+  a copy of it and a glow while it's down, or **only while missing**), and its own alerts and
+  looks.
   Every rank of a buff, whoever cast it, and its full duration are learned the first time Lecdm
   sees it on you out of combat. Changes made in combat apply when it ends.
 
@@ -81,6 +82,12 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     a glow while it's up, the time turning red under a few seconds and a warning glow then
     (icons, timed by the game from the buff's learned duration), a glow while a keep-up buff is
     missing (red pixel glow by default); colours.
+  - Buff groups, how a buff looks: **grey** and its **opacity** while it's up (so a missing one
+    stands out; icons come back to full strength at the warning time, in combat too, once its
+    duration is known; glows stay at full strength), and what a keep-up buff's place shows
+    while it's missing: a copy in **full colour**, **grey** or **dimmed red** (the default), at
+    its own opacity. For "grey and faded while up, full colour and glowing while missing": Grey
+    while it's up Yes, Opacity 40%, Look while it's missing Full colour, and the buff on Keep up.
   - Blizzard's icons and timer bars: sounds when it's applied and when it drops; quiet when
     your target dies, unless "Also when your target dies".
 - **Diagnostics:** where Lecdm's diagnostic lines go ("Show them in" the main chat window, a

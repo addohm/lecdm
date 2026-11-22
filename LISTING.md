@@ -67,7 +67,10 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 
 - **Buff groups** show any buff on you, whoever cast it (another priest's Fortitude, world
   buffs, procs), while it's up, as **icons** or **timer bars**.
-- **Keep up** buffs get a fixed place: a dimmed red copy with a glow while you're missing it.
+- **Keep up** buffs get a fixed place: a copy with a glow while you're missing it, in full
+  colour, grey or dimmed red.
+- Buffs can show **grey** or **faded** while they're up, so a missing one stands out; icons
+  come back to full colour as the buff runs out, in combat too.
 - **Only what you set up shows:** Blizzard's own icons and timer bars are hidden. If you want
   your debuffs on the target (only Blizzard can time them), Lecdm can take Blizzard's in, into
   its own places, following each target.
@@ -124,7 +127,7 @@ The minimap button and the game's addon menu by the minimap open the options too
    of range, keybind text on.
 2. A buff group as timer bars next to Blizzard's timer bars taken in (Sunder Armor, Thunder Clap
    on the target).
-3. A keep-up buff missing: its red copy and glow.
+3. A keep-up buff missing: its copy and glow, next to a grey, faded one that's up.
 4. The Icon bars tab with the "Add or remove spells" checklist open.
 5. The Alerts tab, and a spell's ⚙ menu.
 6. Everything unlocked (the blue shades) being moved.

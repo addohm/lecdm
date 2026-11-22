@@ -525,6 +525,26 @@ check(warned and warned.button.bound.SetDurationBar, "the warning glow isn't tim
 check(warned.button.bound.SetDurationText, "no time text")
 BD.warnGlow, BD.upGlow = "none", "none"
 ns.Refresh()
+-- Grey and faded while it's up (in the key too): the face is faded and grey; with a known
+-- duration and a warning time the game fills the real icon, revealed at the warning time (timed
+-- even with no warning glow); without one, the face's own icon.
+BD.upGrey, BD.upAlpha = true, 0.4
+ns.Refresh()
+local faded = G("Battle Shout/icons:32:0:1:black:0.08:small/none:gold:5:none:120:0.4:true")
+check(faded, "the look while up isn't in the key")
+local fb = faded.button.bound
+check(fb.SetDurationBar and fb.SetIcon and fb.SetIcon.parent.alpha == 1 and not fb.SetIcon.desaturated, "the real icon isn't revealed at the warning time")
+local facedIcon
+for _, f in ipairs(M.frames) do
+	if f.parent == faded.button and f.alpha == 0.4 then facedIcon = f end
+end
+check(facedIcon, "no faded face on the button")
+local fort = G("Power Word: Fortitude/icons:32:0:")
+check(fort and fort.button.bound.SetIcon.desaturated and fort.button.bound.SetIcon.parent.alpha == 0.4 and not fort.button.bound.SetDurationBar,
+	"without a duration the face's icon isn't grey and faded")
+BD.upGrey, BD.upAlpha = false, 1
+ns.Refresh()
+check(G("Battle Shout/icons:32:0:1:black:0.08:small/none:gold:5:none:120:1:false"), "back to the plain look")
 -- A group's look is in its aura groups' keys; timer bars' own options too.
 buffs[1].style, buffs[1].barColor, buffs[1].barIcon = "bars", "class", false
 ns.Refresh()
@@ -573,6 +593,27 @@ check(slot.button.points[1][1] == "TOPLEFT" and slot.button.points[1][5] == 0, "
 local presence = PresenceOf()
 check(presence and presence.groups.buff.enabled and presence.groups.buff.layout.elementWidth == 32 + 2 * 11 + 1, "no presence for the missing look")
 check(not G("Battle Shout/icons:32:0:"), "a keep-up buff also flows")
+-- The copy while it's missing: dimmed red by default; full colour or grey, at its opacity.
+local function CopyOf()
+	local found
+	for _, f in ipairs(M.frames) do
+		if f.border and f.bar and f.name and f.icon and f.icon.texture == ns.Auras.Icon("Battle Shout") then found = f end
+	end
+	return found
+end
+local copy = CopyOf()
+check(copy and copy.alpha == 0.85 and copy.icon.desaturated, "the missing copy isn't dimmed red")
+BD.missingLook = "normal"
+ns.Refresh()
+check(copy.alpha == 1 and not copy.icon.desaturated and copy.icon.vertex == 1, "the missing copy isn't in full colour")
+ns.Alerts.Set("buffs", "Battle Shout", "missingAlpha", 0.5)
+check(copy.alpha == 0.5, "the missing copy's own opacity wasn't used")
+ns.Alerts.Set("buffs", "Battle Shout", "missingLook", "grey")
+check(copy.icon.desaturated and copy.alpha == 0.5, "the grey missing copy wrong")
+ns.Alerts.Set("buffs", "Battle Shout", "missingLook", nil)
+ns.Alerts.Set("buffs", "Battle Shout", "missingAlpha", nil)
+BD.missingLook = "red"
+ns.Refresh()
 check(container.points[1][5] == -36, "the flowing buffs aren't a line below: " .. tostring(container.points[1][5]))
 ns.Auras.SetMode(buffs[1], "Battle Shout", "missing")
 check(not keepC.slots[slotKey].enabled and presence.groups.buff.enabled, "only-while-missing wrong")

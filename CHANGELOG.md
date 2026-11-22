@@ -6,6 +6,14 @@ All notable changes to lecdm. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- How a buff looks (the owner's look, 2026-11-22), on the Alerts tab and each buff's ⚙: grey
+  and an opacity while it's up, the icon coming back to full strength at the warning time (in
+  combat too, timed by the game once the buff's duration is known); and a keep-up buff's place
+  while it's missing: the copy in full colour, grey or dimmed red (the default), at its own
+  opacity. Glows stay at full strength.
+
 ### Changed
 
 - Blizzard's own buff icons and timer bars are hidden by default, and profiles from

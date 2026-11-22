@@ -217,7 +217,7 @@ local function BuffRow(parent)
 	row = UI.OptionSelect(parent, "", Auras.MODES, get, set, {
 		controlX = 260, boxWidth = 130,
 		tooltip = function()
-			return { row.name or "", "While it's up: it shows while it's on you, and the others close up. Keep up: a fixed place, with a dimmed red copy and the missing glow while it's down. Only while missing: a fixed place showing only the red copy." }
+			return { row.name or "", "While it's up: it shows while it's on you, and the others close up. Keep up: a fixed place, with a copy of it and the missing glow while it's down. Only while missing: a fixed place showing only the copy. How they look (grey or faded while up; full colour, grey or red while missing) is on the Alerts tab, or the buff's ⚙." }
 		end,
 		sync = function(r)
 			local own = r.name and ns.Alerts.HasOwn("buffs", r.name) and " |cff999999(own alerts)|r" or ""

@@ -11,7 +11,12 @@
 --     applied, removed   sounds; in combat only for buffs Blizzard also tracks (its announcement);
 --     upGlow             a glow while it's up (part of the game's button);
 --     warn, warnGlow     the time turns red under `warn` seconds, and the glow comes then (timed
---                        by the game from the buff's duration, learned out of combat).
+--                        by the game from the buff's duration, learned out of combat);
+--     upAlpha, upGrey    how it looks while it's up: its opacity, greyed or not (icons come back
+--                        to full strength at the warning time);
+--     missingLook, missingAlpha, missingGlow, missingColor
+--                        a keep-up buff's place while it's missing: a copy in full colour, grey
+--                        or dimmed red, its opacity, and its glow.
 --   Blizzard's icons and timer bars (your debuffs on the target among them):
 --     applied, removed   sounds, from Blizzard's announcement; deaths: also when the target died
 --                        (a kill reads as "the target is gone a frame later", TESTING.md).
@@ -31,6 +36,7 @@ A.SOUNDS = {
 	{ "TELL_MESSAGE", "Whisper" },
 	{ "MAP_PING", "Map ping" },
 }
+A.ALPHAS = { { 1, "100%" }, { 0.9, "90%" }, { 0.75, "75%" }, { 0.6, "60%" }, { 0.5, "50%" }, { 0.4, "40%" }, { 0.25, "25%" } }
 A.WARNS = { { 0, "Off" }, { 3, "3 s" }, { 5, "5 s" }, { 10, "10 s" }, { 15, "15 s" }, { 30, "30 s" }, { 60, "1 min" } }
 
 -- A setting: the spell's or buff's own, else the default.

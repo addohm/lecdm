@@ -67,8 +67,8 @@ function A.MoveEntry(group, index, dir)
 end
 
 -- How a buff in a group shows: "up" (while it's up; the rest close up), "keep" (a fixed place:
--- the game's icon while it's up, a dimmed red copy and the missing glow while it isn't) or
--- "missing" (a fixed place showing only the red copy, while it's missing).
+-- the game's icon while it's up, a copy and the missing glow while it isn't) or "missing" (a
+-- fixed place showing only the copy, while it's missing). The looks are the buff's alerts'.
 A.MODES = { { "up", "While it's up" }, { "keep", "Keep up" }, { "missing", "Only while missing" } }
 
 function A.Mode(group, name)
@@ -219,12 +219,12 @@ end
 -- The display -----------------------------------------------------------------------------
 
 -- The time text's colour: red under `warn` seconds, white above (the game applies the curve in
--- combat too).
-local function WarnCurve(warn)
+-- combat too); faded above with the icon while it's up (alpha), full strength under.
+local function WarnCurve(warn, alpha)
 	local curve = C_CurveUtil.CreateColorCurve()
 	curve:SetType(Enum.LuaCurveType.Step)
 	curve:AddPoint(0, CreateColor(1, 0.25, 0.25, 1))
-	curve:AddPoint(warn, CreateColor(1, 1, 1, 1))
+	curve:AddPoint(warn, CreateColor(1, 1, 1, alpha or 1))
 	return curve
 end
 
@@ -239,8 +239,11 @@ end
 -- the bar's end inside a frame clipped to the glow's area, so what's in it shows only under the
 -- warning time. Lecdm never learns the time left: the game does the sizing. total: the buff's
 -- full duration (learned out of combat); without one there's no warning glow.
-local function AddTimedGlow(button, glow, color, size, warn, total)
-	if glow == "none" or not total or warn <= 0 or total - warn < 2 then return end
+-- reveal (an icon faded or grey while it's up): { z, n, r, g, b } (zoom, border size and colour);
+-- the window then also holds the real icon at full strength, so the icon "comes back" at the
+-- warning time. Returns the window's host (its icon in host.icon), or nil if it can't be timed.
+local function AddTimedGlow(button, glow, color, size, warn, total, reveal)
+	if (glow == "none" and not reveal) or not total or warn <= 0 or total - warn < 2 then return end
 	local margin = Margin(size)
 	local span = size + 2 * margin
 	local k = math.min(span / 0.5, 100000 / total) -- px per second; caps the bar near 100000 px
@@ -266,9 +269,22 @@ local function AddTimedGlow(button, glow, color, size, warn, total)
 	window:SetClipsChildren(true)
 	local host = CreateFrame("Frame", nil, window)
 	host:SetAllPoints(button)
-	local built = ns.Glow.Build(host, glow, color, size)
-	-- Its animations start with the buff; the clipping keeps them out of sight until the warning.
-	for _, g in ipairs(built.groups) do button:AddAuraShownAnimation(g) end
+	if reveal then
+		local z, n = reveal[1], reveal[2]
+		local edge = host:CreateTexture(nil, "BACKGROUND")
+		edge:SetPoint("TOPLEFT", -n, n)
+		edge:SetPoint("BOTTOMRIGHT", n, -n)
+		edge:SetColorTexture(reveal[3], reveal[4], reveal[5], n > 0 and 1 or 0)
+		host.icon = host:CreateTexture(nil, "ARTWORK")
+		host.icon:SetAllPoints()
+		host.icon:SetTexCoord(z, 1 - z, z, 1 - z)
+	end
+	if glow ~= "none" then
+		local built = ns.Glow.Build(host, glow, color, size)
+		-- Its animations start with the buff; the clipping keeps them out of sight until the warning.
+		for _, g in ipairs(built.groups) do button:AddAuraShownAnimation(g) end
+	end
+	return host
 end
 
 -- A buff entry's alert look: what its button's parts depend on (part of its aura group's key).
@@ -277,6 +293,7 @@ function A.AlertLook(name)
 	local total = A.Duration(name) or 0
 	return Get("buffs", name, "upGlow") .. ":" .. Get("buffs", name, "glowColor") .. ":" .. Get("buffs", name, "warn")
 		.. ":" .. Get("buffs", name, "warnGlow") .. ":" .. total
+		.. ":" .. Get("buffs", name, "upAlpha") .. ":" .. tostring(Get("buffs", name, "upGrey"))
 end
 
 -- A group's look and visibility (also for groups made before a setting existed).
@@ -329,29 +346,43 @@ function A.LookKey(group)
 end
 
 -- The parts of one of the game's aura buttons, built once when the game makes it.
+-- While the buff is up, its "face" (border, icon, swipe, timer bar) has the buff's look: its
+-- opacity (upAlpha) and greyed or not (upGrey); the glows stay at full strength. An icon comes
+-- back to full strength at the warning time, in combat too, once the buff's duration is known:
+-- the timed glow's window then holds the real icon (the game fills it; the face shows the buff's
+-- own icon, faded), and the time text brightens with the curve. Timer bars keep their look.
 local function Styler(group, name)
 	local size, bars, width = group.size, group.style == "bars", group.barWidth
 	local Get = ns.Alerts.Get
 	local upGlow, color = Get("buffs", name, "upGlow"), Get("buffs", name, "glowColor")
 	local warn, warnGlow = Get("buffs", name, "warn"), Get("buffs", name, "warnGlow")
+	local alpha, grey = Get("buffs", name, "upAlpha") or 1, Get("buffs", name, "upGrey") and true or false
+	local faded = alpha < 1 or grey
 	local total = A.Duration(name)
-	local timeOptions = warn > 0 and { textColor = { curve = WarnCurve(warn), property = Enum.DurationTextBindingProperty.RemainingDuration } } or nil
+	local timeOptions = warn > 0 and { textColor = { curve = WarnCurve(warn, bars and 1 or alpha), property = Enum.DurationTextBindingProperty.RemainingDuration } } or nil
 	local font = ns.Bars.FONTS[group.timeText]
 	local z, n = group.zoom or 0.08, group.border or 1
 	local er, eg, eb = ns.Bars.BorderRGB(group.borderColor)
+	local iconTexture = A.Icon(name)
 	return function(button)
-		local edge = button:CreateTexture(nil, "BACKGROUND")
-		local icon = button:CreateTexture(nil, "ARTWORK")
+		local face = CreateFrame("Frame", nil, button)
+		face:SetAllPoints(button)
+		face:SetFrameLevel(button:GetFrameLevel() + 1)
+		face:SetAlpha(alpha)
+		local edge = face:CreateTexture(nil, "BACKGROUND")
+		local icon = face:CreateTexture(nil, "ARTWORK")
 		icon:SetTexCoord(z, 1 - z, z, 1 - z)
-		button:SetIcon(icon)
+		icon:SetDesaturated(grey)
 		local top = CreateFrame("Frame", nil, button)
 		top:SetAllPoints(button)
 		top:SetFrameLevel(button:GetFrameLevel() + 5)
 		local count = top:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+		count:SetAlpha(alpha)
 		button:SetApplicationCount(count)
 		if bars then
 			-- A timer bar: the icon at the left (or none), the bar draining to the right with the
 			-- buff's name and the time left; the game drives the bar (SetTimerDuration).
+			button:SetIcon(icon)
 			button:SetSize(width, size)
 			local iconW = group.barIcon and size or 0
 			icon:SetSize(math.max(iconW, 1), size)
@@ -360,11 +391,11 @@ local function Styler(group, name)
 			edge:SetPoint("TOPLEFT", button, -n, n)
 			edge:SetPoint("BOTTOMRIGHT", button, n, -n)
 			edge:SetColorTexture(er, eg, eb, n > 0 and 1 or 0)
-			local bar = CreateFrame("StatusBar", nil, button)
+			local bar = CreateFrame("StatusBar", nil, face)
 			bar:SetPoint("TOPLEFT", button, "TOPLEFT", iconW > 0 and (iconW + 1) or 0, 0)
 			bar:SetPoint("BOTTOMRIGHT")
 			bar:SetStatusBarTexture(TEXTURE_FILES[group.barTexture] or TEXTURE_FILES.blizzard)
-			bar:SetStatusBarColor(BarRGB(group.barColor))
+			if grey then bar:SetStatusBarColor(0.5, 0.5, 0.5) else bar:SetStatusBarColor(BarRGB(group.barColor)) end
 			local bg = bar:CreateTexture(nil, "BACKGROUND")
 			bg:SetAllPoints()
 			bg:SetColorTexture(0, 0, 0, group.barBg or 0.5)
@@ -394,8 +425,21 @@ local function Styler(group, name)
 			edge:SetPoint("TOPLEFT", -n, n)
 			edge:SetPoint("BOTTOMRIGHT", n, -n)
 			edge:SetColorTexture(er, eg, eb, n > 0 and 1 or 0)
-			local cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
-			cooldown:SetAllPoints()
+			local host = AddTimedGlow(button, warnGlow, color, size, warn, total,
+				faded and { z, n, er, eg, eb } or nil)
+			-- The swipe: on the face; above the revealed icon when there is one (still faded).
+			local cooldown
+			if host and host.icon then
+				cooldown = CreateFrame("Cooldown", nil, button, "CooldownFrameTemplate")
+				cooldown:SetFrameLevel(button:GetFrameLevel() + 4)
+				cooldown:SetAlpha(alpha)
+				icon:SetTexture(iconTexture)
+				button:SetIcon(host.icon)
+			else
+				cooldown = CreateFrame("Cooldown", nil, face, "CooldownFrameTemplate")
+				button:SetIcon(icon)
+			end
+			cooldown:SetAllPoints(button)
 			cooldown:SetDrawEdge(false)
 			cooldown:SetReverse(true)
 			cooldown:SetHideCountdownNumbers(true)
@@ -403,10 +447,10 @@ local function Styler(group, name)
 			if font then
 				local time = top:CreateFontString(nil, "OVERLAY", font)
 				time:SetPoint("BOTTOM", 0, 1)
+				if not timeOptions then time:SetAlpha(alpha) end
 				button:SetDurationText(time, timeOptions)
 			end
 			count:SetPoint("TOPRIGHT", -1, -1)
-			AddTimedGlow(button, warnGlow, color, size, warn, total)
 		end
 		-- The glow while it's up: part of the button, so it shows with it; its animations play
 		-- when the game shows the button.
@@ -475,7 +519,9 @@ local function Frame(group)
 end
 
 -- The missing look ------------------------------------------------------------------------
--- A keep-up buff's place shows a dimmed red copy (and the missing glow) while the buff is down.
+-- A keep-up buff's place shows a copy of the buff (and the missing glow) while the buff is down:
+-- in full colour, grey, or a dimmed red copy (the buff's missingLook), at its opacity
+-- (missingAlpha); the glow stays at full strength.
 -- It must be gone, not just covered, while the buff is up, and Lecdm can't know when that is in
 -- combat. So each such buff has its own "presence" container holding only it, with an invisible
 -- 1 px button: empty it's 1 px wide, with the buff span + 1. The copy sits in a clipping frame
@@ -483,28 +529,56 @@ end
 -- buff is missing, squeezed to nothing while it's up. The game does the sizing (secret); Blizzard
 -- allows anchoring addon frames to a container made with DisableUntrustedLayoutScriptsTemplate.
 -- The owner's technique, proven on Forever.
+A.MISSING_LOOKS = { { "red", "Dimmed red copy" }, { "normal", "Full colour" }, { "grey", "Grey" } }
 
 local function Invisible(button)
 	button:SetSize(1, 1)
 	button:EnableMouse(false)
 end
 
-local function RedCopy(parent)
+local function Copy(parent)
 	local c = CreateFrame("Frame", nil, parent)
 	c.border = c:CreateTexture(nil, "BACKGROUND")
-	c.border:SetPoint("TOPLEFT", -1, 1)
-	c.border:SetPoint("BOTTOMRIGHT", 1, -1)
-	c.border:SetColorTexture(0.7, 0, 0, 1)
 	c.bar = c:CreateTexture(nil, "BORDER")
-	c.bar:SetColorTexture(0.35, 0.05, 0.05, 0.85)
 	c.icon = c:CreateTexture(nil, "ARTWORK")
-	c.icon:SetDesaturated(true)
-	c.icon:SetVertexColor(1, 0.4, 0.4)
 	c.name = c:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
 	c.name:SetJustifyH("LEFT")
-	c.name:SetTextColor(1, 0.5, 0.5)
-	c:SetAlpha(0.85)
 	return c
+end
+
+-- The copy's look: "red" (desaturated, tinted red, a red edge, dimmed), "normal" (as the buff
+-- shows when it's up: the group's border, bar texture and colour) or "grey".
+local function StyleCopy(c, group, look, alpha)
+	local z = group.zoom or 0.08
+	local n = look == "red" and 1 or (group.border or 1)
+	c.icon:SetTexCoord(z, 1 - z, z, 1 - z)
+	c.border:ClearAllPoints()
+	c.border:SetPoint("TOPLEFT", -n, n)
+	c.border:SetPoint("BOTTOMRIGHT", n, -n)
+	if look == "red" then
+		c.border:SetColorTexture(0.7, 0, 0, 1)
+		c.bar:SetColorTexture(0.35, 0.05, 0.05, 0.85)
+		c.bar:SetVertexColor(1, 1, 1)
+		c.icon:SetDesaturated(true)
+		c.icon:SetVertexColor(1, 0.4, 0.4)
+		c.name:SetTextColor(1, 0.5, 0.5)
+		c:SetAlpha(0.85 * alpha)
+		return
+	end
+	local er, eg, eb = ns.Bars.BorderRGB(group.borderColor)
+	c.border:SetColorTexture(er, eg, eb, n > 0 and 1 or 0)
+	c.icon:SetVertexColor(1, 1, 1)
+	c.icon:SetDesaturated(look == "grey")
+	if look == "grey" then
+		c.bar:SetColorTexture(0.5, 0.5, 0.5, 1)
+		c.bar:SetVertexColor(1, 1, 1)
+		c.name:SetTextColor(0.8, 0.8, 0.8)
+	else
+		c.bar:SetTexture(TEXTURE_FILES[group.barTexture] or TEXTURE_FILES.blizzard)
+		c.bar:SetVertexColor(BarRGB(group.barColor))
+		c.name:SetTextColor(1, 1, 1)
+	end
+	c:SetAlpha(alpha)
 end
 
 local function Presence(f, name)
@@ -525,7 +599,7 @@ local function Presence(f, name)
 	p.clip:SetClipsChildren(true)
 	p.clip:SetFrameLevel(f.anchor:GetFrameLevel() + 2)
 	p.host = CreateFrame("Frame", nil, p.clip)
-	p.copy = RedCopy(p.host)
+	p.copy = Copy(p.host)
 	p.copy:SetAllPoints(p.host)
 	p.glow = CreateFrame("Frame", nil, p.host)
 	p.glow:SetAllPoints(p.host)
@@ -534,7 +608,7 @@ local function Presence(f, name)
 	return p
 end
 
--- The red copy and the missing glow for a buff's place: x, y from the group's top left (y down).
+-- The copy and the missing glow for a buff's place: x, y from the group's top left (y down).
 local function PlaceMissing(f, group, name, x, y, w, h)
 	local p = Presence(f, name)
 	local margin = Margin(h)
@@ -568,6 +642,7 @@ local function PlaceMissing(f, group, name, x, y, w, h)
 		c.name:SetPoint("RIGHT", -4, 0)
 		c.name:SetText(name)
 	end
+	StyleCopy(c, group, ns.Alerts.Get("buffs", name, "missingLook") or "red", ns.Alerts.Get("buffs", name, "missingAlpha") or 1)
 	ns.Glow.Show(p.glow, ns.Alerts.Get("buffs", name, "missingGlow"), ns.Alerts.Get("buffs", name, "missingColor"), h)
 end
 
