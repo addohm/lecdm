@@ -83,7 +83,7 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   your buffs in
   Blizzard's list, or from the buffs on you now (out of combat), order them, choose how each shows (**while it's up**, **keep up**: a fixed place with
   a copy of it and a glow while it's down, or **only while missing**), and its own alerts and
-  looks.
+  looks (its ⚙: border, border colour, the time text's size, place and colour).
   Every rank of a buff, whoever cast it, and its full duration are learned the first time Lecdm
   sees it on you out of combat. Changes made in combat apply when it ends.
 

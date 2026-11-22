@@ -698,6 +698,14 @@ check(lastSeconds and lastSeconds.button.bound.SetDurationBar and lastSeconds.bu
 	"hidden until the warning time wrong")
 BD.upAlpha = 1
 ns.Refresh()
+-- A buff's own look: in its key; Default back to the group's.
+ns.Auras.SetLook(buffs[1], "Battle Shout", "border", 3)
+ns.Auras.SetLook(buffs[1], "Battle Shout", "timePos", "CENTER")
+local ownLook = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark/none:gold:5:none:120:1:false:none:>=5:3:nil:nil:CENTER:nil")
+check(ownLook, "a buff's own look not in its key")
+ns.Auras.SetLook(buffs[1], "Battle Shout", "border", nil)
+ns.Auras.SetLook(buffs[1], "Battle Shout", "timePos", nil)
+check(buffs[1].looks == nil or buffs[1].looks["Battle Shout"] == nil, "a buff's look didn't go back to the group's")
 -- A glow at a number of stacks: an application bar the game drives, in the key.
 BD.stackGlow, BD.stackOp, BD.stackCount = "pixel", "=", 3
 ns.Refresh()

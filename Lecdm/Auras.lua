@@ -336,12 +336,38 @@ end
 
 -- The time text's colour: red under `warn` seconds, white above (the game applies the curve in
 -- combat too); faded above with the icon while it's up (alpha), full strength under.
-local function WarnCurve(warn, alpha)
+local function WarnCurve(warn, alpha, rgb)
 	local curve = C_CurveUtil.CreateColorCurve()
 	curve:SetType(Enum.LuaCurveType.Step)
 	curve:AddPoint(0, CreateColor(1, 0.25, 0.25, 1))
-	curve:AddPoint(warn, CreateColor(1, 1, 1, alpha or 1))
+	curve:AddPoint(warn, CreateColor(rgb and rgb[1] or 1, rgb and rgb[2] or 1, rgb and rgb[3] or 1, alpha or 1))
 	return curve
+end
+
+-- A buff's own look in its group (group.looks[name]): border, borderColor, timeText (size),
+-- timePos (icons: "BOTTOM", "CENTER", "TOP"), timeColor; nil for the group's.
+A.TIME_POSITIONS = { { "BOTTOM", "Bottom" }, { "CENTER", "Centre" }, { "TOP", "Top" } }
+A.TIME_COLORS = { { "white", "White" }, { "gold", "Gold" }, { "yellow", "Yellow" }, { "green", "Green" }, { "blue", "Blue" } }
+local TIME_RGB = { white = { 1, 1, 1 }, gold = { 1, 0.82, 0 }, yellow = { 1, 1, 0.3 }, green = { 0.4, 1, 0.4 }, blue = { 0.45, 0.75, 1 } }
+
+function A.Own(group, name)
+	return group.looks and group.looks[name] or {}
+end
+
+function A.SetLook(group, name, field, value)
+	group.looks = group.looks or {}
+	local own = group.looks[name] or {}
+	own[field] = value
+	group.looks[name] = next(own) and own or nil
+	ns.Refresh()
+end
+
+-- The part of a button's key its own look makes.
+function A.OwnKey(group, name)
+	local own = A.Own(group, name)
+	if not next(own) then return "" end
+	return ":" .. tostring(own.border) .. ":" .. tostring(own.borderColor) .. ":" .. tostring(own.timeText) .. ":"
+		.. tostring(own.timePos) .. ":" .. tostring(own.timeColor)
 end
 
 local function Margin(size)
@@ -538,10 +564,13 @@ local function Styler(group, name)
 	local alpha, grey = Get("buffs", name, "upAlpha") or 1, Get("buffs", name, "upGrey") and true or false
 	local faded = alpha < 1 or grey
 	local total = A.Duration(name)
-	local timeOptions = warn > 0 and { textColor = { curve = WarnCurve(warn, bars and 1 or alpha), property = Enum.DurationTextBindingProperty.RemainingDuration } } or nil
-	local font = ns.Bars.FONTS[group.timeText]
-	local z, n = group.zoom or 0.08, group.border or 1
-	local er, eg, eb = ns.Bars.BorderRGB(group.borderColor)
+	local own = A.Own(group, name)
+	local timeRGB = TIME_RGB[own.timeColor or "white"] or TIME_RGB.white
+	local timeOptions = warn > 0 and { textColor = { curve = WarnCurve(warn, bars and 1 or alpha, timeRGB), property = Enum.DurationTextBindingProperty.RemainingDuration } } or nil
+	local font = ns.Bars.FONTS[own.timeText or group.timeText]
+	local z, n = group.zoom or 0.08, own.border or group.border or 1
+	local er, eg, eb = ns.Bars.BorderRGB(own.borderColor or group.borderColor)
+	local timePos = own.timePos or "BOTTOM"
 	local iconTexture = A.Icon(name)
 	return function(button)
 		-- The game's tooltip on hover (its own): off lets clicks through.
@@ -601,6 +630,7 @@ local function Styler(group, name)
 			if group.barTime and font then
 				local time = barTop:CreateFontString(nil, "OVERLAY", font)
 				time:SetPoint("RIGHT", -4, 0)
+				if not timeOptions then time:SetTextColor(timeRGB[1], timeRGB[2], timeRGB[3]) end
 				button:SetDurationText(time, timeOptions)
 			end
 			count:SetPoint("BOTTOMRIGHT", icon, -1, 1)
@@ -640,8 +670,11 @@ local function Styler(group, name)
 			button:SetDurationCooldown(cooldown)
 			if font then
 				local time = top:CreateFontString(nil, "OVERLAY", font)
-				time:SetPoint("BOTTOM", 0, 1)
-				if not timeOptions then time:SetAlpha(alpha) end
+				time:SetPoint(timePos, 0, timePos == "BOTTOM" and 1 or timePos == "TOP" and -1 or 0)
+				if not timeOptions then
+					time:SetAlpha(alpha)
+					time:SetTextColor(timeRGB[1], timeRGB[2], timeRGB[3])
+				end
 				button:SetDurationText(time, timeOptions)
 			end
 			count:SetPoint("TOPRIGHT", -1, -1)
@@ -940,7 +973,7 @@ local function PlaceGroup(f, group, i)
 			-- A weapon enchant: "up" leaves its place empty while there's none.
 			if mode == "up" then HideMissing(f, name) else PlaceMissing(f, group, name, x, y, w, h) end
 			if mode ~= "missing" then
-				local key = name .. "/" .. look .. "/" .. A.AlertLook(name)
+				local key = name .. "/" .. look .. "/" .. A.AlertLook(name) .. A.OwnKey(group, name)
 				wantEnchant[key] = true
 				local en = Enchant(f, group, name, key, slot)
 				en.container:ClearAllPoints()
@@ -951,7 +984,7 @@ local function PlaceGroup(f, group, i)
 		elseif count > 0 then
 			PlaceMissing(f, group, name, x, y, w, h)
 			if mode == "keep" then
-				local key = name .. "/" .. look .. "/" .. A.AlertLook(name)
+				local key = name .. "/" .. look .. "/" .. A.AlertLook(name) .. A.OwnKey(group, name)
 				wantSlot[key] = true
 				local button = f.slots[key]
 				if not button then
@@ -1017,7 +1050,7 @@ local function PlaceGroup(f, group, i)
 	for j, name in ipairs(flow) do
 		local ids, count = A.IDs(name)
 		if count > 0 then
-			local key = name .. "/" .. look .. "/" .. A.AlertLook(name)
+			local key = name .. "/" .. look .. "/" .. A.AlertLook(name) .. A.OwnKey(group, name)
 			wanted[key] = true
 			if not f.made[key] then
 				c:AddAuraGroup(key, "HELPFUL", {

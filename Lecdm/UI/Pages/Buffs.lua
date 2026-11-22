@@ -241,6 +241,27 @@ local function SmallButton(row, texture, x, tip, onClick)
 	return b
 end
 
+-- The ⚙ menu's look for a buff in the group shown: its border, its time text.
+local function BuffLooks(root, name)
+	local group = Current()
+	if not (group and name) then return end
+	root:CreateTitle("Its look")
+	local function LookMenu(label, field, list, default)
+		local sub = root:CreateButton(label)
+		sub:CreateRadio("As the group's (" .. ns.Alerts.Label(list, default) .. ")",
+			function() return Auras.Own(group, name)[field] == nil end, function() Auras.SetLook(group, name, field, nil) end)
+		for _, v in ipairs(list) do
+			sub:CreateRadio(v[2], function() return Auras.Own(group, name)[field] == v[1] end,
+				function() Auras.SetLook(group, name, field, v[1]) end)
+		end
+	end
+	LookMenu("Border", "border", ns.Bars.BORDERS, group.border)
+	LookMenu("Border colour", "borderColor", ns.Bars.BORDER_COLORS, group.borderColor)
+	LookMenu("Time text", "timeText", ns.Bars.TEXT_SIZES, group.timeText)
+	LookMenu("Time text's place (icons)", "timePos", Auras.TIME_POSITIONS, "BOTTOM")
+	LookMenu("Time text's colour", "timeColor", Auras.TIME_COLORS, "white")
+end
+
 -- A buff in the group: its icon and name, how it shows, then up / down / remove and its ⚙.
 local function BuffRow(parent)
 	local row
@@ -275,7 +296,8 @@ local function BuffRow(parent)
 		local group = Current()
 		if group and row.name then Auras.SetInGroup(group, row.name, false) end
 	end)
-	ns.AlertsGear(row, x + 80, "buffs", function() return row.name end, function() return row.name end)
+	row.gear = ns.AlertsGear(row, x + 80, "buffs", function() return row.name end, function() return row.name end,
+		function(root) BuffLooks(root, row.name) end)
 	return row
 end
 

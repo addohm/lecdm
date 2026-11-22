@@ -25,6 +25,8 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- Each buff's own look in its group (its ⚙): border, border colour, the time text's size,
+  place and colour.
 - Buffs can be hidden while up until the warning time ("Opacity while it's up: Hidden"): shown
   only in their last seconds (and while missing, kept up), in combat too.
 - Buff groups: a glow at a number of stacks (fewer than, at most, exactly, at least or more

@@ -81,7 +81,9 @@ the build and date.
 22. "Opacity while it's up: Hidden until the warning time", Battle Shout kept up (seen once out
     of combat): nothing while it's up; it appears in its last 5 s (time and swipe); dropped:
     its missing copy.
-23. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+23. A buff's ⚙, "Its look": Border Heavy, time text Large, Centre, Gold: only that buff
+    changes, in combat too.
+24. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 
