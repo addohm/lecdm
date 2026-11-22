@@ -137,7 +137,9 @@ the build and date.
 41. "The same in every profile" on a bar of trinkets and potions: log in another character (or
     switch profile): the bar is there; change it on one: the other has the change. Untick: they
     go their own ways.
-42. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+42. Buffs tab, "Blizzard's icons": under "Their alerts", Sunder Armor's ⚙: a sound when it
+    drops: it plays as it falls off the target (not when the target dies).
+43. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

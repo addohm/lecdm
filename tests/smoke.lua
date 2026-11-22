@@ -1573,6 +1573,8 @@ check(blizzIcons.text:find("^Blizzard's icons") and groupMenu.children[3].text:f
 blizzIcons.setSelected()
 check(buffPanel.parts.picker.dropdown.text == "Blizzard's icons" and buffPanel.parts.blizzMode.shown, "Blizzard's icons page not shown")
 check(buffPanel.parts.blizzMode.box.text == "Take them into Lecdm" and buffPanel.parts.blizzPerRow.shown, "Blizzard place rows wrong")
+check(buffPanel.parts.auraRows[1] and buffPanel.parts.auraRows[1].name == "Battle Shout" and buffPanel.parts.auraRows[1].gear,
+	"Blizzard's auras' own alerts rows missing")
 check(not buffPanel.parts.style.shown, "a buff group's rows shown on a Blizzard page")
 groupMenu.children[1].setSelected()
 M.Slash("bars")

@@ -193,8 +193,10 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - [x] Import and export (profiles, icon bars, buff groups) (2026-11-22)
 - [x] Shared entries (trinkets, potions, racials) kept in step across profiles (a whole bar or
       group, "the same in every profile") (2026-11-22)
-- [ ] Blizzard's icons taken in: their size from Lecdm instead of Edit Mode (if it can be done
-      without fighting Blizzard's scale), their own alerts per aura from Lecdm's window
+- [x] Blizzard's icons taken in: their own alerts per aura from Lecdm's window (2026-11-22)
+- [ ] Blizzard's icons taken in: their size from Lecdm instead of Edit Mode (it means setting
+      their scale: past the two exceptions to "Blizzard's Cooldown Manager is read-only", so
+      the owner's call)
 
 Not on the list, not in Classic: Skyriding and housing visibility, Bloodlust-style presets,
 hero talents, rotation assist (see "Can't be done").

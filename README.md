@@ -124,7 +124,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   spaced and grown your way, gaps closed, following each target), or **leave them** where
   Blizzard shows them; and when they show. Which ones and their order are picked in
   `/cdm` (Tracked Buffs for icons, Tracked Bars for timer bars; "Open /cdm" is right there);
-  their size is Edit Mode's.
+  their size is Edit Mode's. Below, each of Blizzard's tracked auras for your class with its
+  own alerts (its ⚙: sounds when it's applied or drops, its name on screen).
 - **Alerts:** the sounds and glows every spell and buff gets unless it has its own (the ⚙ on
   its row: a submenu per setting, "Default (...)" first). Each glow picker has a sample icon
   showing the glow and colour picked; each sound picker a Test button. The sounds: the game's

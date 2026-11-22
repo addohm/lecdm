@@ -241,6 +241,41 @@ local function SmallButton(row, texture, x, tip, onClick)
 	return b
 end
 
+-- A row for one of Blizzard's tracked auras: its icon and name, and its own alerts (⚙).
+local function AuraAlertRow(parent)
+	local row = CreateFrame("Frame", nil, parent)
+	row:SetHeight(30)
+	row.label = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+	row.label:SetPoint("LEFT", 16, 0)
+	row.label:SetPoint("RIGHT", row, "LEFT", 380, 0)
+	row.label:SetJustifyH("LEFT")
+	row.gear = ns.AlertsGear(row, 390, "blizzard", function() return row.name end, function() return row.name end)
+	row.Sync = function()
+		local own = row.name and ns.Alerts.HasOwn("blizzard", row.name) and " |cff999999(own alerts)|r" or ""
+		row.label:SetText(row.name and ("|T" .. (row.icon or 134400) .. ":18:18|t " .. row.name .. own) or "")
+	end
+	return row
+end
+
+-- Blizzard's tracked auras for a place (its default list: Tracked buffs for its icons, Tracked
+-- bars for its timer bars), once per name.
+local function BlizzardAuras(key)
+	local want = key == "icons" and 2 or 3
+	local list, seen = {}, {}
+	for _, section in ipairs(ns.Catalogue.sections) do
+		if section.value == want then
+			for _, id in ipairs(section.ids) do
+				local e = ns.Catalogue.byID[id]
+				if e and e.name and not seen[e.name] then
+					seen[e.name] = true
+					list[#list + 1] = e
+				end
+			end
+		end
+	end
+	return list
+end
+
 -- The ⚙ menu's look for a buff in the group shown: its border, its time text.
 local function BuffLooks(root, name)
 	local group = Current()
@@ -459,6 +494,9 @@ ns.Window.Page({
 				.. section .. ". Your debuffs on the target (Sunder Armor, Thunder Clap ...) can only be timed by Blizzard, so they're picked there. Their size: Edit Mode."
 		end, 44)
 		p.blizzOpen = UI.OptionButton(stack.inner, "", "Open /cdm", function() ns.Hosted.OpenBlizzard() end)
+		p.auraHead = UI.OptionHeading(stack.inner, "Their alerts, each aura's own")
+		p.auraNote = UI.OptionText(stack.inner, "The Alerts tab sets what they all get; an aura's ⚙ gives it its own (a sound when it's applied or drops, its name on screen). From Blizzard's list for your class.", 32)
+		p.auraRows = {}
 		p.head = UI.OptionHeading(stack.inner, "This buff group")
 		p.name = UI.OptionEdit(stack.inner, "Name (press Enter to keep it)",
 			function() local group = Current() return group and group.name or "" end,
@@ -549,6 +587,17 @@ ns.Window.Page({
 			end
 			stack:Add(p.blizzNote)
 			stack:Add(p.blizzOpen)
+			stack:Add(p.auraHead)
+			stack:Add(p.auraNote)
+			for i, e in ipairs(BlizzardAuras(kind.key)) do
+				local row = p.auraRows[i]
+				if not row then
+					row = AuraAlertRow(stack.inner)
+					p.auraRows[i] = row
+				end
+				row.name, row.icon = e.name, e.spellID and ns.Bars.SpellIcon(e.spellID)
+				stack:Add(row)
+			end
 		elseif group then
 			local bars = group.style == "bars"
 			for _, row in ipairs({ p.head, p.name, p.style }) do stack:Add(row) end
