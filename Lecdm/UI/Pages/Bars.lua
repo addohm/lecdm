@@ -543,6 +543,9 @@ ns.Window.Page({
 		local maxGet, maxSet = Field("maxIcons")
 		local anGet, anSet = Field("anchorTo")
 		local faceGet, faceSet = Field("fontFace")
+		local icGet, icSet = Field("itemCount")
+		local iqGet, iqSet = Field("itemQuality")
+		local ptGet, ptSet = Field("passiveTrinkets")
 		local outGet, outSet = Field("fontOutline")
 		local cpGet, cpSet = Field("countPos")
 		local kpGet, kpSet = Field("keyPos")
@@ -622,6 +625,10 @@ ns.Window.Page({
 			UI.OptionSelect(stack.inner, "...the rest on", OtherBars, ovGet, ovSet),
 			UI.OptionCheck(stack.inner, "Show the GCD sweep", gcdGet, gcdSet,
 				{ "GCD sweep", "A short sweep on every icon after a spell that triggers the global cooldown." }),
+			UI.OptionSelect(stack.inner, "Items' count", Bars.ITEM_COUNTS, icGet, icSet),
+			UI.OptionCheck(stack.inner, "Items' border in their quality colour", iqGet, iqSet),
+			UI.OptionCheck(stack.inner, "Trinkets without a use effect too", ptGet, ptSet,
+				{ "Trinkets without a use", "A trinket slot on this bar shows whatever's equipped there, use effect or not (no cooldown then)." }),
 			UI.OptionSelect(stack.inner, "Items you have none of", { { "hide", "Hide them" }, { "grey", "Show them greyed" } },
 				emptyGet, emptySet,
 				{ tooltip = { "Items you have none of", "A potion or healthstone on this bar when your bags have none: hidden (its place closes up), or shown greyed with a 0." } }),

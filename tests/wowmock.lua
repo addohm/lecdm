@@ -61,6 +61,7 @@ local function NewRegion(kind, name, parent)
 	function f:SetDesaturated(v) self.desaturated = v end
 	function f:SetVertexColor(r) self.vertex = r end
 	function f:SetTexture(t) self.texture = t end
+	function f:SetColorTexture(r, g, b, a) self.color = { r, g, b, a } end
 	function f:SetBackdropBorderColor(r, g, b) self.border = { r, g, b } end
 	function f:EnableMouse(v) self.mouse = v end
 	function f:CreateTexture() return NewRegion("Texture", nil, self) end
@@ -339,6 +340,7 @@ C_Item = {
 	GetItemCount = function(id) return M.bag[id] or 0 end,
 	IsUsableItem = function() return true end,
 	GetItemIconByID = function() return 7 end,
+	GetItemQualityByID = function() return 3 end,
 }
 C_Container = {
 	GetContainerNumSlots = function(bag) return bag == 0 and #M.bagSlots or 0 end,
@@ -358,6 +360,7 @@ function ReloadUI() M.reloaded = true end
 function HideUIPanel(f) f:Hide() end
 function GameTooltip_Hide() end
 YES, NO, OKAY, CANCEL = "Yes", "No", "Okay", "Cancel"
+ITEM_QUALITY_COLORS = { [3] = { r = 0, g = 0.44, b = 0.87 } }
 RAID_CLASS_COLORS = { WARRIOR = { r = 0.78, g = 0.61, b = 0.43 } }
 C_ClassColor = { GetClassColor = function(class) return RAID_CLASS_COLORS[class] end }
 StaticPopupDialogs = {}

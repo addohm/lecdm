@@ -54,6 +54,7 @@ B.LOOK = {
 	shape = "square", background = 0, rowsBack = false, row2Size = 0, maxIcons = 0,
 	anchorSide = "below", strata = "MEDIUM", minIcons = 0,
 	fontFace = "default", fontOutline = "OUTLINE", countPos = "BOTTOMRIGHT", keyPos = "TOPRIGHT", keyBadge = 0,
+	itemCount = "always", itemQuality = false, passiveTrinkets = false,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -307,6 +308,7 @@ local FACE_FILES = { friz = "Fonts\\FRIZQT__.TTF", arial = "Fonts\\ARIALN.TTF", 
 B.OUTLINES = { { "", "None" }, { "OUTLINE", "Outline" }, { "THICKOUTLINE", "Thick outline" } }
 B.CORNERS = { { "BOTTOMRIGHT", "Bottom right" }, { "BOTTOMLEFT", "Bottom left" }, { "TOPRIGHT", "Top right" },
 	{ "TOPLEFT", "Top left" }, { "CENTER", "Centre" }, { "BOTTOM", "Bottom" }, { "TOP", "Top" } }
+B.ITEM_COUNTS = { { "always", "Always" }, { "ooc", "Out of combat only" }, { "never", "Never" } }
 B.BADGES = { { 0, "None" }, { 0.5, "Dark, 50%" }, { 0.8, "Dark, 80%" } }
 local TEXT_PX = { small = 10, normal = 13, large = 17, huge = 22 }
 
@@ -640,7 +642,11 @@ function B.EntryKnown(key)
 	local kind, id = B.Kind(key)
 	if kind == "spell" then return B.Known(id) end
 	if kind == "space" then return true end
-	if kind == "slot" then return HasUse(SlotItem(id)) end
+	if kind == "slot" then
+		local bar = B.BarOf(key)
+		if bar and bar.passiveTrinkets and (id == 13 or id == 14) then return SlotItem(id) ~= nil end
+		return HasUse(SlotItem(id))
+	end
 	if kind == "best" then
 		local itemID = B.ItemOf(key)
 		return itemID ~= nil and B.ItemCount(itemID) > 0
@@ -965,12 +971,13 @@ local function ItemState(b, bar)
 	local v = (bar.dark and usable == false) and 0.4 or 1
 	b.icon:SetVertexColor(v, v, v)
 	local n = kind == "item" and B.ItemCount(id) or 0
+	local showCount = bar.itemCount ~= "never" and not (bar.itemCount == "ooc" and InCombatLockdown())
 	if kind == "item" and n == 0 then
 		b.icon:SetDesaturated(true)
 		b.icon:SetVertexColor(0.4, 0.4, 0.4)
-		b.count:SetText("0")
+		b.count:SetText(showCount and "0" or "")
 	else
-		b.count:SetText(n > 1 and tostring(n) or "")
+		b.count:SetText(showCount and n > 1 and tostring(n) or "")
 	end
 	if kind == "item" and n == 0 then usable = false end
 	return onCooldown, usable
@@ -1275,6 +1282,15 @@ function B.ApplyLook(b, bar)
 	b.edge:SetColorTexture(B.BorderRGB(own.borderColor or bar.borderColor))
 	b.edge:SetShown(n > 0)
 	local er, eg, eb = B.BorderRGB(own.borderColor or bar.borderColor)
+	if bar.itemQuality and not own.borderColor and b.key then
+		local itemID = B.ItemOf(b.key)
+		local ok, q = pcall(C_Item.GetItemQualityByID, itemID)
+		local c = ok and type(q) == "number" and not ns.IsSecret(q) and ITEM_QUALITY_COLORS and ITEM_QUALITY_COLORS[q]
+		if itemID and c then
+			er, eg, eb = c.r, c.g, c.b
+			b.edge:SetColorTexture(er, eg, eb)
+		end
+	end
 	B.Shape(b, b.icon, b.cd, b.edge, b.over, bar.style ~= "bars" and not b.space and bar.shape or "square", n, er, eg, eb)
 	if b.space then b.cd:Clear() b.count:SetText("") end
 	b.cd:SetDrawSwipe(bar.swipe ~= "off")
@@ -1400,7 +1416,7 @@ for _, e in ipairs({ "SPELL_UPDATE_COOLDOWN", "SPELL_UPDATE_CHARGES", "SPELL_UPD
 	pcall(events.RegisterEvent, events, e)
 end
 for _, e in ipairs({ "SPELLS_CHANGED", "COOLDOWN_VIEWER_DATA_LOADED", "PLAYER_ENTERING_WORLD", "EDIT_MODE_LAYOUTS_UPDATED",
-	"BAG_UPDATE_DELAYED", "PLAYER_EQUIPMENT_CHANGED", "PLAYER_REGEN_ENABLED" }) do
+	"BAG_UPDATE_DELAYED", "PLAYER_EQUIPMENT_CHANGED", "PLAYER_REGEN_ENABLED", "PLAYER_REGEN_DISABLED" }) do
 	pcall(events.RegisterEvent, events, e)
 end
 events:SetScript("OnEvent", function(_, event, arg)
@@ -1420,6 +1436,8 @@ events:SetScript("OnEvent", function(_, event, arg)
 		if activePending then
 			activePending = false
 			B.Build()
+		else
+			B.UpdateAll()
 		end
 	elseif event == "PLAYER_ENTERING_WORLD" or event == "EDIT_MODE_LAYOUTS_UPDATED" then
 		B.ApplyBlizzard()

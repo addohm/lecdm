@@ -41,7 +41,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
     first bigger or smaller, at most so many icons with the rest on another bar, at least so
     many icons wide, anchored to another icon bar or buff group (below, above, left or right
     of it; dragging it sets it free) or to the mouse cursor, its strata, the GCD
-    sweep, and items you have none of (hidden, or greyed with a 0);
+    sweep, items' count (always, out of combat only, never), items' border in their quality
+    colour, trinkets without a use effect too, and items you have none of (hidden, or greyed
+    with a 0);
   - its look: the icon shape (square, round, rounded square, diamond, hexagon), a background
     behind the bar, border and colour, icon zoom, the swipe (normal, reversed or none; its colour;
     a bright edge), countdown text size and, near the end (under a time you pick), a colour or a

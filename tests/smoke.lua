@@ -264,6 +264,26 @@ ns.Refresh()
 check(ns.Auras.AnchorOf(ns.db.buffs.list[1].id).points[1][2] == cooldowns and cooldowns.scripts.OnUpdate == nil, "a buff group anchored to an icon bar wrong")
 ns.db.buffs.list[1].anchorTo, ns.db.buffs.list[1].anchorSide = nil, "below"
 ns.Refresh()
+-- Items: the count always, never, or out of combat only; the border in the item's quality colour.
+ns.Bars.SetOnBar(cdBar, "item:5512", true)
+local stone
+for _, b in ipairs(cooldowns.buttons) do
+	if b.key == "item:5512" then stone = b end
+end
+check(stone and stone.count.text == "2", "the item count isn't shown")
+cdBar.itemCount = "ooc"
+ns.Refresh()
+M.combat = true
+M.Fire("PLAYER_REGEN_DISABLED")
+check(stone.count.text == "", "the item count shown in combat with out of combat only")
+M.combat = false
+M.Fire("PLAYER_REGEN_ENABLED")
+check(stone.count.text == "2", "the item count not back out of combat")
+cdBar.itemCount, cdBar.itemQuality = "always", true
+ns.Refresh()
+check(stone.edge.color[3] == 0.87 and charge.edge.color[1] == 0, "the quality border wrong")
+cdBar.itemQuality = false
+ns.Bars.SetOnBar(cdBar, "item:5512", false)
 -- Fonts: a face with an outline on the count and keybind; the count's place; the badge.
 cdBar.fontFace, cdBar.fontOutline, cdBar.countPos, cdBar.keyBadge = "arial", "THICKOUTLINE", "TOPLEFT", 0.5
 ns.Refresh()

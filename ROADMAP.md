@@ -146,7 +146,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - [x] Anchored to another bar or to the cursor; strata; a minimum width in icons (2026-11-22)
 - [x] Fonts, outline, sizes and positions for the countdown and the count; a keybind badge
       (2026-11-22)
-- [ ] Item count never, always or out of combat; item quality; trinkets without a use
+- [x] Item count never, always or out of combat; item quality; trinkets without a use
+      (2026-11-22)
 - [ ] Key-press mirror (the pressed look when you press its key)
 - [ ] Copy a setting to all bars
 

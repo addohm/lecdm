@@ -95,7 +95,10 @@ the build and date.
 27. Text font Arial Narrow, Thick outline, on an icon bar: the countdown, count and keybind
     change; the count at Top left; a keybind badge at 80%. On a buff group: the time and
     stacks.
-28. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+28. Icon bars with potions: "Items' count: Out of combat only": the count goes in combat and
+    comes back after; "quality colour": a blue potion's border is blue; "Trinkets without a use
+    effect too": a passive trinket shows in its slot.
+29. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 
