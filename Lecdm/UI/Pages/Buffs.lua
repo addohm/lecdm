@@ -481,6 +481,10 @@ ns.Window.Page({
 		p.vertical = UI.OptionCheck(stack.inner, "Vertical", vertGet, vertSet)
 		p.perRow = UI.OptionSelect(stack.inner, "Icons per row", Numbers(1, 20, 1), perGet, perSet)
 		p.styles = ns.StyleRow(stack.inner, "buffs", Current, function() return ns.db.buffs.list end)
+		p.everywhere = UI.OptionCheck(stack.inner, "The same in every profile",
+			function() local group = Current() return group and group.syncID ~= nil end,
+			function(v) local group = Current() if group then ns.Bars.SetEverywhere(group, v) end end,
+			{ "In every profile", "This buff group, its buffs and its look, in all your profiles, kept in step as you change it. Untick: each profile keeps its copy as its own." })
 		p.export = UI.OptionButton(stack.inner, "This buff group, as text to share", "Export", function()
 			local group = Current()
 			if group then ns.Transfer.ShowExport("Buff group " .. group.name, ns.Transfer.Export("group", group)) end
@@ -590,6 +594,7 @@ ns.Window.Page({
 			stack:Add(p.showMatch)
 			stack:Add(p.hideIf)
 			stack:Add(p.styles)
+			stack:Add(p.everywhere)
 			stack:Add(p.export)
 			stack:Add(p.import)
 			stack:Add(p.copy)

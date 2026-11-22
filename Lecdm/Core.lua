@@ -120,7 +120,10 @@ end
 
 -- After any setting changes, and when the profile changes: everything shown follows ns.db.
 function ns.Refresh()
-	if ns.Bars then ns.Bars.Build() end
+	if ns.Bars then
+		ns.Bars.Build()
+		ns.Bars.SyncEverywhere()
+	end
 	if ns.Auras then ns.Auras.Build() end
 	if ns.Hosted then ns.Hosted.Build() end
 	if ns.Alerts then ns.Alerts.Reschedule() end

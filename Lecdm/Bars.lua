@@ -542,6 +542,68 @@ function B.DeleteStyle(kind, name)
 	ns.db.styles[kind][name] = nil
 end
 
+-- In every profile: a bar or group with a syncID is copied, as it is now, to every other profile
+-- (into the one there with the same syncID, else as a new one), after each change. In a profile
+-- it's copied into, its spells or buffs leave the bars or groups they were on. kind: "bars" or
+-- "buffs".
+local function Members(item, kind)
+	return kind == "bars" and item.spells or item.entries
+end
+
+function B.SyncEverywhere()
+	if not (ns.db and LecdmDB and LecdmDB.profiles) then return end
+	for _, kind in ipairs({ "bars", "buffs" }) do
+		for _, item in ipairs(ns.db[kind].list) do
+			if item.syncID then
+				for _, profile in pairs(LecdmDB.profiles) do
+					if profile ~= ns.db and type(profile[kind]) == "table" and type(profile[kind].list) == "table" then
+						local list = profile[kind].list
+						local target
+						for _, other in ipairs(list) do
+							if other.syncID == item.syncID then target = other end
+						end
+						local copy = ns.DeepCopy(item)
+						if target then
+							copy.id = target.id
+							for k in pairs(target) do target[k] = nil end
+							for k, v in pairs(copy) do target[k] = v end
+						else
+							profile[kind].nextID = (profile[kind].nextID or 1) + 1
+							copy.id = (kind == "bars" and "bar" or "buffs") .. profile[kind].nextID
+							copy.anchorTo, copy.overflowTo = nil, nil
+							table.insert(list, copy)
+							target = copy
+						end
+						-- One place per spell or buff in that profile.
+						local mine = {}
+						for _, key in ipairs(Members(target, kind)) do mine[key] = true end
+						for _, other in ipairs(list) do
+							if other ~= target then
+								local members = Members(other, kind)
+								for i = #members, 1, -1 do
+									if mine[members[i]] then table.remove(members, i) end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+-- Turns keeping a bar or group the same in every profile on or off (off: the copies stay, each
+-- its own from then on).
+function B.SetEverywhere(item, on)
+	if on then
+		LecdmDB.nextSync = (LecdmDB.nextSync or 0) + 1
+		item.syncID = item.syncID or ("sync" .. LecdmDB.nextSync)
+	else
+		item.syncID = nil
+	end
+	ns.Refresh()
+end
+
 -- Copies a bar's look and layout (everything in B.LOOK) to every other icon bar.
 function B.CopyLook(from)
 	for _, bar in ipairs(ns.db.bars.list) do

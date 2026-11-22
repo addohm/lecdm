@@ -116,7 +116,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     with `Cooldown:SetCooldown` (`ItemState`: item cooldowns aren't secret). `B.Build()` (frames, buttons,
     seeding from Blizzard's list once per profile), `Update` (one icon: swipe from the duration
     object, grey, dark, red; returns whether it shows), timer bar extras (`B.BarExtras`: spark, gradient, `barReverse`; `barIconRight`, `barNameSize`;
-    a spell's own `label`), `pressMirror` (a secure hook on `UseAction`: `Pressed`), saved styles (`ns.db.styles.bars / .buffs`: `B.SaveStyle`, `B.ApplyStyle`, the tabs'
+    a spell's own `label`), `pressMirror` (a secure hook on `UseAction`: `Pressed`), the same in every profile (`syncID`, `LecdmDB.nextSync`: `B.SyncEverywhere` after each
+    build, `B.SetEverywhere`), saved styles (`ns.db.styles.bars / .buffs`: `B.SaveStyle`, `B.ApplyStyle`, the tabs'
     `ns.StyleRow`), `B.SetFont` (`fontFace`, `fontOutline`; `countPos`, `keyPos`, `keyBadge`), `B.Position` (anchorTo another bar or group by id, `B.FrameOf`, `anchorSide`, or
     "cursor"; `strata`; `B.Reposition` after the buff groups are made), `LayoutAll` (every
     bar in one pass:

@@ -191,7 +191,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
       highlight (2026-11-22)
 - [x] A focus interrupt bar, with a sound when the focus starts casting (2026-11-22)
 - [x] Import and export (profiles, icon bars, buff groups) (2026-11-22)
-- [ ] Shared entries (trinkets, potions, racials) kept in step across profiles
+- [x] Shared entries (trinkets, potions, racials) kept in step across profiles (a whole bar or
+      group, "the same in every profile") (2026-11-22)
 - [ ] Blizzard's icons taken in: their size from Lecdm instead of Edit Mode (if it can be done
       without fighting Blizzard's scale), their own alerts per aura from Lecdm's window
 

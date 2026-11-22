@@ -134,7 +134,10 @@ the build and date.
 40. Import and export: Profiles tab, Export: the text is selected (Ctrl+C); Import..., paste
     it, Import, name it: a new profile, in use. An icon bar's Export, then Import: a copy of it
     joins (its spells move to it). Pasting nonsense says so.
-41. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+41. "The same in every profile" on a bar of trinkets and potions: log in another character (or
+    switch profile): the bar is there; change it on one: the other has the change. Untick: they
+    go their own ways.
+42. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

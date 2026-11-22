@@ -138,6 +138,7 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 
 - Every setting is in a profile, one per character by default ("First Last"); share one between
   characters, copy, rename, delete, reset, or switch by your talents or group role.
+- A bar or buff group can be the same in all your profiles (trinkets and potions for everyone).
 - Export a profile, an icon bar or a buff group as text, and import what others share.
 
 #### Commands

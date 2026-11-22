@@ -60,9 +60,11 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   - when it shows: always, only in combat, or in combat or with a target; opacity; out of
     combat the same, faded or hidden; **only when** (all or any of: solo, in a party or raid,
     in an instance, dungeon, raid, battleground or arena, mounted, resting, in a vehicle, with
-    an enemy target, in combat) and **hide it when** (any of them); saved styles (save its look by name, give one to this bar
-    or every bar); "Copy to every bar" (its look and layout, not its spells or place); and
-    Delete;
+    an enemy target, in combat) and **hide it when** (any of them);
+  - **the same in every profile** (kept in step as you change it: trinkets, potions and
+    racials for all your characters); saved styles (save its look by name, give one to this
+    bar or every bar); "Copy to every bar" (its look and layout, not its spells or place);
+    Export and Import; and Delete;
   - its spells and items: tick them in the checklist (Blizzard's Essential and Utility lists,
     your spellbook, racials among it, your equipped trinkets and on-use gear, **best in your
     bags** (one icon for healing potions, mana potions, healthstones or runes: the best you

@@ -777,6 +777,10 @@ ns.Window.Page({
 					Bars.CopyLook(bar)
 				end)
 			end),
+			UI.OptionCheck(stack.inner, "The same in every profile",
+				function() local bar = Current() return bar and bar.syncID ~= nil end,
+				function(v) local bar = Current() if bar then Bars.SetEverywhere(bar, v) end end,
+				{ "In every profile", "This bar, its spells and its look, in all your profiles, kept in step as you change it (trinkets, potions, racials for every character). Untick: each profile keeps its copy as its own." }),
 			UI.OptionButton(stack.inner, "This icon bar, as text to share", "Export", function()
 				local bar = Current()
 				if bar then ns.Transfer.ShowExport("Icon bar " .. bar.name, ns.Transfer.Export("bar", bar)) end

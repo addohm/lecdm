@@ -254,6 +254,32 @@ local current = ns.Profiles.Current()
 check(pk == "profile" and T.Apply(pk, pdata, "Shared one") and ns.Profiles.Current() == "Shared one", "a profile didn't import")
 ns.Profiles.Switch(current)
 ns.Profiles.Delete("Shared one")
+-- The same in every profile: a bar copied into another profile, kept in step; there its spells
+-- leave the bar they were on.
+local mineProfile = ns.Profiles.Current()
+ns.Profiles.New("Other one")
+local otherDB = ns.db
+ns.Profiles.Switch(mineProfile)
+cdBar = ns.Bars.Get(cooldowns.barID)
+ns.Bars.SetEverywhere(cdBar, true)
+local copied
+for _, bar in ipairs(otherDB.bars.list) do
+	if bar.syncID == cdBar.syncID then copied = bar end
+end
+check(copied and copied.spells[1] == cdBar.spells[1] and copied.id ~= nil, "the bar wasn't copied to the other profile")
+local holders = 0
+for _, bar in ipairs(otherDB.bars.list) do
+	for _, key in ipairs(bar.spells) do if key == 100 then holders = holders + 1 end end
+end
+check(holders == 1, "Charge on two bars in the other profile")
+cdBar.size = 36
+ns.Refresh()
+check(copied.size == 36, "the copy wasn't kept in step")
+ns.Bars.SetEverywhere(cdBar, false)
+cdBar.size = 40
+ns.Refresh()
+check(copied.size == 36 and cdBar.syncID == nil, "turning it off changed the copy")
+ns.Profiles.Delete("Other one")
 -- Copying a bar's look to every bar: the look, not the spells or place.
 cdBar.size, cdBar.shape = 36, "Round"
 ns.Bars.CopyLook(cdBar)

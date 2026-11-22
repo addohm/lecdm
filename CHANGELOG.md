@@ -25,6 +25,7 @@ All notable changes to lecdm. The format follows
   sound's in-combat timing). Spell IDs from Forever's spell names (`tools/gen_data.py`).
 - Tooltips on hover: the game's tooltip for an icon bar's spells and items (off by default, so
   clicks go through; on; or out of combat only), and the choice for buff groups (on by default).
+- An icon bar or buff group can be the same in every profile, kept in step as you change it.
 - Import and export: a profile, an icon bar or a buff group as text to share; pasted text is
   read by Lecdm's own parser, never run.
 - The interrupt bar: your focus's (or target's) cast as a bar the game fills, its name, a
