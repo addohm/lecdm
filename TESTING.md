@@ -60,7 +60,10 @@ the build and date.
     is up", Show the buff on it): use it: the icon shows the buff's time as a gold swipe and
     its time left, in combat too; when the buff ends, the cooldown is back. With "Glow while
     its buff is up" set, it glows then. Change it in combat: it applies when combat ends.
-15. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+15. Icon bars, "Countdown: near the end, under" 5 s, colour Red: a cooldown's countdown turns
+    red for its last 5 s, in combat too; colour None with "a decimal then": 4.9, 4.8... for
+    the last 5 s.
+16. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

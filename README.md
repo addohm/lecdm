@@ -37,7 +37,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   - its name and layout: icon size, spacing, grow from (centre, left or right), vertical, icons
     per row, the GCD sweep, and items you have none of (hidden, or greyed with a 0);
   - its look: border and colour, icon zoom, the swipe (normal, reversed or none; its colour;
-    a bright edge), countdown text size, keybind text (the key of the
+    a bright edge), countdown text size and, near the end (under a time you pick), a colour or a
+    decimal, keybind text (the key of the
     first action button on screen holding it, from any bar addon), the game's tooltip on hover
     (off by default, so clicks go through; on; or out of combat only), grey on cooldown and its
     opacity then, red out of range, dark when unusable; for spells with charges the count (the

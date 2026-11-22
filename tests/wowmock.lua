@@ -80,6 +80,7 @@ local function NewRegion(kind, name, parent)
 	function f:SetTexCoord(...) self.texcoord = { ... } end
 	function f:SetHideCountdownNumbers(v) self.hideNumbers = v end
 	function f:SetReverse(v) self.reverse = v end
+	function f:SetCountdownMillisecondsThreshold(v) self.msThreshold = v end
 	function f:SetDrawEdge(v) self.edge = v end
 	function f:SetDrawSwipe(v) self.drawSwipe = v end
 	function f:SetSwipeColor(...) self.swipeColor = { ... } end
@@ -419,6 +420,22 @@ C_CurveUtil = {
 	end,
 }
 function CreateColor(r, g, b, a) return { r = r, g = g, b = b, a = a } end
+-- The game's duration text bindings and durations: what they were given.
+C_DurationUtil = {
+	CreateDurationTextBinding = function()
+		local t = { enabled = false }
+		function t:SetFontString(fs) self.fontString = fs end
+		function t:SetTextColorCurve(curve, property) self.curve, self.property = curve, property end
+		function t:SetDuration(d) self.duration = d end
+		function t:SetEnabled(v) self.enabled = v end
+		return t
+	end,
+	CreateDuration = function()
+		local d = {}
+		function d:SetTimeFromStart(start, duration) self.start, self.span = start, duration end
+		return d
+	end,
+}
 AnchorUtil = { FlowLayoutAxis = { Horizontal = 1, Vertical = 2 }, FlowDirection = { Right = 1, Left = 2, Down = 3, Up = 4 } }
 Enum = {
 	StatusBarTimerDirection = { RemainingTime = 1, ElapsedTime = 0 },

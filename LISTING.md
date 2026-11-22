@@ -66,7 +66,8 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 - A spell's own buff on its icon while it's up (Death Wish, Shield Block, Slice and Dice): its
   time, stacks and a glow, in combat too.
 - Per bar: icon size, spacing, grow from the centre or an edge, vertical, icons per row,
-  border and colour, icon zoom, the swipe (reversed, coloured or none), countdown text size, keybind text (from any bar addon),
+  border and colour, icon zoom, the swipe (reversed, coloured or none), countdown text size
+  (red or with a decimal near the end), keybind text (from any bar addon),
   tooltips on hover (always, out of combat, or off).
 
 #### Buffs: yours, everyone's, and your target's

@@ -333,6 +333,9 @@ ns.Window.Page({
 		local swcGet, swcSet = Field("swipeColor")
 		local edgeGet, edgeSet = Field("edge")
 		local actGet, actSet = Field("activeColor")
+		local thGet, thSet = Field("threshold")
+		local thcGet, thcSet = Field("thresholdColor")
+		local thdGet, thdSet = Field("thresholdDecimals")
 		local redGet, redSet = Field("red")
 		local darkGet, darkSet = Field("dark")
 		local showGet, showSet = Field("showWhen")
@@ -379,6 +382,11 @@ ns.Window.Page({
 				{ tooltip = { "While its buff is up", "For spells whose ⚙ says to show their buff on them (Death Wish, Shield Block): the buff's time left as a swipe in this colour." } }),
 			UI.OptionSelect(stack.inner, "Countdown text", Bars.TEXT_SIZES, cdGet, cdSet,
 				{ tooltip = { "Countdown text", "The cooldown's time left on the icon (the game draws it; its own setting, Show Numbers for Cooldowns, must be on)." } }),
+			UI.OptionSelect(stack.inner, "Countdown: near the end, under", Bars.THRESHOLDS, thGet, thSet,
+				{ tooltip = { "Near the end", "Under this time the countdown can change colour, or show a decimal (8.7)." } }),
+			UI.OptionSelect(stack.inner, "...its colour then", Bars.THRESHOLD_COLORS, thcGet, thcSet),
+			UI.OptionCheck(stack.inner, "...a decimal then (with no colour)", thdGet, thdSet,
+				{ "A decimal", "The game's countdown shows a decimal under that time; it can't colour its numbers, so the decimal shows when the colour is None." }),
 			UI.OptionCheck(stack.inner, "Keybind text", keyGet, keySet,
 				{ "Keybind text", "The key of the first action button on screen holding the spell or item, from any bar addon." }),
 			UI.OptionSelect(stack.inner, "Tooltip on hover", Bars.TOOLTIPS, tipGet, tipSet,

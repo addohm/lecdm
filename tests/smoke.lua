@@ -192,6 +192,17 @@ check(activeSlot and activeSlot.ids[100] and activeSlot.button.bound.SetDuration
 check(activeSlot.button.allPoints == charge, "the buff slot isn't on the icon")
 ns.Bars.SetActive(cdBar, 100, false)
 check(not ActiveOf(charge), "the buff slot stayed after turning it off")
+-- The countdown near the end: a colour (the game's text binding, given the cooldown's duration;
+-- the Cooldown's numbers hidden), or a decimal (the Cooldown's own) with no colour.
+cdBar.threshold, cdBar.thresholdColor = 5, "red"
+ns.Refresh()
+check(charge.useBinding and charge.timeBinding.enabled and charge.timeBinding.duration and charge.timeBinding.duration.spell == 100
+	and charge.cd.hideNumbers == true, "the countdown's colour near the end isn't the game's binding")
+cdBar.thresholdColor, cdBar.thresholdDecimals = "none", true
+ns.Refresh()
+check(not charge.useBinding and charge.cd.msThreshold == 5 and charge.cd.hideNumbers == false, "the decimal near the end wrong")
+cdBar.threshold, cdBar.thresholdColor, cdBar.thresholdDecimals = 0, "red", false
+ns.Refresh()
 -- The swipe: reversed, its colour, the edge; none.
 cdBar.swipe, cdBar.swipeColor, cdBar.edge = "reverse", "gold", true
 ns.Refresh()

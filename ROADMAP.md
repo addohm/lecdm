@@ -122,7 +122,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - [x] Swipe off or reversed, the cooldown edge always, swipe colour (2026-11-22)
 - [x] The spell's own buff on its icon: a swipe colour, glow or border while it's up, or the
       buff in its slot while up; the buff's stacks on the icon (2026-11-22)
-- [ ] The countdown in a colour and with a decimal under a set time
+- [x] The countdown in a colour or with a decimal under a set time (icon bars; 2026-11-22)
 - [ ] Per-spell looks: its own border and glow colour; its own icon
 - [ ] Empty spacer slots, racials, custom spell and item IDs
 - [ ] "Best in your bags": one entry for healing potions or healthstones, the best you carry, in

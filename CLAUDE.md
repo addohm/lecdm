@@ -76,7 +76,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     { key ... }, show = { [key] = "ready" | "usable" | "cooldown" }, size, gap, grow, vertical,
     perRow, gcd, pos }` and the look, `B.LOOK`: `tooltip` (`B.ShowTooltip`), `cdAlpha` among
     it; `forms[key]` "in:<form spell>" / "out:<id>" (0: no form; `B.FormNow`, `B.Forms`,
-    `B.SetForm`), `talents[key]` "with:<nodeID>" / "without:..." (`B.SetTalent`) and
+    `B.SetForm`), the countdown near the end (`threshold`, `thresholdColor`: a
+    `C_DurationUtil` text binding on `b.timeText`, `TimeBinding` / `Countdown`;
+    `thresholdDecimals`: the Cooldown's own), `talents[key]` "with:<nodeID>" / "without:..." (`B.SetTalent`) and
     `active[key]` (the spell's own buff on its icon: an aura container parented to the icon, a
     slot per look, `PlaceActive`, out of combat only, `activePending`; `B.SetActive`), set from
     the spell's ⚙ (the extra entries `ns.AlertsGear` takes); `seeded`, `nextID`,

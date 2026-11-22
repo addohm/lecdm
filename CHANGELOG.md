@@ -32,6 +32,8 @@ All notable changes to lecdm. The format follows
 - A spell's own buff on its icon (its ⚙: "While its buff is up"): while Death Wish, Shield
   Block or Slice and Dice is on you, the icon shows the buff, from an aura container on the
   icon (in combat too): its time as a swipe in the bar's colour for it, its stacks, a glow.
+- Icon bars: near the end of a cooldown (under a time you pick), the countdown in a colour (the
+  game's duration text binding, so in combat too) or with a decimal (8.7).
 - The swipe, for icon bars and buff groups: normal, reversed or none, its colour, and (icon
   bars) a bright edge.
 - Charges on icon bars: the count (shown by the game, so in combat too), the recharge swipe while

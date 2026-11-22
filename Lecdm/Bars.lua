@@ -48,6 +48,7 @@ B.LOOK = {
 	border = 1, borderColor = "black", zoom = 0.08, countdown = "normal", keybind = false,
 	grey = true, red = true, dark = true, showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "off",
 	cdAlpha = 1, zeroCharges = true, swipe = "normal", swipeColor = "dark", edge = false, activeColor = "gold",
+	threshold = 0, thresholdColor = "red", thresholdDecimals = false,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -70,6 +71,55 @@ function B.SwipeRGBA(color)
 	end
 	local c = SWIPE_RGB[color] or SWIPE_RGB.dark
 	return c[1], c[2], c[3], c[4]
+end
+
+-- The countdown under a set time (threshold, seconds; 0: off): in a colour, and with a decimal.
+-- The colour is the game's duration text binding on Lecdm's own font string (its colour curve
+-- applies in combat too); the decimal is the game's countdown's (SetCountdownMillisecondsThreshold),
+-- so it shows when there's no colour.
+B.THRESHOLDS = { { 0, "Off" }, { 3, "3 s" }, { 5, "5 s" }, { 10, "10 s" }, { 30, "30 s" }, { 60, "1 min" } }
+B.THRESHOLD_COLORS = { { "none", "None (as above)" }, { "red", "Red" }, { "orange", "Orange" }, { "yellow", "Yellow" } }
+local THRESHOLD_RGB = { red = { 1, 0.25, 0.25 }, orange = { 1, 0.55, 0.1 }, yellow = { 1, 0.9, 0.2 } }
+
+local function TimeBinding(b, bar)
+	local rgb = THRESHOLD_RGB[bar.thresholdColor]
+	local want = (bar.threshold or 0) > 0 and rgb and B.FONTS[bar.countdown] and C_DurationUtil
+		and C_DurationUtil.CreateDurationTextBinding and C_CurveUtil
+	if not want then
+		if b.timeBinding then
+			pcall(b.timeBinding.SetEnabled, b.timeBinding, false)
+			b.timeText:SetText("")
+		end
+		b.useBinding = false
+		return
+	end
+	if not b.timeBinding then
+		b.timeText = b.over:CreateFontString(nil, "OVERLAY", B.FONTS[bar.countdown])
+		b.timeText:SetPoint("CENTER")
+		local ok, binding = pcall(C_DurationUtil.CreateDurationTextBinding)
+		if not (ok and binding) then return end
+		b.timeBinding = binding
+		binding:SetFontString(b.timeText)
+	end
+	pcall(b.timeText.SetFontObject, b.timeText, B.FONTS[bar.countdown])
+	local curve = C_CurveUtil.CreateColorCurve()
+	curve:SetType(Enum.LuaCurveType.Step)
+	curve:AddPoint(0, CreateColor(rgb[1], rgb[2], rgb[3], 1))
+	curve:AddPoint(bar.threshold, CreateColor(1, 1, 1, 1))
+	b.timeBinding:SetTextColorCurve(curve, Enum.DurationTextBindingProperty.RemainingDuration)
+	b.useBinding = true
+end
+
+-- The countdown a binding shows now: a duration object, or nil for none.
+local function Countdown(b, dur)
+	if not b.useBinding then return end
+	if dur then
+		pcall(b.timeBinding.SetDuration, b.timeBinding, dur)
+		pcall(b.timeBinding.SetEnabled, b.timeBinding, true)
+	else
+		pcall(b.timeBinding.SetEnabled, b.timeBinding, false)
+		b.timeText:SetText("")
+	end
 end
 
 -- The tooltip on hover: off (the icons let clicks through), on, or out of combat only.
@@ -412,7 +462,10 @@ local function Charges(b, bar, id, onCooldown)
 	b.fullCharges = not ns.IsSecret(ch.isActive) and ch.isActive == false
 	if recharging and not onCooldown then
 		local okD, dur = pcall(C_Spell.GetSpellChargeDuration, id)
-		if okD and (ns.IsSecret(dur) or dur) then pcall(b.cd.SetCooldownFromDurationObject, b.cd, dur) end
+		if okD and (ns.IsSecret(dur) or dur) then
+			pcall(b.cd.SetCooldownFromDurationObject, b.cd, dur)
+			Countdown(b, dur)
+		end
 	end
 	local n = ch.currentCharges
 	if not ns.IsSecret(n) and n == 0 and not bar.zeroCharges then
@@ -548,7 +601,9 @@ local function SpellState(b, bar)
 		if not (okDur and (ns.IsSecret(dur) or dur) and pcall(b.cd.SetCooldownFromDurationObject, b.cd, dur)) then
 			b.cd:Clear()
 		end
+		Countdown(b, onCooldown and okDur and dur or nil)
 	end
+	if onGCD then Countdown(b, nil) end
 
 	local r, g, bl = 1, 1, 1
 	local okRange, inRange = pcall(C_Spell.IsSpellInRange, id)
@@ -587,6 +642,14 @@ local function ItemState(b, bar)
 		b.cd:SetCooldown(start, duration)
 	elseif not (ok and not plain and pcall(b.cd.SetCooldown, b.cd, start, duration)) then
 		b.cd:Clear()
+	end
+	if b.useBinding then
+		local dur
+		if plain and onCooldown and C_DurationUtil.CreateDuration then
+			local okD, d = pcall(C_DurationUtil.CreateDuration)
+			if okD and d and pcall(d.SetTimeFromStart, d, start, duration) then dur = d end
+		end
+		Countdown(b, dur)
 	end
 	local okUse, usable = pcall(C_Item.IsUsableItem, B.ItemOf(b.key))
 	if not okUse or ns.IsSecret(usable) then usable = nil end
@@ -797,7 +860,9 @@ function B.ApplyLook(b, bar)
 	b.cd:SetDrawEdge(bar.edge and true or false)
 	b.cd:SetSwipeColor(B.SwipeRGBA(bar.swipeColor))
 	local font = B.FONTS[bar.countdown]
-	b.cd:SetHideCountdownNumbers(font == nil)
+	TimeBinding(b, bar)
+	b.cd:SetHideCountdownNumbers(font == nil or b.useBinding)
+	pcall(b.cd.SetCountdownMillisecondsThreshold, b.cd, bar.thresholdDecimals and bar.threshold or 0)
 	if font then pcall(b.cd.SetCountdownFont, b.cd, font) end
 	B.ShowKey(b, bar)
 end
