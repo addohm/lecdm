@@ -254,9 +254,53 @@ local function TimerParts(b)
 	b.timerName:SetJustifyH("LEFT")
 end
 
+-- Near the end, a timer bar takes the countdown's colour (threshold, thresholdColor): the one
+-- place Lecdm updates every frame (the owner's choice, 2026-11-22), and only while a timer bar is
+-- counting down. Its colour comes from the duration itself against a step curve (the game
+-- evaluates it; the time left is secret in combat), ten times a second.
+local function TimerCurve(bar)
+	local rgb = (bar.threshold or 0) > 0 and THRESHOLD_RGB[bar.thresholdColor]
+	if not (rgb and C_CurveUtil) then return nil end
+	local curve = C_CurveUtil.CreateColorCurve()
+	curve:SetType(Enum.LuaCurveType.Step)
+	curve:AddPoint(0, CreateColor(rgb[1], rgb[2], rgb[3], 1))
+	local r, g, bl = B.BarRGB(bar.barColor)
+	curve:AddPoint(bar.threshold, CreateColor(r, g, bl, 1))
+	return curve
+end
+
+-- The bar frame's driver (a child: the frame's own OnUpdate follows the cursor).
+local function ColourTimers(driver, elapsed)
+	driver.wait = (driver.wait or 0) - elapsed
+	if driver.wait > 0 then return end
+	driver.wait = 0.1
+	local frame = driver:GetParent()
+	local any = false
+	for _, b in ipairs(frame.buttons) do
+		if b.timerDur and frame.timerCurve and b.timer and b.timer:IsShown() then
+			any = true
+			local ok, c = pcall(b.timerDur.EvaluateRemainingDuration, b.timerDur, frame.timerCurve)
+			if ok and c then pcall(b.timer.SetStatusBarColor, b.timer, c.r, c.g, c.b) end
+		end
+	end
+	if not any then driver:SetScript("OnUpdate", nil) end
+end
+
+local function Driver(frame)
+	if not frame.colourDriver then frame.colourDriver = CreateFrame("Frame", nil, frame) end
+	return frame.colourDriver
+end
+
 -- What a timer bar shows: the cooldown (or recharge) filling up, or full when ready (dur nil).
 local function TimerState(b, bar, dur)
 	if bar.style ~= "bars" or not b.timer then return end
+	b.timerDur = dur
+	local frame = b:GetParent()
+	if dur and frame and frame.timerCurve then
+		Driver(frame):SetScript("OnUpdate", ColourTimers)
+	elseif not dur then
+		b.timer:SetStatusBarColor(B.BarRGB(bar.barColor))
+	end
 	if dur and pcall(b.timer.SetTimerDuration, b.timer, dur, Enum.StatusBarInterpolation.Immediate,
 		Enum.StatusBarTimerDirection.ElapsedTime) then
 		b.timer:Show()
@@ -1376,6 +1420,8 @@ function B.Build()
 			frame.buttons[j].wanted = false
 			pcall(PlaceActive, frame.buttons[j], bar)
 		end
+		frame.timerCurve = bar.style == "bars" and TimerCurve(bar) or nil
+		if not frame.timerCurve and frame.colourDriver then frame.colourDriver:SetScript("OnUpdate", nil) end
 		frame.bg:SetColorTexture(0, 0, 0, bar.background or 0)
 		frame.bg:SetShown((bar.background or 0) > 0)
 		frame.label:SetText(bar.name)

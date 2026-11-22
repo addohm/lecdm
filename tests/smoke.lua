@@ -308,6 +308,22 @@ ns.Refresh()
 check(charge.w == 180 and charge.timer and charge.timer.shown and charge.timer.timerDuration and charge.timer.timerDuration.spell == 100,
 	"a cooldown's timer bar wrong")
 check(revenge.timerFull.shown and not revenge.timer.shown and revenge.timerName.text == "Revenge", "a ready spell's timer bar isn't full")
+-- Near the end, a timer bar takes the countdown's colour: its driver evaluates the duration.
+cdBar.threshold, cdBar.thresholdColor = 5, "red"
+ns.Refresh()
+local driver = cooldowns.colourDriver
+check(driver and driver.scripts.OnUpdate, "no colour updates while a timer bar counts down")
+M.remaining = { [100] = 12 }
+driver.wait = 0
+driver.scripts.OnUpdate(driver, 0.2)
+check(charge.timer.barColor[1] == 0.25, "a timer bar red before the end")
+M.remaining = { [100] = 3 }
+driver.scripts.OnUpdate(driver, 0.2)
+check(charge.timer.barColor[1] == 1 and charge.timer.barColor[2] == 0.25, "a timer bar not red near the end")
+M.remaining = nil
+cdBar.threshold = 0
+ns.Refresh()
+check(not driver.scripts.OnUpdate, "the colour updates kept running with no colour to show")
 cdBar.barIconRight, cdBar.barReverse = true, true
 ns.Bars.SetLook(cdBar, 100, "label", "Go!")
 check(charge.icon.points[1][1] == "TOPRIGHT" and charge.timer.reverseFill and charge.spark and charge.spark.shown

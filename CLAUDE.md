@@ -241,7 +241,10 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
   (`Hosted.lua`; the host test proved it in the open world and a dungeon).
 - **A two-value call only passes both values when it's last** in an argument list: give
   getter/setter pairs their own locals (UI/Pages/Bars.lua).
-- Events, not timers or retry ladders.
+- Events, not timers or retry ladders. One exception (the owner, 2026-11-22): icon bars' timer
+  bars take the countdown's colour near the end from a per-frame driver (`ColourTimers`, ten
+  times a second, only while one counts down with a colour to show). Timers that fire once at a
+  known time (the running-out sound, late in a swing) are fine.
 - The version alone in any UI; the build only in chat (login line, `/lecdm help`).
 - New settings go in `ns.DEFAULTS` (so in every profile). Account-wide, not settings: the log,
   `welcomed`, and what's learned about buffs (`LecdmDB.auraIDs[name]`, `LecdmDB.auraIcons`,

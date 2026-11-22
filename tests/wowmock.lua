@@ -32,6 +32,7 @@ local function NewRegion(kind, name, parent)
 	function f:SetShown(v) if v then self:Show() else self:Hide() end end
 	function f:IsShown() return self.shown end
 	function f:SetParent(p) self.parent = p end
+	function f:GetParent() return self.parent end
 	function f:GetName() return self.name end
 	function f:SetAlpha(a) self.alpha = a end
 	function f:GetAlpha() return self.alpha end
@@ -92,6 +93,7 @@ local function NewRegion(kind, name, parent)
 		return self.fillTexture
 	end
 	function f:SetTimerDuration(d) self.timerDuration = d end
+	function f:SetStatusBarColor(r, g, b) self.barColor = { r, g, b } end
 	function f:SetAlphaFromBoolean(v, yes, no)
 		if v == SECRET then self.alpha = "secret" return end
 		self.alpha = v and yes or no
@@ -453,6 +455,14 @@ C_CurveUtil = {
 		local c = { points = {} }
 		function c:SetType(kind) self.kind = kind end
 		function c:AddPoint(x, color) table.insert(self.points, { x, color }) end
+		-- A step curve: the last point at or under x.
+		function c:Evaluate(x)
+			local found = self.points[1] and self.points[1][2]
+			for _, p in ipairs(self.points) do
+				if x >= p[1] then found = p[2] end
+			end
+			return found
+		end
 		return c
 	end,
 }
@@ -479,6 +489,7 @@ C_DurationUtil = {
 	CreateDuration = function()
 		local d = {}
 		function d:SetTimeFromStart(start, duration) self.start, self.span = start, duration end
+		function d:EvaluateRemainingDuration(curve) return curve.Evaluate and curve:Evaluate(self.start + self.span - M.now) end
 		return d
 	end,
 }
@@ -559,9 +570,10 @@ C_Spell = {
 		return { isActive = s.active or s.gcd or false, isOnGCD = s.gcd or false, isEnabled = true,
 			startTime = M.secretCooldowns and SECRET or 0, duration = M.secretCooldowns and SECRET or 0 }
 	end,
+	-- M.remaining[id]: the time left a duration evaluates to.
 	GetSpellCooldownDuration = function(id)
 		if M.secretDuration then return SECRET end
-		return { spell = id }
+		return { spell = id, EvaluateRemainingDuration = function(_, curve) return curve:Evaluate(M.remaining and M.remaining[id] or 30) end }
 	end,
 	-- M.charges[id] = { current, max, recharging }; the count is secret in combat.
 	GetSpellCharges = function(id)

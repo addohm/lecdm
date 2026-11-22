@@ -48,7 +48,7 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   - its look: the icon shape (square, round, rounded square, diamond, hexagon), a background
     behind the bar, border and colour, icon zoom, the swipe (normal, reversed or none; its colour;
     a bright edge), countdown text size and, near the end (under a time you pick), a colour or a
-    decimal, the text's font (the game's numbers, Friz Quadrata, Arial Narrow, Skurri or
+    decimal (as timer bars, the bar takes that colour too), the text's font (the game's numbers, Friz Quadrata, Arial Narrow, Skurri or
     Morpheus) and outline, the count's place, keybind text (its place, a dark badge; the key of the
     first action button on screen holding it, from any bar addon), the game's tooltip on hover
     (off by default, so clicks go through; on; or out of combat only), the **swing timer** on

@@ -156,11 +156,10 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - [x] Spark, gradient fill, reverse fill, the icon left or right, height and width (2026-11-22)
 - [x] Ticks and stack thresholds (up to five, with colours), max stacks, stack-based bars
       (2026-11-22)
-- [ ] A colour change at the warning time: icon bars' timer bars only (a buff's aura button
-      takes one duration bar, the one it shows, so its fill can't be timed twice; its time
-      text turns red already). For icon bars it would need the bar recoloured every frame from
-      the duration (an OnUpdate), against "events, not timers": the owner's call. Their
-      countdown text turns its colour already.
+- [x] A colour change at the warning time: icon bars' timer bars (the owner's choice,
+      2026-11-22: a per-frame update while one counts down) (2026-11-22). Not buff timer bars:
+      a buff's aura button takes one duration bar, the one it shows, so its fill can't be timed
+      twice; its time text turns red already.
 - [x] Custom names; the name's size (time and stacks text: the look rows) (2026-11-22)
 - [x] A decimal under a set time on buff timer bars (and icons; C_StringUtil's formatter)
       (2026-11-22)
@@ -197,9 +196,9 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - [x] Shared entries (trinkets, potions, racials) kept in step across profiles (a whole bar or
       group, "the same in every profile") (2026-11-22)
 - [x] Blizzard's icons taken in: their own alerts per aura from Lecdm's window (2026-11-22)
-- [ ] Blizzard's icons taken in: their size from Lecdm instead of Edit Mode (it means setting
-      their scale: past the two exceptions to "Blizzard's Cooldown Manager is read-only", so
-      the owner's call)
+- Not doing (the owner, 2026-11-22): Blizzard's icons' size from Lecdm (it means setting their
+  scale, past the two exceptions to "Blizzard's Cooldown Manager is read-only"); Edit Mode's
+  size stays.
 
 Not on the list, not in Classic: Skyriding and housing visibility, Bloodlust-style presets,
 hero talents, rotation assist (see "Can't be done").
