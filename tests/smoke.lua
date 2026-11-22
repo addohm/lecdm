@@ -690,6 +690,13 @@ check(fort and fort.button.bound.SetIcon.desaturated and fort.button.bound.SetIc
 BD.upGrey, BD.upAlpha = false, 1
 ns.Refresh()
 check(G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark/none:gold:5:none:120:1:false"), "back to the plain look")
+-- A glow at a number of stacks: an application bar the game drives, in the key.
+BD.stackGlow, BD.stackOp, BD.stackCount = "pixel", "=", 3
+ns.Refresh()
+local stacked = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark/none:gold:5:none:120:1:false:pixel:=3")
+check(stacked and stacked.button.bound.SetApplicationBar, "no stack glow on the button")
+BD.stackGlow = "none"
+ns.Refresh()
 buffs[1].tooltip = "off"
 ns.Refresh()
 local noTip = G("Battle Shout/icons:32:0:1:black:0.08:small:off:normal:dark/")

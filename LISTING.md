@@ -98,6 +98,7 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 - A warning as you go into combat without a buff you keep up, and which ones in chat.
 - Glows while a spell is ready, while the game highlights it (a proc), while a buff is up, as
   a buff runs out (timed by the game, in combat too), and while a keep-up buff is missing.
+- A glow at a number of stacks (Sunder Armor at 5, Flurry at 3), in combat too.
 - Seven glow styles in eleven colours or your class colour.
 - Quiet when a mob dies with your debuffs on it.
 - Defaults for everything, and each spell or buff can have its own.

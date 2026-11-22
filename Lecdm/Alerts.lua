@@ -23,6 +23,9 @@
 --     combatMissing, combatChat
 --                        going into combat without a keep-up buff (from the last look out of
 --                        combat): a sound, and the missing ones in chat;
+--     stackGlow, stackOp, stackCount
+--                        a glow at a number of stacks (fewer than, at most, exactly, at least,
+--                        more than N), drawn by the game from the stacks, in combat too;
 --     upAlpha, upGrey    how it looks while it's up: its opacity, greyed or not (icons come back
 --                        to full strength at the warning time);
 --     missingLook, missingAlpha, missingGlow, missingColor

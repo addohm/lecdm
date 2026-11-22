@@ -133,7 +133,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 
 **Buff icons**
 
-- [ ] A glow at a number of stacks (fewer, at most, exactly, at least, more)
+- [x] A glow at a number of stacks (fewer, at most, exactly, at least, more) (2026-11-22)
 - [ ] Shown only for its last seconds
 - [ ] Swipe colour, reversed swipe; text (size, colour, position) and border per buff
 

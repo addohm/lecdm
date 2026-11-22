@@ -403,6 +403,68 @@ local function AddTimedGlow(button, glow, color, size, warn, total, reveal)
 	return host
 end
 
+-- The glow at a number of stacks, in combat too: the game drives an invisible bar from the buff's
+-- stacks (SetApplicationBar), its fill growing k px a stack (k: the glow's span). Windows run
+-- from the bar's start to the fill's end ("at least N": open once the fill passes N) and from the
+-- fill's end to the bar's end ("fewer than N"), each inside a frame clipped to the glow's area;
+-- "exactly N" nests one in the other. The game does the sizing; Lecdm never learns the stacks.
+A.STACK_OPS = { { "<", "Fewer than" }, { "<=", "At most" }, { "=", "Exactly" }, { ">=", "At least" }, { ">", "More than" } }
+A.STACK_COUNTS = {}
+for i = 1, 20 do A.STACK_COUNTS[i] = { i, tostring(i) } end
+
+local function AddStackGlow(button, glow, color, size, op, n)
+	if glow == "none" or not op or not n then return end
+	-- As thresholds: open at least from `from` stacks, and below `below` (nil: no limit).
+	local from, below
+	if op == "<" then below = n elseif op == "<=" then below = n + 1
+	elseif op == "=" then from, below = n, n + 1 elseif op == ">=" then from = n else from = n + 1 end
+	local margin = Margin(size)
+	local span = size + 2 * margin
+	local k = span
+	local max = math.max(n + 2, 30)
+	local edge = from or below
+	local bar = CreateFrame("StatusBar", nil, button)
+	bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8X8")
+	bar:SetStatusBarColor(1, 1, 1, 0)
+	bar:SetSize(k * max, 1)
+	-- The fill's end at `edge` stacks sits at the area's right edge.
+	bar:SetPoint("LEFT", button, "LEFT", -margin + span - k * edge, 0)
+	button:SetApplicationBar(bar, { minApplications = 0, maxApplications = max,
+		interpolation = Enum.StatusBarInterpolation.Immediate })
+	local fill = bar:GetStatusBarTexture()
+	local parent = button
+	local function Area()
+		local area = CreateFrame("Frame", nil, parent, "DisableUntrustedLayoutScriptsTemplate")
+		area:SetFrameLevel(button:GetFrameLevel() + 3)
+		area:SetPoint("TOPLEFT", button, "TOPLEFT", -margin, margin)
+		area:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", margin, -margin)
+		area:SetClipsChildren(true)
+		return area
+	end
+	if from then
+		local area = Area()
+		local window = CreateFrame("Frame", nil, area, "DisableUntrustedLayoutScriptsTemplate")
+		window:SetHeight(span)
+		window:SetPoint("LEFT", bar, "LEFT")
+		window:SetPoint("RIGHT", fill, "RIGHT", k * (edge - from), 0)
+		window:SetClipsChildren(true)
+		parent = window
+	end
+	if below then
+		local area = Area()
+		local window = CreateFrame("Frame", nil, area, "DisableUntrustedLayoutScriptsTemplate")
+		window:SetHeight(span)
+		window:SetPoint("LEFT", fill, "RIGHT", k * (edge - below), 0)
+		window:SetPoint("RIGHT", bar, "RIGHT", 1, 0)
+		window:SetClipsChildren(true)
+		parent = window
+	end
+	local host = CreateFrame("Frame", nil, parent)
+	host:SetAllPoints(button)
+	local built = ns.Glow.Build(host, glow, color, size)
+	for _, g in ipairs(built.groups) do button:AddAuraShownAnimation(g) end
+end
+
 -- A buff entry's alert look: what its button's parts depend on (part of its aura group's key).
 function A.AlertLook(name)
 	local Get = ns.Alerts.Get
@@ -410,6 +472,7 @@ function A.AlertLook(name)
 	return Get("buffs", name, "upGlow") .. ":" .. Get("buffs", name, "glowColor") .. ":" .. ns.Alerts.Warn(name)
 		.. ":" .. Get("buffs", name, "warnGlow") .. ":" .. total
 		.. ":" .. Get("buffs", name, "upAlpha") .. ":" .. tostring(Get("buffs", name, "upGrey"))
+		.. ":" .. Get("buffs", name, "stackGlow") .. ":" .. Get("buffs", name, "stackOp") .. Get("buffs", name, "stackCount")
 end
 
 -- A group's look and visibility (also for groups made before a setting existed).
@@ -578,6 +641,7 @@ local function Styler(group, name)
 			end
 			count:SetPoint("TOPRIGHT", -1, -1)
 		end
+		AddStackGlow(button, Get("buffs", name, "stackGlow"), color, size, Get("buffs", name, "stackOp"), Get("buffs", name, "stackCount"))
 		-- The glow while it's up: part of the button, so it shows with it; its animations play
 		-- when the game shows the button.
 		if upGlow ~= "none" then

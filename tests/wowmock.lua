@@ -114,7 +114,8 @@ end
 -- Blizzard's aura containers, as CustomAuraContainer checks them: unique group keys, a filter
 -- string, spell IDs required; touching one in combat is an error (its buttons are closed to
 -- addons then). A group's button records what the addon bound to it.
-local BINDERS = { "SetIcon", "SetDurationCooldown", "SetDurationText", "SetApplicationCount", "SetDurationBar", "SetSpellName" }
+local BINDERS = { "SetIcon", "SetDurationCooldown", "SetDurationText", "SetApplicationCount", "SetDurationBar", "SetSpellName",
+	"SetApplicationBar" }
 local function Container(c)
 	c.groups = {}
 	local function Open()

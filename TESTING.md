@@ -75,7 +75,10 @@ the build and date.
     when ready. Width, height, texture, colour follow the tab.
 20. The Icon bars tab's preview (under "Add or remove spells"): drag an icon onto another: it
     moves there, on the bar too; right-click: its ⚙ menu; middle-click: off the bar.
-21. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+21. Buff groups, "Glow at a number of stacks" (Alerts tab or a buff's ⚙), at least 3, on a
+    stacking buff (Flurry, a proc): it glows from 3 stacks, in combat too; exactly 3: only at
+    3; fewer than 3: from 1 to 2 (and on buffs that don't stack).
+22. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 
