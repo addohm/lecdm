@@ -50,6 +50,7 @@ B.LOOK = {
 	cdAlpha = 1, zeroCharges = true, swipe = "normal", swipeColor = "dark", edge = false, activeColor = "gold",
 	threshold = 0, thresholdColor = "red", thresholdDecimals = false,
 	style = "icons", barWidth = 180, barTexture = "blizzard", barColor = "blue", barName = true,
+	shape = "square", background = 0,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
@@ -79,6 +80,47 @@ function B.BarRGB(color)
 end
 function B.BarFile(texture)
 	return BAR_FILES[texture] or BAR_FILES.blizzard
+end
+
+-- Icon shapes: square, or a mask on the icon and its swipe, with a ring for its border (the
+-- textures from art/make_masks.py); and a background behind the whole bar.
+B.SHAPES = { { "square", "Square" }, { "Round", "Round" }, { "Rounded", "Rounded square" }, { "Diamond", "Diamond" },
+	{ "Hexagon", "Hexagon" } }
+B.BACKGROUNDS = { { 0, "None" }, { 0.25, "25%" }, { 0.5, "50%" }, { 0.75, "75%" } }
+local MEDIA = "Interface\\AddOns\\Lecdm\\Media\\"
+
+-- Shapes an icon texture (and its swipe and border) on `owner`: parts kept on owner.shapeParts.
+-- edge: the square border texture; ring layer frame: where the ring goes (above the icon).
+function B.Shape(owner, icon, cd, edge, ringParent, shape, n, r, g, b)
+	local parts = owner.shapeParts
+	if shape == "square" or not shape then
+		if parts then
+			if parts.masked then
+				icon:RemoveMaskTexture(parts.mask)
+				parts.masked = false
+			end
+			parts.ring:Hide()
+			if cd then cd:SetSwipeTexture("Interface\\Buttons\\WHITE8X8") end
+		end
+		edge:SetShown(n > 0)
+		return
+	end
+	if not parts then
+		parts = { mask = owner:CreateMaskTexture(), ring = ringParent:CreateTexture(nil, "OVERLAY", nil, 7) }
+		parts.mask:SetAllPoints(icon)
+		parts.ring:SetAllPoints(icon)
+		owner.shapeParts = parts
+	end
+	parts.mask:SetTexture(MEDIA .. "Mask-" .. shape, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+	if not parts.masked then
+		icon:AddMaskTexture(parts.mask)
+		parts.masked = true
+	end
+	parts.ring:SetTexture(MEDIA .. "Ring-" .. shape)
+	parts.ring:SetVertexColor(r, g, b)
+	parts.ring:SetShown(n > 0)
+	if cd then cd:SetSwipeTexture(MEDIA .. "Mask-" .. shape) end
+	edge:Hide()
 end
 
 -- The swipe: drawn as the game does, reversed (the dark part shrinks instead), or not at all;
@@ -951,6 +993,9 @@ local function Frame(bar)
 		SavePos(self)
 	end)
 	frame.shade = frame:CreateTexture(nil, "BACKGROUND")
+	frame.bg = frame:CreateTexture(nil, "BACKGROUND", nil, -8)
+	frame.bg:SetPoint("TOPLEFT", -3, 3)
+	frame.bg:SetPoint("BOTTOMRIGHT", 3, -3)
 	frame.shade:SetPoint("TOPLEFT", -4, 4)
 	frame.shade:SetPoint("BOTTOMRIGHT", 4, -4)
 	frame.shade:SetColorTexture(0.3, 0.75, 0.95, 0.3)
@@ -1005,6 +1050,8 @@ function B.Build()
 			frame.buttons[j].wanted = false
 			pcall(PlaceActive, frame.buttons[j], bar)
 		end
+		frame.bg:SetColorTexture(0, 0, 0, bar.background or 0)
+		frame.bg:SetShown((bar.background or 0) > 0)
 		frame.label:SetText(bar.name)
 		frame.shade:SetShown(unlocked)
 		frame.label:SetShown(unlocked)
@@ -1068,6 +1115,8 @@ function B.ApplyLook(b, bar)
 	b.edge:SetPoint("BOTTOMRIGHT", n, -n)
 	b.edge:SetColorTexture(B.BorderRGB(own.borderColor or bar.borderColor))
 	b.edge:SetShown(n > 0)
+	local er, eg, eb = B.BorderRGB(own.borderColor or bar.borderColor)
+	B.Shape(b, b.icon, b.cd, b.edge, b.over, bar.style ~= "bars" and not b.space and bar.shape or "square", n, er, eg, eb)
 	if b.space then b.cd:Clear() b.count:SetText("") end
 	b.cd:SetDrawSwipe(bar.swipe ~= "off")
 	b.cd:SetReverse(bar.swipe == "reverse")

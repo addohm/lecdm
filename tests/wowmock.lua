@@ -63,6 +63,10 @@ local function NewRegion(kind, name, parent)
 	function f:SetBackdropBorderColor(r, g, b) self.border = { r, g, b } end
 	function f:EnableMouse(v) self.mouse = v end
 	function f:CreateTexture() return NewRegion("Texture", nil, self) end
+	function f:CreateMaskTexture() return NewRegion("MaskTexture", nil, self) end
+	function f:AddMaskTexture(m) self.masks = self.masks or {} self.masks[m] = true end
+	function f:RemoveMaskTexture(m) if self.masks then self.masks[m] = nil end end
+	function f:SetSwipeTexture(t) self.swipeTexture = t end
 	function f:CreateAnimationGroup()
 		local g = Permissive({ animations = {}, playing = false })
 		function g:CreateAnimation(kind)

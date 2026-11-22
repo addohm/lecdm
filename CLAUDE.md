@@ -152,7 +152,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     Diagnostics tab, id "test": where diagnostic lines go, and the tools), `Profiles.lua`.
 - `art/`: `make_logo.py` (Pillow; Inter from `.scratch/fonts`) and what it draws: the icon
   PNGs (512, 400 for the listing avatar, 256, 128), `lecdm-banner.png` (1600x500), and
-  `Lecdm/Media/Icon.tga` (128 px, the TOC's IconTexture; never edit by hand).
+  `Lecdm/Media/Icon.tga` (128 px, the TOC's IconTexture; never edit by hand); `make_masks.py`
+  draws the icon shapes, `Lecdm/Media/Mask-<shape>.tga` and `Ring-<shape>.tga` (`B.Shape`).
 - `LISTING.md`: the CurseForge / Wago page text; keep its feature list in step with README.md.
 - `release/`: `Lecdm-<version>.zip` packages, from `tools/make_release.py`, committed with each
   release.

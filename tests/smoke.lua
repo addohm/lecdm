@@ -241,6 +241,16 @@ check(revenge.timerFull.shown and not revenge.timer.shown and revenge.timerName.
 cdBar.style = "icons"
 ns.Refresh()
 check(charge.w == 40 and not charge.timer.shown and not charge.timerFull.shown, "back to icons wrong")
+-- Shapes: a mask on the icon and the swipe, a ring instead of the square border; square again;
+-- a background behind the bar.
+cdBar.shape, cdBar.background = "Round", 0.5
+ns.Refresh()
+local parts = charge.shapeParts
+check(parts and charge.icon.masks[parts.mask] and parts.ring.shown and not charge.edge.shown
+	and charge.cd.swipeTexture:find("Mask%-Round$") and cooldowns.bg.shown, "the round shape or the background wrong")
+cdBar.shape, cdBar.background = "square", 0
+ns.Refresh()
+check(not charge.icon.masks[parts.mask] and not parts.ring.shown and charge.edge.shown and not cooldowns.bg.shown, "back to square wrong")
 -- The swipe: reversed, its colour, the edge; none.
 cdBar.swipe, cdBar.swipeColor, cdBar.edge = "reverse", "gold", true
 ns.Refresh()
@@ -697,6 +707,14 @@ local lastSeconds = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark
 check(lastSeconds and lastSeconds.button.bound.SetDurationBar and lastSeconds.button.bound.SetDurationCooldown.parent == lastSeconds.button.bound.SetIcon.parent,
 	"hidden until the warning time wrong")
 BD.upAlpha = 1
+ns.Refresh()
+-- A buff group's shape: in the key, the mask on the button's icon; a background.
+buffs[1].shape, buffs[1].background = "Hexagon", 0.25
+ns.Refresh()
+local hex = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark:Hexagon/")
+check(hex and hex.button.shapeParts and hex.button.bound.SetIcon.masks[hex.button.shapeParts.mask] and container.parent.bg.shown,
+	"a buff group's shape or background wrong")
+buffs[1].shape, buffs[1].background = "square", 0
 ns.Refresh()
 -- A buff's own look: in its key; Default back to the group's.
 ns.Auras.SetLook(buffs[1], "Battle Shout", "border", 3)

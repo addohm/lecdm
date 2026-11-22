@@ -341,6 +341,8 @@ ns.Window.Page({
 		p.borderColor = Row("select", "Border colour", Bars.BORDER_COLORS, "borderColor")
 		p.zoom = Row("select", "Icon zoom", Bars.ZOOMS, "zoom")
 		p.timeText = Row("select", "Time text", Bars.TEXT_SIZES, "timeText")
+		p.shape = Row("select", "Icon shape", Bars.SHAPES, "shape")
+		p.background = Row("select", "Background behind it", Bars.BACKGROUNDS, "background")
 		p.swipe = Row("select", "Swipe", Bars.SWIPES, "swipe")
 		p.swipeColor = Row("select", "Swipe colour", Bars.SWIPE_COLORS, "swipeColor")
 		p.tooltip = Row("select", "Tooltip on hover", Bars.TOOLTIPS, "tooltip",
@@ -469,6 +471,8 @@ ns.Window.Page({
 				stack:Add(p.perRow)
 			end
 			stack:Add(p.lookHead)
+			if not bars then stack:Add(p.shape) end
+			stack:Add(p.background)
 			stack:Add(p.border)
 			stack:Add(p.borderColor)
 			stack:Add(p.zoom)

@@ -537,6 +537,8 @@ ns.Window.Page({
 		local btGet, btSet = Field("barTexture")
 		local bcGet, bcSet = Field("barColor")
 		local bnGet, bnSet = Field("barName")
+		local shapeGet, shapeSet = Field("shape")
+		local bgGet, bgSet = Field("background")
 		-- A row only for one style ("icons" or "bars").
 		local function Only(kind, row)
 			row.only = kind
@@ -587,6 +589,8 @@ ns.Window.Page({
 			Only("bars", UI.OptionSelect(stack.inner, "Bar texture", Bars.BAR_TEXTURES, btGet, btSet)),
 			Only("bars", UI.OptionSelect(stack.inner, "Bar colour", Bars.BAR_COLORS, bcGet, bcSet)),
 			Only("bars", UI.OptionCheck(stack.inner, "The name on the bar", bnGet, bnSet)),
+			Only("icons", UI.OptionSelect(stack.inner, "Icon shape", Bars.SHAPES, shapeGet, shapeSet)),
+			UI.OptionSelect(stack.inner, "Background behind it", Bars.BACKGROUNDS, bgGet, bgSet),
 			UI.OptionSelect(stack.inner, "Border", Bars.BORDERS, borderGet, borderSet),
 			UI.OptionSelect(stack.inner, "Border colour", Bars.BORDER_COLORS, bcolGet, bcolSet),
 			UI.OptionSelect(stack.inner, "Icon zoom", Bars.ZOOMS, zoomGet, zoomSet,

@@ -507,6 +507,7 @@ A.LOOK = {
 	border = 1, borderColor = "black", zoom = 0.08, timeText = "small",
 	barTexture = "blizzard", barColor = "blue", barBg = 0.5, barIcon = true, barName = true, barTime = true,
 	showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "on", swipe = "normal", swipeColor = "dark",
+	shape = "square", background = 0,
 }
 function A.FillLook(group)
 	for k, v in pairs(A.LOOK) do
@@ -541,6 +542,7 @@ function A.LookKey(group)
 	local bars = group.style == "bars"
 	local parts = { group.style, group.size, bars and group.barWidth or 0, group.border, group.borderColor,
 		group.zoom, group.timeText, group.tooltip, group.swipe, group.swipeColor }
+	if not bars and group.shape and group.shape ~= "square" then parts[#parts + 1] = group.shape end
 	if bars then
 		for _, k in ipairs({ "barTexture", "barColor", "barBg", "barIcon", "barName", "barTime" }) do
 			parts[#parts + 1] = tostring(group[k])
@@ -668,6 +670,15 @@ local function Styler(group, name)
 			cooldown:SetSwipeColor(ns.Bars.SwipeRGBA(group.swipeColor))
 			cooldown:SetHideCountdownNumbers(true)
 			button:SetDurationCooldown(cooldown)
+			-- The shape: a mask on the icon (and the revealed one) and the swipe, a ring for the
+			-- border.
+			if group.shape and group.shape ~= "square" then
+				ns.Bars.Shape(button, icon, cooldown, edge, top, group.shape, n, er, eg, eb)
+				if host and host.icon then
+					local hostEdge = host:CreateTexture(nil, "BACKGROUND")
+					ns.Bars.Shape(host, host.icon, nil, hostEdge, host, group.shape, n, er, eg, eb)
+				end
+			end
 			if font then
 				local time = top:CreateFontString(nil, "OVERLAY", font)
 				time:SetPoint(timePos, 0, timePos == "BOTTOM" and 1 or timePos == "TOP" and -1 or 0)
@@ -719,6 +730,9 @@ local function Frame(group)
 		self:StopMovingOrSizing()
 		SavePos(self)
 	end)
+	anchor.bg = anchor:CreateTexture(nil, "BACKGROUND", nil, -8)
+	anchor.bg:SetPoint("TOPLEFT", -3, 3)
+	anchor.bg:SetPoint("BOTTOMRIGHT", 3, -3)
 	anchor.shade = anchor:CreateTexture(nil, "BACKGROUND")
 	anchor.shade:SetPoint("TOPLEFT", -4, 4)
 	anchor.shade:SetPoint("BOTTOMRIGHT", 4, -4)
@@ -783,6 +797,13 @@ local function StyleCopy(c, group, look, alpha)
 	c.border:ClearAllPoints()
 	c.border:SetPoint("TOPLEFT", -n, n)
 	c.border:SetPoint("BOTTOMRIGHT", n, -n)
+	local shape = group.style ~= "bars" and group.shape or "square"
+	if look == "red" then
+		ns.Bars.Shape(c, c.icon, nil, c.border, c, shape, n, 0.7, 0, 0)
+	else
+		local sr, sg, sb = ns.Bars.BorderRGB(group.borderColor)
+		ns.Bars.Shape(c, c.icon, nil, c.border, c, shape, n, sr, sg, sb)
+	end
 	if look == "red" then
 		c.border:SetColorTexture(0.7, 0, 0, 1)
 		c.bar:SetColorTexture(0.35, 0.05, 0.05, 0.85)
@@ -791,6 +812,7 @@ local function StyleCopy(c, group, look, alpha)
 		c.icon:SetVertexColor(1, 0.4, 0.4)
 		c.name:SetTextColor(1, 0.5, 0.5)
 		c:SetAlpha(0.85 * alpha)
+		if shape ~= "square" then c.border:Hide() end
 		return
 	end
 	local er, eg, eb = ns.Bars.BorderRGB(group.borderColor)
@@ -807,6 +829,7 @@ local function StyleCopy(c, group, look, alpha)
 		c.name:SetTextColor(1, 1, 1)
 	end
 	c:SetAlpha(alpha)
+	if shape ~= "square" then c.border:Hide() end
 end
 
 local function Presence(f, name)
@@ -946,6 +969,8 @@ local function PlaceGroup(f, group, i)
 		width, height = wide * stepX - gap, math.max(1, rows) * stepY - gap
 	end
 	f.anchor:SetSize(width, height)
+	f.anchor.bg:SetColorTexture(0, 0, 0, group.background or 0)
+	f.anchor.bg:SetShown((group.background or 0) > 0)
 	local pos = group.pos or DefaultPos(i)
 	f.anchor:ClearAllPoints()
 	f.anchor:SetPoint(pos[1], UIParent, pos[2], pos[3], pos[4])

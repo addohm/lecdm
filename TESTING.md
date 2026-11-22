@@ -83,7 +83,10 @@ the build and date.
     its missing copy.
 23. A buff's ⚙, "Its look": Border Heavy, time text Large, Centre, Gold: only that buff
     changes, in combat too.
-24. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+24. Icon shape Round / Rounded / Diamond / Hexagon on an icon bar and a buff group: the icon,
+    its swipe and its border take the shape (a fresh game start: new texture files); a
+    background behind the bar at 50%.
+25. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 
