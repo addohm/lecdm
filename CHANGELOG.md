@@ -34,6 +34,8 @@ All notable changes to lecdm. The format follows
   icon (in combat too): its time as a swipe in the bar's colour for it, its stacks, a glow.
 - Icon bars: near the end of a cooldown (under a time you pick), the countdown in a colour (the
   game's duration text binding, so in combat too) or with a decimal (8.7).
+- The Icon bars tab's preview: the bar's icons in order; drag one onto another to move it,
+  right-click for its ⚙ menu, middle-click to take it off.
 - Icon bars as timer bars: the icon at the left, then a bar the game fills from the
   cooldown's duration (full when ready), the name and the time left; height, width, texture,
   colour.

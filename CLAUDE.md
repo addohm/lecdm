@@ -142,7 +142,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
   - `UI/Pages/`: `General.lua`, `Alerts.lua` (the Alerts tab's defaults, `ns.AlertsMenu` and
     `ns.AlertsGear`: a row's ⚙ context menu, `ns.ALERT_FIELDS`), `Buffs.lua` (the Buffs tab, laid out like Icon bars:
     `LECDM_NEW_BUFFS` popup, Show as, look rows shown by style, the checklist of Blizzard's
-    buffs and the buffs on you now, a row per buff), `Bars.lua` (the Icon bars tab: a `DropdownButton` picks the
+    buffs and the buffs on you now, a row per buff), `Bars.lua` (the Icon bars tab: the preview, `PreviewRow`, drag to
+    order with `B.MoveTo`; a `DropdownButton` picks the
     bar, its "New icon bar..." entry opens the `LECDM_NEW_BAR` popup with a name box; below,
     only the bar picked: name field, look, Delete, then the spell checklist (MenuUtil) and a
     row per spell rebuilt each refresh with `UI.Stack` Reset/Add/Done), `Test.lua` (the

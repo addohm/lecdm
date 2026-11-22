@@ -346,6 +346,7 @@ C_Container = {
 function UnitGroupRolesAssigned() return "NONE" end
 function strtrim(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
 function GetCursorPosition() return 0, 0 end
+function MouseIsOver(f) return M.mouseOver == f end
 function GetMinimapShape() return "ROUND" end
 function ReloadUI() M.reloaded = true end
 function HideUIPanel(f) f:Hide() end

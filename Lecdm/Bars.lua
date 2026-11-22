@@ -338,6 +338,14 @@ function B.AddByID(bar, text)
 	return true
 end
 
+-- Moves an entry to another place on its bar (the preview's drag).
+function B.MoveTo(bar, from, to)
+	if from == to or not bar.spells[from] or to < 1 or to > #bar.spells then return end
+	local key = table.remove(bar.spells, from)
+	table.insert(bar.spells, to, key)
+	ns.Refresh()
+end
+
 -- Moves a spell up (-1) or down (1) its bar.
 function B.MoveSpell(bar, index, dir)
 	local j = index + dir

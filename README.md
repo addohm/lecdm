@@ -51,9 +51,11 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   - its spells and items: tick them in the checklist (Blizzard's Essential and Utility lists,
     your spellbook, racials among it, your equipped trinkets and on-use gear, **best in your
     bags** (one icon for healing potions, mana potions, healthstones or runes: the best you
-    carry, in an order its ⚙ can change), usable items in your bags; at the end, an empty space that keeps a place, and a spell or item by its ID; an
-    entry
-    on another bar says "(on ...)" and ticking moves it), order them with the arrows, choose
+    carry, in an order its ⚙ can change), usable items in your bags; at the end, an empty
+    space that keeps a place, and a spell or item by its ID; an entry on another bar says
+    "(on ...)" and ticking moves it), order them in the **preview** (the bar's icons under the
+    checklist: drag one onto another to move it; right-click for its ⚙ menu, middle-click to
+    take it off) or with the arrows, choose
     when each shows (always, only when ready, only when ready and usable: Overpower, Revenge,
     Execute; only on cooldown; the others close up), and in its ⚙ menu: its own look (border,
     border colour, an icon: a spell's, an item's or any icon's file ID), while its buff is up

@@ -73,7 +73,9 @@ the build and date.
 19. An icon bar "Show as: Timer bars": each spell a bar with its icon, name and time left;
     cast one: the bar empties and fills back as the cooldown comes back, in combat too; full
     when ready. Width, height, texture, colour follow the tab.
-20. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+20. The Icon bars tab's preview (under "Add or remove spells"): drag an icon onto another: it
+    moves there, on the bar too; right-click: its ⚙ menu; middle-click: off the bar.
+21. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

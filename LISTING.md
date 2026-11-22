@@ -61,6 +61,7 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
 - Per spell: always shown, only when ready, only when ready and usable (Overpower, Execute), or
   only on cooldown, and the others close up; faded or glowing while on cooldown; only in a
   stance or form, or only with a talent.
+- Drag icons into order in the window's preview; right-click one for its settings.
 - Add spells from a checklist: Blizzard's list, your spellbook, your trinkets and on-use gear,
   and potions, healthstones and other usable items in your bags (with the count); "best in
   your bags" (one icon for the best potion or healthstone you carry); or by ID;

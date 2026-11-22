@@ -307,6 +307,102 @@ local function Conditions(root, key)
 	end
 end
 
+-- The preview: the bar's entries as icons in its order (greyed when they can't show now). Drag
+-- one onto another to move it there; right-click for its ⚙ menu; middle-click takes it off.
+local PREVIEW = 30
+local function PreviewRow(parent)
+	local row = CreateFrame("Frame", nil, parent)
+	row:SetHeight(PREVIEW + 12)
+	row.icons = {}
+	local ghost = CreateFrame("Frame", nil, UIParent)
+	ghost:SetSize(PREVIEW, PREVIEW)
+	ghost:SetFrameStrata("TOOLTIP")
+	ghost.tex = ghost:CreateTexture(nil, "ARTWORK")
+	ghost.tex:SetAllPoints()
+	ghost:SetAlpha(0.8)
+	ghost:Hide()
+	ghost:SetScript("OnUpdate", function(self)
+		local x, y = GetCursorPosition()
+		local scale = UIParent:GetEffectiveScale()
+		self:ClearAllPoints()
+		self:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x / scale, y / scale)
+	end)
+	row.ghost = ghost
+	local function Drop(from)
+		for i, icon in ipairs(row.icons) do
+			if icon:IsShown() and MouseIsOver(icon) then
+				local bar = Current()
+				if bar and i ~= from then Bars.MoveTo(bar, from, i) end
+				return
+			end
+		end
+	end
+	local function Icon(i)
+		local icon = row.icons[i]
+		if icon then return icon end
+		icon = CreateFrame("Button", nil, row)
+		icon:SetSize(PREVIEW, PREVIEW)
+		icon.tex = icon:CreateTexture(nil, "ARTWORK")
+		icon.tex:SetAllPoints()
+		icon.tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+		icon:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
+		icon:RegisterForDrag("LeftButton")
+		icon:RegisterForClicks("RightButtonUp", "MiddleButtonUp")
+		icon:SetScript("OnDragStart", function(self)
+			row.dragging = self.index
+			ghost.tex:SetTexture(self.tex:GetTexture())
+			ghost:Show()
+		end)
+		icon:SetScript("OnDragStop", function()
+			ghost:Hide()
+			local from = row.dragging
+			row.dragging = nil
+			if from then Drop(from) end
+		end)
+		icon:SetScript("OnClick", function(self, button)
+			local bar = Current()
+			if not (bar and self.key) then return end
+			if button == "MiddleButton" then
+				Bars.SetOnBar(bar, self.key, false)
+				return
+			end
+			local key = self.key
+			MenuUtil.CreateContextMenu(self, function(_, root)
+				ns.AlertsMenu("spells", key, Bars.EntryName(key), root, function(r) Conditions(r, key) end)
+			end)
+		end)
+		icon:SetScript("OnEnter", function(self)
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:AddLine(self.key and Bars.EntryName(self.key) or "")
+			GameTooltip:AddLine("Drag it onto another to move it there. Right-click: its ⚙ menu. Middle-click: take it off.", 1, 1, 1, true)
+			GameTooltip:Show()
+		end)
+		icon:SetScript("OnLeave", GameTooltip_Hide)
+		row.icons[i] = icon
+		return icon
+	end
+	-- Lays the icons out for a bar (before the row is added: its height follows).
+	function row:Fill(bar)
+		local width = row:GetWidth()
+		if not width or width < 100 then width = 500 end
+		local per = math.max(1, math.floor((width - 32) / (PREVIEW + 4)))
+		for i, key in ipairs(bar.spells) do
+			local icon = Icon(i)
+			icon.index, icon.key = i, key
+			icon.tex:SetTexture(Bars.Own(bar, key).icon or Bars.EntryIcon(key) or "Interface\\Buttons\\UI-EmptySlot")
+			icon.tex:SetDesaturated(not Bars.EntryKnown(key))
+			local line, pos = math.floor((i - 1) / per), (i - 1) % per
+			icon:ClearAllPoints()
+			icon:SetPoint("TOPLEFT", 16 + pos * (PREVIEW + 4), -(6 + line * (PREVIEW + 4)))
+			icon:Show()
+		end
+		for i = #bar.spells + 1, #row.icons do row.icons[i]:Hide() end
+		row:SetHeight(12 + math.max(1, math.ceil(#bar.spells / per)) * (PREVIEW + 4))
+	end
+	row.Sync = function() end
+	return row
+end
+
 -- A spell on the bar: its icon and name, when it shows, and up / down / remove.
 local function SpellRow(parent)
 	local row
@@ -535,6 +631,7 @@ ns.Window.Page({
 			UI.OptionHeading(stack.inner, "Its spells"),
 			ChecklistRow(stack.inner),
 		}
+		p.preview = PreviewRow(stack.inner)
 		p.empty = UI.OptionText(stack.inner, "No spells on this icon bar yet: tick some in the list above.", 24)
 		p.none = UI.OptionText(stack.inner, "There are no icon bars: pick \"New icon bar...\" in the dropdown above, or Start over below.", 24)
 		p.bottom = {
@@ -569,6 +666,8 @@ ns.Window.Page({
 			for _, row in ipairs(p.top) do
 				if not row.only or row.only == style then stack:Add(row) else row:Hide() end
 			end
+			p.preview:Fill(bar)
+			stack:Add(p.preview)
 			for i, id in ipairs(bar.spells) do
 				local row = p.spellRows[i]
 				if not row then

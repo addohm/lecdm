@@ -977,6 +977,25 @@ M.Slash("bars")
 local panel = ns.Window.CurrentPanel()
 local first = ns.db.bars.list[1]
 check(panel.parts.spellRows[#first.spells] and panel.parts.spellRows[1].key == first.spells[1], "spell rows missing")
+-- The preview: an icon per entry; drag one onto another moves it there; right-click opens its ⚙;
+-- middle-click takes it off.
+local preview = panel.parts.preview
+check(preview and #preview.icons >= #first.spells and preview.icons[1].shown, "no preview icons")
+local firstKey, secondKey = first.spells[1], first.spells[2]
+preview.icons[1].scripts.OnDragStart(preview.icons[1])
+M.mouseOver = panel.parts.preview.icons[2]
+preview.icons[1].scripts.OnDragStop(preview.icons[1])
+M.mouseOver = nil
+check(first.spells[2] == firstKey and first.spells[1] == secondKey, "dragging in the preview didn't move it")
+ns.Bars.MoveTo(first, 2, 1)
+check(first.spells[1] == firstKey, "moving back didn't")
+panel.parts.preview.icons[1].scripts.OnClick(panel.parts.preview.icons[1], "RightButton")
+check(M.contextMenu.children[1].text == "Sound when it's ready", "right-click didn't open its ⚙ menu")
+local count = #first.spells
+local lastKey = first.spells[count]
+panel.parts.preview.icons[count].scripts.OnClick(panel.parts.preview.icons[count], "MiddleButton")
+check(#first.spells == count - 1 and not ns.Bars.BarOf(lastKey), "middle-click didn't take it off")
+ns.Bars.SetOnBar(first, lastKey, true)
 -- A spell's ⚙: its alerts, then when it shows: any stance, or only in or not in each of the class's.
 panel.parts.spellRows[1].gear.scripts.OnClick(panel.parts.spellRows[1].gear)
 local stanceMenu
