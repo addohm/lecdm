@@ -169,6 +169,15 @@ ns.Refresh()
 check(not revenge.shown, "an unusable spell shown with only when ready and usable")
 cdBar.show[6572], cdBar.cdAlpha, ns.db.alerts.defaults.spells.cdGlow = nil, 1, "none"
 ns.Refresh()
+-- The swipe: reversed, its colour, the edge; none.
+cdBar.swipe, cdBar.swipeColor, cdBar.edge = "reverse", "gold", true
+ns.Refresh()
+check(charge.cd.reverse and charge.cd.edge and charge.cd.swipeColor[1] == 1 and charge.cd.drawSwipe, "the swipe's look wrong")
+cdBar.swipe = "off"
+ns.Refresh()
+check(charge.cd.drawSwipe == false, "the swipe drawn with None")
+cdBar.swipe, cdBar.swipeColor, cdBar.edge = "normal", "dark", false
+ns.Refresh()
 -- Charges: the count (the game's, secret in combat), the recharge swipe while one comes back, a
 -- glow at full charges; 0 hidden out of combat if the bar says so.
 M.charges = { [6572] = { 1, 2, true } }
@@ -584,7 +593,7 @@ check(#M.sounds == heard + 1, "Blizzard's announcement and Lecdm's own reading b
 BD.applied, BD.removed = "none", "none"
 BD.warnGlow, BD.upGlow = "pixel", "autocast"
 ns.Refresh()
-local warned = G("Battle Shout/icons:32:0:1:black:0.08:small:on/autocast:gold:5:pixel:120")
+local warned = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark/autocast:gold:5:pixel:120")
 check(warned and warned.button.bound.SetDurationBar, "the warning glow isn't timed on the button")
 check(warned.button.bound.SetDurationText, "no time text")
 BD.warnGlow, BD.upGlow = "none", "none"
@@ -594,7 +603,7 @@ ns.Refresh()
 -- even with no warning glow); without one, the face's own icon.
 BD.upGrey, BD.upAlpha = true, 0.4
 ns.Refresh()
-local faded = G("Battle Shout/icons:32:0:1:black:0.08:small:on/none:gold:5:none:120:0.4:true")
+local faded = G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark/none:gold:5:none:120:0.4:true")
 check(faded, "the look while up isn't in the key")
 local fb = faded.button.bound
 check(fb.SetDurationBar and fb.SetIcon and fb.SetIcon.parent.alpha == 1 and not fb.SetIcon.desaturated, "the real icon isn't revealed at the warning time")
@@ -608,17 +617,17 @@ check(fort and fort.button.bound.SetIcon.desaturated and fort.button.bound.SetIc
 	"without a duration the face's icon isn't grey and faded")
 BD.upGrey, BD.upAlpha = false, 1
 ns.Refresh()
-check(G("Battle Shout/icons:32:0:1:black:0.08:small:on/none:gold:5:none:120:1:false"), "back to the plain look")
+check(G("Battle Shout/icons:32:0:1:black:0.08:small:on:normal:dark/none:gold:5:none:120:1:false"), "back to the plain look")
 buffs[1].tooltip = "off"
 ns.Refresh()
-local noTip = G("Battle Shout/icons:32:0:1:black:0.08:small:off/")
+local noTip = G("Battle Shout/icons:32:0:1:black:0.08:small:off:normal:dark/")
 check(noTip and noTip.button.mouse == false, "a buff button with tooltips off takes the mouse")
 buffs[1].tooltip = "on"
 ns.Refresh()
 -- A group's look is in its aura groups' keys; timer bars' own options too.
 buffs[1].style, buffs[1].barColor, buffs[1].barIcon = "bars", "class", false
 ns.Refresh()
-check(G("Battle Shout/bars:32:200:1:black:0.08:small:on:blizzard:class:0.5:false:true:true/"), "timer bar look not in the key")
+check(G("Battle Shout/bars:32:200:1:black:0.08:small:on:normal:dark:blizzard:class:0.5:false:true:true/"), "timer bar look not in the key")
 buffs[1].style, buffs[1].barColor, buffs[1].barIcon = "icons", "blue", true
 buffs[1].showWhen = "combat"
 ns.Refresh()

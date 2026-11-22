@@ -78,6 +78,10 @@ local function NewRegion(kind, name, parent)
 	function f:SetupMenu(generator) self.generator = generator end
 	function f:SetTexCoord(...) self.texcoord = { ... } end
 	function f:SetHideCountdownNumbers(v) self.hideNumbers = v end
+	function f:SetReverse(v) self.reverse = v end
+	function f:SetDrawEdge(v) self.edge = v end
+	function f:SetDrawSwipe(v) self.drawSwipe = v end
+	function f:SetSwipeColor(...) self.swipeColor = { ... } end
 	function f:IsForbidden() return false end
 	function f:IsObjectType(kind2) return self.kind == kind2 end
 	function f:GetAttribute(k) return self.attributes and self.attributes[k] end

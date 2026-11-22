@@ -119,7 +119,7 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - [x] Hidden in or outside a stance or form; shown only with talents taken or not (2026-11-22)
 - [x] Charges: the count (0 shown or not), a glow at max charges, the recharge swipe
       (2026-11-22)
-- [ ] Swipe off or reversed, the cooldown edge always, swipe colour
+- [x] Swipe off or reversed, the cooldown edge always, swipe colour (2026-11-22)
 - [ ] The spell's own buff on its icon: a swipe colour, glow or border while it's up, or the
       buff in its slot while up; the buff's stacks on the icon
 - [ ] The countdown in a colour and with a decimal under a set time

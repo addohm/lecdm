@@ -54,7 +54,9 @@ the build and date.
     don't have hides it; take the talent (or respec): it shows.
 12. A spell with charges, if your class has one on Forever: the count on its icon, in combat
     too; using one starts the recharge swipe; "Glow at full charges" glows only at full.
-13. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
+13. Swipe: on an icon bar, Reversed (the dark part shrinks), a colour, the bright edge, None
+    (only the countdown); on a buff group, Reversed and a colour.
+14. Going into combat without a keep-up buff ("Sound going into combat without it", "Say in
    chat which ones are missing then"): pull without Battle Shout: the sound, and "into combat
    without Battle Shout" in chat.
 

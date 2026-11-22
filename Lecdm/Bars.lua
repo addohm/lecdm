@@ -47,12 +47,29 @@ B.LOOK = {
 	size = 40, gap = 4, grow = "CENTER", vertical = false, perRow = 12, gcd = true, emptyItems = "hide",
 	border = 1, borderColor = "black", zoom = 0.08, countdown = "normal", keybind = false,
 	grey = true, red = true, dark = true, showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "off",
-	cdAlpha = 1, zeroCharges = true,
+	cdAlpha = 1, zeroCharges = true, swipe = "normal", swipeColor = "dark", edge = false,
 }
 function B.FillLook(bar)
 	for k, v in pairs(B.LOOK) do
 		if bar[k] == nil then bar[k] = v end
 	end
+end
+
+-- The swipe: drawn as the game does, reversed (the dark part shrinks instead), or not at all;
+-- its colour; and the bright edge on its line.
+B.SWIPES = { { "normal", "Normal" }, { "reverse", "Reversed" }, { "off", "None (the countdown only)" } }
+B.SWIPE_COLORS = { { "dark", "Dark" }, { "class", "Class colour" }, { "gold", "Gold" }, { "blue", "Blue" },
+	{ "red", "Red" }, { "white", "White" } }
+local SWIPE_RGB = { dark = { 0, 0, 0, 0.8 }, gold = { 1, 0.78, 0.38, 0.75 }, blue = { 0.25, 0.6, 1, 0.7 },
+	red = { 0.9, 0.2, 0.2, 0.7 }, white = { 1, 1, 1, 0.6 } }
+function B.SwipeRGBA(color)
+	if color == "class" then
+		local _, class = UnitClass("player")
+		local c = class and RAID_CLASS_COLORS and RAID_CLASS_COLORS[class]
+		if c then return c.r, c.g, c.b, 0.75 end
+	end
+	local c = SWIPE_RGB[color] or SWIPE_RGB.dark
+	return c[1], c[2], c[3], c[4]
 end
 
 -- The tooltip on hover: off (the icons let clicks through), on, or out of combat only.
@@ -665,6 +682,10 @@ function B.ApplyLook(b, bar)
 	b.edge:SetPoint("BOTTOMRIGHT", n, -n)
 	b.edge:SetColorTexture(B.BorderRGB(bar.borderColor))
 	b.edge:SetShown(n > 0)
+	b.cd:SetDrawSwipe(bar.swipe ~= "off")
+	b.cd:SetReverse(bar.swipe == "reverse")
+	b.cd:SetDrawEdge(bar.edge and true or false)
+	b.cd:SetSwipeColor(B.SwipeRGBA(bar.swipeColor))
 	local font = B.FONTS[bar.countdown]
 	b.cd:SetHideCountdownNumbers(font == nil)
 	if font then pcall(b.cd.SetCountdownFont, b.cd, font) end

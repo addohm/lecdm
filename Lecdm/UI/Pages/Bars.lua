@@ -321,6 +321,9 @@ ns.Window.Page({
 		local greyGet, greySet = Field("grey")
 		local cdaGet, cdaSet = Field("cdAlpha")
 		local zeroGet, zeroSet = Field("zeroCharges")
+		local swGet, swSet = Field("swipe")
+		local swcGet, swcSet = Field("swipeColor")
+		local edgeGet, edgeSet = Field("edge")
 		local redGet, redSet = Field("red")
 		local darkGet, darkSet = Field("dark")
 		local showGet, showSet = Field("showWhen")
@@ -360,6 +363,9 @@ ns.Window.Page({
 			UI.OptionSelect(stack.inner, "Border colour", Bars.BORDER_COLORS, bcolGet, bcolSet),
 			UI.OptionSelect(stack.inner, "Icon zoom", Bars.ZOOMS, zoomGet, zoomSet,
 				{ tooltip = { "Icon zoom", "How much of the icon's own edge is cut off." } }),
+			UI.OptionSelect(stack.inner, "Swipe", Bars.SWIPES, swGet, swSet),
+			UI.OptionSelect(stack.inner, "Swipe colour", Bars.SWIPE_COLORS, swcGet, swcSet),
+			UI.OptionCheck(stack.inner, "Bright edge on the swipe", edgeGet, edgeSet),
 			UI.OptionSelect(stack.inner, "Countdown text", Bars.TEXT_SIZES, cdGet, cdSet,
 				{ tooltip = { "Countdown text", "The cooldown's time left on the icon (the game draws it; its own setting, Show Numbers for Cooldowns, must be on)." } }),
 			UI.OptionCheck(stack.inner, "Keybind text", keyGet, keySet,

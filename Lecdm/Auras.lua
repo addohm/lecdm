@@ -417,7 +417,7 @@ A.LOOK = {
 	style = "icons", size = 32, gap = 4, grow = "CENTER", vertical = false, perRow = 12, barWidth = 200,
 	border = 1, borderColor = "black", zoom = 0.08, timeText = "small",
 	barTexture = "blizzard", barColor = "blue", barBg = 0.5, barIcon = true, barName = true, barTime = true,
-	showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "on",
+	showWhen = "always", alpha = 1, oocAlpha = 1, tooltip = "on", swipe = "normal", swipeColor = "dark",
 }
 function A.FillLook(group)
 	for k, v in pairs(A.LOOK) do
@@ -451,7 +451,7 @@ end
 function A.LookKey(group)
 	local bars = group.style == "bars"
 	local parts = { group.style, group.size, bars and group.barWidth or 0, group.border, group.borderColor,
-		group.zoom, group.timeText, group.tooltip }
+		group.zoom, group.timeText, group.tooltip, group.swipe, group.swipeColor }
 	if bars then
 		for _, k in ipairs({ "barTexture", "barColor", "barBg", "barIcon", "barName", "barTime" }) do
 			parts[#parts + 1] = tostring(group[k])
@@ -563,7 +563,11 @@ local function Styler(group, name)
 			end
 			cooldown:SetAllPoints(button)
 			cooldown:SetDrawEdge(false)
-			cooldown:SetReverse(true)
+			-- A buff's swipe fills as it runs out ("reversed" from a cooldown's); the group's
+			-- "Reversed" flips that.
+			cooldown:SetReverse(group.swipe ~= "reverse")
+			cooldown:SetDrawSwipe(group.swipe ~= "off")
+			cooldown:SetSwipeColor(ns.Bars.SwipeRGBA(group.swipeColor))
 			cooldown:SetHideCountdownNumbers(true)
 			button:SetDurationCooldown(cooldown)
 			if font then
