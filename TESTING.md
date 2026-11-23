@@ -352,6 +352,10 @@ at /reload or logout (`WTF\Account\<account>\SavedVariables\Lecdm.lua`).
 
 ## Confirmed
 
+From the owner, 2026-11-23, on f76488c: Lecdm works well in game set up to the owner's own
+preferences (0.9.1-dev items 2, 2a). Which of the other 0.9.1-dev items that covers isn't
+known yet.
+
 From the owner's warrior, test build 1 (e865554), 2026-11-20: open world, then a dungeon.
 
 - **The listener works in combat inside a dungeon** (steps 3-6). Lines marked `[combat]
