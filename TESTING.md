@@ -356,6 +356,9 @@ From the owner, 2026-11-23, on f76488c: Lecdm works well in game set up to the o
 preferences (0.9.1-dev items 2, 2a). Which of the other 0.9.1-dev items that covers isn't
 known yet.
 
+From the owner, 2026-11-24: the buff drop sounds all played (item 3; the fading ones are to try
+next).
+
 From the owner's warrior, test build 1 (e865554), 2026-11-20: open world, then a dungeon.
 
 - **The listener works in combat inside a dungeon** (steps 3-6). Lines marked `[combat]
@@ -431,4 +434,9 @@ Test build 1 is finished (2026-11-20).
 
 ## Problems
 
-None yet.
+- **Blizzard's buff icons and timer bars still showed with "Hide them"** (0.9.1-dev item 1,
+  the owner, 2026-11-24). The owner hid them with Edit Mode's visibility "Hidden" instead,
+  which stops them listening (their `OnHide` unregisters `UNIT_AURA`), so the in-combat
+  announcements from them (a target debuff dropping, buffs tracked in /cdm) go quiet. Likely
+  cause: Edit Mode applies its opacity to the viewers (`UpdateSystemSettingOpacity`) after
+  Lecdm made them invisible, and nothing makes them invisible again until the next change.
