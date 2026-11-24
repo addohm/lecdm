@@ -37,8 +37,9 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   and **three samples** of the one picked: **ready**, **on cooldown** and **proc**.
   **Right-click** a spell (or a sample) for one menu with tick boxes: ready (a sound, a glow),
   on cooldown (grey, opacity, a glow), a proc (a glow), when it shows, its name on screen, More
-  (charges, its buff on it, stance, talent, its own look), "Use these for every spell". "Show
-  them" opens the rest about the bar picked:
+  (charges, its buff on it, stance, talent, its own look), "Use these for every spell". At the
+  end of the page, always: Delete this icon bar. "Show them" opens the rest about the bar
+  picked:
   - its name and layout: **show as** icons or **timer bars** (the icon at the left, then a bar
     filling as the cooldown comes back, full when ready, with the name and the time left: bar
     height, width, texture, colour, the name on it and its size, the icon on the right, a
@@ -69,7 +70,7 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   - **the same in every profile** (kept in step as you change it: trinkets, potions and
     racials for all your characters); saved styles (save its look by name, give one to this
     bar or every bar); "Copy to every bar" (its look and layout, not its spells or place);
-    Export and Import; and Delete;
+    Export and Import;
   - its spells and items: tick them in the checklist (Blizzard's Essential and Utility lists,
     your spellbook, racials among it, your equipped trinkets and on-use gear, **best in your
     bags** (one icon for healing potions, mana potions, healthstones or runes: the best you
@@ -106,7 +107,8 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   time turning red, glow, a sound), while it's missing (show it, its looks, opacity, glow,
   sounds, a word in chat entering combat), its name on screen, More (a glow at stacks, how it
   shows, its border and text), "Use these for every buff" and "Back to the defaults". Choices
-  leave the menu open, so the samples change as you pick. The rest ("Show them": its layout
+  leave the menu open, so the samples change as you pick. "Delete this buff group" is at the
+  end of the page. The rest ("Show them": its layout
   and look, each buff's row) is laid out like Icon bars, for buff groups: buffs on you from anyone (your own,
   another priest's Fortitude, world buffs, procs). For the group picked: its name, **Show as**
   icons (a swipe, the time left, stacks) or **timer bars** (the icon, then a bar draining to the

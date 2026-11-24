@@ -8,6 +8,8 @@ All notable changes to lecdm. The format follows
 
 ### Added
 
+- Delete this icon bar / buff group is at the end of its page again, not behind "Show them"
+  (the owner, 2026-11-24).
 - Icon bars: three samples of the spell picked (ready, on cooldown, proc) and a right-click
   menu with tick boxes in those parts; grey and opacity on cooldown can be a spell's own; the
   bar's page opens with its spells, the rest behind "Show them".

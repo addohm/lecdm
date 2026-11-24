@@ -1542,11 +1542,12 @@ local nameRow = panel.parts.top[3]
 nameRow.box.text = "Big ones"
 nameRow.box.scripts.OnEnterPressed(nameRow.box)
 check(ns.db.bars.list[4].name == "Big ones" and picker.dropdown.text == "Big ones", "rename didn't")
-local deleteRow
-for _, row in ipairs(panel.parts.top) do
-	if row.button and row.button.text == "Delete this icon bar" then deleteRow = row end
-end
-check(deleteRow.button.text == "Delete this icon bar", "delete button not where expected: " .. tostring(deleteRow.button.text))
+-- Delete is on the page with "Show them" closed too.
+panel.parts.more.button.scripts.OnClick(panel.parts.more.button)
+local deleteRow = panel.parts.delete
+local onPage = false
+for _, r in ipairs(panel.stack.rows) do if r == deleteRow then onPage = true end end
+check(onPage and deleteRow.button.text == "Delete this icon bar", "Delete not on the page with the rest hidden")
 deleteRow.button.scripts.OnClick()
 M.Accept()
 check(#ns.db.bars.list == 3 and picker.dropdown.text == "Cooldowns", "delete didn't, or didn't show the first bar")
@@ -1580,7 +1581,7 @@ local function OnPage(row)
 	return false
 end
 check(OnPage(bp.preview) and bp.preview.icons[1].name == ns.db.buffs.list[1].entries[1] and OnPage(bp.samples)
-	and not OnPage(bp.lookHead) and not OnPage(bp.eachHead), "the buff group page's top wrong")
+	and not OnPage(bp.lookHead) and not OnPage(bp.eachHead) and OnPage(bp.delete), "the buff group page's top wrong")
 -- The samples: a buff's look while up, fading and missing; the right-click menu's tick boxes
 -- change it (its own), "Use these for every buff" makes them the defaults.
 local firstBuff = ns.db.buffs.list[1].entries[1]

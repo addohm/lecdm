@@ -641,6 +641,7 @@ ns.Window.Page({
 			end
 			stack:Add(p.more)
 			if not showAll then
+				stack:Add(p.delete)
 				for _, row in ipairs(p.bottom) do stack:Add(row) end
 				stack:Done()
 				stack:Sync()
@@ -693,7 +694,6 @@ ns.Window.Page({
 			stack:Add(p.export)
 			stack:Add(p.import)
 			stack:Add(p.copy)
-			stack:Add(p.delete)
 			stack:Add(p.eachHead)
 			for i, name in ipairs(group.entries) do
 				local row = p.buffRows[i]
@@ -704,6 +704,7 @@ ns.Window.Page({
 				row.index, row.name = i, name
 				stack:Add(row)
 			end
+			stack:Add(p.delete)
 		else
 			stack:Add(p.none)
 		end

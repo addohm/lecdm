@@ -801,21 +801,21 @@ ns.Window.Page({
 				if bar then ns.Transfer.ShowExport("Icon bar " .. bar.name, ns.Transfer.Export("bar", bar)) end
 			end),
 			UI.OptionButton(stack.inner, "An icon bar someone shared", "Import...", function() ns.Transfer.ShowImport() end),
-			UI.OptionButton(stack.inner, "", "Delete this icon bar", function()
-				local bar = Current()
-				if not bar then return end
-				Confirm("Delete the icon bar " .. bar.name .. "? Its spells go back to the checklist.", function()
-					Bars.Delete(bar.id)
-					selected = nil
-					ns.Window.Refresh()
-				end)
-			end),
-
 			UI.OptionHeading(stack.inner, "Its spells"),
 			ChecklistRow(stack.inner),
 		}
 		p.preview = PreviewRow(stack.inner)
 		p.samples = ns.SpellSamplesRow(stack.inner, Current, function() return Picked(Current()) end)
+		-- Delete is always there, at the end of the bar's page (not behind "Show them").
+		p.delete = UI.OptionButton(stack.inner, "", "Delete this icon bar", function()
+			local bar = Current()
+			if not bar then return end
+			Confirm("Delete the icon bar " .. bar.name .. "? Its spells go back to the checklist.", function()
+				Bars.Delete(bar.id)
+				selected = nil
+				ns.Window.Refresh()
+			end)
+		end)
 		p.more = UI.OptionButton(stack.inner, "Its layout and look, and each spell's row",
 			function() return showAll and "Hide them" or "Show them" end,
 			function()
@@ -924,6 +924,7 @@ ns.Window.Page({
 				row.index, row.key = i, id
 				stack:Add(row)
 			end
+			stack:Add(p.delete)
 		else
 			stack:Add(p.picker)
 			stack:Add(p.none)
