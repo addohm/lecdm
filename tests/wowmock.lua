@@ -93,6 +93,11 @@ local function NewRegion(kind, name, parent)
 		return self.fillTexture
 	end
 	function f:SetTimerDuration(d) self.timerDuration = d end
+	function f:SetValue(v) self.value = v end
+	function f:GetValue() return self.value end
+	function f:SetMinMaxValues(a, b) self.min, self.max = a, b end
+	function f:GetMinMaxValues() return self.min, self.max end
+	function f:GetTexture() return self.texture end
 	function f:SetStatusBarColor(r, g, b) self.barColor = { r, g, b } end
 	function f:SetAlphaFromBoolean(v, yes, no)
 		if v == SECRET then self.alpha = "secret" return end
@@ -634,6 +639,8 @@ for _, global in ipairs({ "EssentialCooldownViewer", "UtilityCooldownViewer", "B
 		end
 	end
 	function v:Layout() end
+	-- Edit Mode applying its opacity setting (100%) to the viewer, as it does with each layout.
+	function v:UpdateSystemSettingOpacity() self:SetAlpha(1) end
 	M.viewers[global] = v
 end
 
@@ -645,6 +652,32 @@ function M.AddItem(global, cooldownID)
 	item.alerts = 0
 	function item:TriggerAlertEvent() self.alerts = self.alerts + 1 end
 	function item:UpdateShownState() end
+	if global == "BuffBarCooldownViewer" then
+		-- A timer bar as Blizzard's has it: its bar, time, name, stacks and icon, refreshed by it
+		-- (M.barShows[item] = { value, max, time, name }; secret in combat).
+		item.Bar = CreateFrame("StatusBar", nil, item)
+		item.Duration = item:CreateFontString()
+		item.Name = item:CreateFontString()
+		item.Count = item:CreateFontString()
+		item.IconTex = item:CreateTexture()
+		function item:GetBarFrame() return self.Bar end
+		function item:GetDurationFontString() return self.Duration end
+		function item:GetNameFontString() return self.Name end
+		function item:GetApplicationsFontString() return self.Count end
+		function item:GetIconTexture() return self.IconTex end
+		function item:RefreshCooldownInfo()
+			local show = M.barShows and M.barShows[self] or { 0, 0, "", "" }
+			self.Bar:SetMinMaxValues(0, M.combat and SECRET or show[2])
+			self.Bar:SetValue(M.combat and SECRET or show[1])
+			self.Duration:SetText(M.combat and SECRET or show[3])
+		end
+		function item:RefreshName()
+			local show = M.barShows and M.barShows[self] or { 0, 0, "", "" }
+			self.Name:SetText(show[4])
+		end
+		function item:RefreshSpellTexture() self.IconTex:SetTexture(136030) end
+		function item:RefreshApplications() self.Count:SetText("") end
+	end
 	v:OnAcquireItemFrame(item)
 	v.itemFramePool.active[item] = true
 	item.cooldownID = cooldownID

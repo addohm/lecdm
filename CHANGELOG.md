@@ -8,6 +8,9 @@ All notable changes to lecdm. The format follows
 
 ### Added
 
+- Blizzard's timer bars taken in wear Lecdm's look: Lecdm's own bar over each of Blizzard's,
+  copying its time, name, icon and stacks as Blizzard updates it, with a texture, colour,
+  background, icon, spark, gradient and font (or Blizzard's own look, from Edit Mode).
 - Delete this icon bar / buff group is at the end of its page again, not behind "Show them"
   (the owner, 2026-11-24).
 - Icon bars: three samples of the spell picked (ready, on cooldown, proc) and a right-click
@@ -116,6 +119,13 @@ All notable changes to lecdm. The format follows
 - Weapon enchants in buff groups (main and off hand: oils, sharpening stones, poisons, shaman
   weapon spells), shown by the game in a place of their own, kept up or only while missing like
   a buff, with their sounds (applied, dropped, running out) out of combat.
+
+### Fixed
+
+- Blizzard's timer bars taken in ran sideways: they stack in one column now (from the top or
+  the bottom).
+- "Hide them" didn't stick at login: Edit Mode set Blizzard's viewers' opacity back after Lecdm
+  hid them. Lecdm hides them again right after Edit Mode sets it.
 
 ### Changed
 

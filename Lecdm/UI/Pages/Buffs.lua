@@ -494,6 +494,24 @@ ns.Window.Page({
 			{ boxWidth = 190, tooltip = { "Blizzard's icons and timer bars", "Take them into Lecdm: they sit in Lecdm's place, laid out your way, gaps closed. Hide them: invisible (they keep running, so Lecdm still hears them). Leave them: where and how Blizzard shows them." } })
 		p.blizzGap = UI.OptionSelect(stack.inner, "Space between", Numbers(0, 12, 1), bGapGet, bGapSet)
 		p.blizzGrow = UI.OptionSelect(stack.inner, "Grow from", GROW, bGrowGet, bGrowSet)
+		p.blizzGrowBars = UI.OptionSelect(stack.inner, "Grow from", { { "LEFT", "The top" }, { "RIGHT", "The bottom" } }, bGrowGet, bGrowSet)
+		-- Lecdm's look on Blizzard's timer bars (Hosted.lua): Lecdm's own bars over them.
+		local function BRow(kindOf, label, list, key)
+			local get, set = BlizzField(key)
+			if kindOf == "check" then return UI.OptionCheck(stack.inner, label, get, set) end
+			return UI.OptionSelect(stack.inner, label, list, get, set)
+		end
+		p.blizzLook = BRow("select", "Their look", { { "lecdm", "Lecdm's" }, { "blizzard", "Blizzard's (Edit Mode)" } }, "look")
+		p.blizzLookRows = {
+			BRow("select", "Bar texture", ns.Bars.BAR_TEXTURES, "barTexture"),
+			BRow("select", "Bar colour", ns.Bars.BAR_COLORS, "barColor"),
+			BRow("select", "Bar background", Auras.BG, "barBg"),
+			BRow("check", "The icon at the left", nil, "barIcon"),
+			BRow("check", "A spark at the bar's end", nil, "barSpark"),
+			BRow("select", "A gradient on the bar", ns.Bars.GRADIENTS, "barGradient"),
+			BRow("select", "Text font", ns.Bars.FONT_FACES, "fontFace"),
+			BRow("select", "...its outline", ns.Bars.OUTLINES, "fontOutline"),
+		}
 		p.blizzVertical = UI.OptionCheck(stack.inner, "Vertical", bVertGet, bVertSet)
 		p.blizzPerRow = UI.OptionSelect(stack.inner, "Icons per row", Numbers(1, 20, 1), bPerGet, bPerSet)
 		local bShowGet, bShowSet = BlizzField("showWhen")
@@ -602,10 +620,16 @@ ns.Window.Page({
 			stack:Add(p.blizzMode)
 			if ns.Hosted.Settings(kind.key).mode == "take" then
 				stack:Add(p.blizzGap)
-				stack:Add(p.blizzGrow)
 				if kind.key == "icons" then
+					stack:Add(p.blizzGrow)
 					stack:Add(p.blizzVertical)
 					stack:Add(p.blizzPerRow)
+				else
+					stack:Add(p.blizzGrowBars)
+					stack:Add(p.blizzLook)
+					if ns.Hosted.Settings("bars").look ~= "blizzard" then
+						for _, row in ipairs(p.blizzLookRows) do stack:Add(row) end
+					end
 				end
 				stack:Add(p.blizzShow)
 				stack:Add(p.blizzAlpha)

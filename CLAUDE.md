@@ -240,10 +240,14 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
   `hooksecurefunc`; keep per-frame state in weak tables. Identify an icon by its cooldown ID read
   when needed: icons are pooled and reused. Two exceptions, both confirmed harmless in game:
   while Lecdm's bars are on, the Essential and Utility viewers get alpha 0, and the buff
-  viewers too in "hide" mode (never `Hide()`, which stops their events; set again after Edit
-  Mode and loading screens, not fought: `B.ApplyBlizzard`); and in "take" mode the buff
-  viewers' icons are anchored into Lecdm's places after each of Blizzard's layouts
-  (`Hosted.lua`; the host test proved it in the open world and a dungeon).
+  viewers too in "hide" mode, and the timer bars' viewer in "take" mode with Lecdm's look
+  (never `Hide()`, which stops their events; set again after Edit Mode sets their opacity (a
+  hook on `UpdateSystemSettingOpacity`) and loading screens, not fought: `B.ApplyBlizzard`);
+  and in "take" mode the buff viewers' icons are anchored into Lecdm's places after each of
+  Blizzard's layouts (`Hosted.lua`; the host test proved it in the open world and a
+  dungeon). Lecdm's look on Blizzard's timer bars reads only: Lecdm's own bars (in Lecdm's
+  place, anchored over each item) copy each item's bar, texts and icon after its
+  `RefreshCooldownInfo` / `RefreshName` / `RefreshApplications` / `RefreshSpellTexture`.
 - **A two-value call only passes both values when it's last** in an argument list: give
   getter/setter pairs their own locals (UI/Pages/Bars.lua).
 - Events, not timers or retry ladders. One exception (the owner, 2026-11-22): icon bars' timer

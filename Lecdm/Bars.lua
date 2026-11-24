@@ -1588,6 +1588,7 @@ local function Fade(globals, want)
 		local viewer = _G[global]
 		if viewer then
 			if want then
+				-- (Edit Mode may have set its opacity since: set it again, not only the first time.)
 				pcall(viewer.SetAlpha, viewer, 0)
 				faded[viewer] = true
 			elseif faded[viewer] then
@@ -1601,7 +1602,28 @@ end
 -- Blizzard's buff icons and timer bars: invisible only in "hide" mode (Buffs tab, Hosted.lua);
 -- taken into Lecdm, they must stay visible. Hidden, they keep running, so the listener still
 -- hears them.
+-- Edit Mode sets a viewer's opacity each time it applies a layout (UpdateSystemSettingOpacity),
+-- which can come after Lecdm made it invisible (at login, as Blizzard's Cooldown Manager loads):
+-- right after it, Lecdm's choice is set again. A hook only: Blizzard's code runs as it is.
+local opacityHooked = {}
+local function HookOpacity()
+	for _, list in ipairs({ B.BLIZZARD, B.BLIZZARD_BUFFS }) do
+		for _, global in ipairs(list) do
+			local viewer = _G[global]
+			if viewer and not opacityHooked[viewer] and type(viewer.UpdateSystemSettingOpacity) == "function" then
+				opacityHooked[viewer] = true
+				hooksecurefunc(viewer, "UpdateSystemSettingOpacity", function()
+					if not ns.db then return end
+					B.ApplyBlizzard()
+					if ns.Hosted then ns.Hosted.ApplyAlpha() end
+				end)
+			end
+		end
+	end
+end
+
 function B.ApplyBlizzard()
+	HookOpacity()
 	local on = ns.Enabled()
 	Fade(B.BLIZZARD, on and ns.db.bars.hideBlizzard and #ns.db.bars.list > 0)
 	for _, global in ipairs(B.BLIZZARD_BUFFS) do

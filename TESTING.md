@@ -5,6 +5,14 @@ the build and date.
 
 ## To check (0.9.1-dev, 2026-11-21)
 
+0. Blizzard's timer bars (2026-11-24): in Edit Mode set Tracked Bars and Tracked Buffs back to
+   "Always". Buffs tab, "Blizzard's icons": Hide them: gone, and still gone after a full
+   restart and after opening and closing Edit Mode (item 1 again). "Blizzard's timer bars":
+   Take them into Lecdm, Sunder Armor, Thunder Clap and Demoralizing Shout tracked in /cdm's
+   Tracked Bars: they stack in one column (Grow from: the top or the bottom), in Lecdm's look
+   (texture, colour, spark ...) with each one's time left, name and icon, following your
+   target, in combat too. "Their look: Blizzard's": Blizzard's bars instead.
+
 1. After installing: Blizzard's buff icons and timer bars are gone (the Buffs tab's dropdown,
    "Blizzard's icons": What happens to them: Hide them), and stay gone after `/reload`. Lecdm's
    own buff groups and icon bars are all that shows. In-combat drop sounds for buffs tracked in
@@ -435,7 +443,7 @@ Test build 1 is finished (2026-11-20).
 ## Problems
 
 - **Blizzard's buff icons and timer bars still showed with "Hide them"** (0.9.1-dev item 1,
-  the owner, 2026-11-24). The owner hid them with Edit Mode's visibility "Hidden" instead,
+  the owner, 2026-11-24; fix to check: item 0). The owner hid them with Edit Mode's visibility "Hidden" instead,
   which stops them listening (their `OnHide` unregisters `UNIT_AURA`), so the in-combat
   announcements from them (a target debuff dropping, buffs tracked in /cdm) go quiet. Likely
   cause: Edit Mode applies its opacity to the viewers (`UpdateSystemSettingOpacity`) after

@@ -138,8 +138,13 @@ its name on a blue shade and can be dragged; `/lecdm move` again locks it.
   the in-combat sounds still hear them. The dropdown has them as **Blizzard's icons** and
   **Blizzard's timer bars**, for anyone who wants their debuffs on the target (only Blizzard
   can time those): **hide them** (the default), **take them into Lecdm** (Lecdm's own place,
-  spaced and grown your way, gaps closed, following each target), or **leave them** where
-  Blizzard shows them; and when they show. Which ones and their order are picked in
+  spaced and grown your way, gaps closed, following each target; timer bars in one column,
+  from the top or the bottom, and in **Lecdm's look**: Lecdm's own bars over Blizzard's,
+  copying their time, name, icon and stacks, with a texture, colour, background, icon, spark,
+  gradient and font of your choosing, or Blizzard's look from Edit Mode), or **leave them**
+  where Blizzard shows them; and when they show. Lecdm keeps them invisible even after Edit
+  Mode sets their opacity; don't hide them in Edit Mode itself (a viewer hidden there stops
+  tracking, and so stops announcing). Which ones and their order are picked in
   `/cdm` (Tracked Buffs for icons, Tracked Bars for timer bars; "Open /cdm" is right there);
   their size is Edit Mode's. Below, each of Blizzard's tracked auras for your class with its
   own alerts (its ⚙: sounds when it's applied or drops, its name on screen).

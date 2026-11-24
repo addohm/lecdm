@@ -733,7 +733,33 @@ second.layoutIndex, shout.layoutIndex = 2, 1
 ns.Refresh()
 check(PlaceOf(shout) and PlaceOf(shout).kindKey == "icons", "Blizzard's icon not in Lecdm's place")
 check(PlaceOf(sunderBar) and PlaceOf(sunderBar).kindKey == "bars", "Blizzard's timer bar not in Lecdm's place")
-check(iconViewer.alpha == 1 and barViewer.alpha == 1, "a taken-in viewer was made invisible")
+check(iconViewer.alpha == 1 and barViewer.alpha == 0, "a taken-in viewer's alpha wrong (Lecdm's look: Blizzard's bars invisible)")
+-- Lecdm's look on Blizzard's timer bars: Lecdm's own bar over each, copying what Blizzard shows
+-- as it refreshes it (secret in combat, handed on); Blizzard's look: the viewer shows again.
+local function OverlayOf(item)
+	for _, f in ipairs(M.frames) do
+		if f.bar and f.time and f.allPoints == item then return f end
+	end
+end
+M.barShows = { [sunderBar] = { 12, 30, "12", "Sunder Armor" } }
+sunderBar:RefreshCooldownInfo()
+sunderBar:RefreshName()
+local over = OverlayOf(sunderBar)
+check(over and over.shown and over.bar.value == 12 and over.bar.max == 30 and over.time.text == "12" and over.name.text == "Sunder Armor",
+	"Lecdm's bar doesn't copy Blizzard's")
+M.combat = true
+sunderBar:RefreshCooldownInfo()
+check(over.bar.value == M.SECRET and over.time.text == M.SECRET, "Lecdm's bar didn't take the secret values as they are")
+M.combat = false
+local secondBar = M.AddItem("BuffBarCooldownViewer", 17)
+secondBar.layoutIndex, sunderBar.layoutIndex = 2, 1
+barViewer:RefreshLayout()
+check(secondBar.points[1][5] < 0 and secondBar.points[1][4] == 0, "Blizzard's timer bars don't stack in one column")
+ns.db.buffs.blizzard.bars.look = "blizzard"
+ns.Refresh()
+check(barViewer.alpha == 1 and not over.shown, "Blizzard's look didn't give Blizzard's bars back")
+ns.db.buffs.blizzard.bars.look = "lecdm"
+ns.Refresh()
 M.combat = true
 iconViewer:RefreshLayout()
 check(PlaceOf(shout).kindKey == "icons" and PlaceOf(second).kindKey == "icons", "Blizzard's layout took the icons back")
@@ -752,6 +778,11 @@ ns.Refresh()
 check(barViewer.alpha == 0, "hide didn't make the timer bars invisible")
 M.Fire("PLAYER_ENTERING_WORLD")
 check(barViewer.alpha == 0, "hide not kept after a loading screen")
+barViewer:UpdateSystemSettingOpacity()
+iconViewer:UpdateSystemSettingOpacity()
+check(barViewer.alpha == 0, "hide not kept after Edit Mode set the viewer's opacity")
+M.viewers.EssentialCooldownViewer:UpdateSystemSettingOpacity()
+check(M.viewers.EssentialCooldownViewer.alpha == 0, "Blizzard's Essential icons back after Edit Mode set their opacity")
 ns.db.buffs.blizzard.bars.mode = "leave"
 ns.Refresh()
 barViewer:RefreshLayout()
@@ -1656,6 +1687,17 @@ check(buffPanel.parts.blizzMode.box.text == "Take them into Lecdm" and buffPanel
 check(buffPanel.parts.auraRows[1] and buffPanel.parts.auraRows[1].name == "Battle Shout" and buffPanel.parts.auraRows[1].gear,
 	"Blizzard's auras' own alerts rows missing")
 check(not buffPanel.parts.style.shown, "a buff group's rows shown on a Blizzard page")
+-- Blizzard's timer bars page, taken in: one column (top or bottom) and their look.
+local barsMode = ns.db.buffs.blizzard.bars.mode
+ns.db.buffs.blizzard.bars.mode = "take"
+groupMenu.children[3].setSelected()
+local function OnBuffPage(row)
+	for _, r in ipairs(buffPanel.stack.rows) do if r == row then return true end end
+	return false
+end
+check(OnBuffPage(buffPanel.parts.blizzGrowBars) and OnBuffPage(buffPanel.parts.blizzLook) and OnBuffPage(buffPanel.parts.blizzLookRows[1])
+	and not OnBuffPage(buffPanel.parts.blizzPerRow), "the timer bars page's rows wrong")
+ns.db.buffs.blizzard.bars.mode = barsMode
 groupMenu.children[1].setSelected()
 M.Slash("bars")
 
