@@ -48,8 +48,9 @@ local DEFAULTS = {
 		blizzard = {
 			icons = { mode = "hide", gap = 4, grow = "CENTER", vertical = false, perRow = 12, showWhen = "always", alpha = 1, oocAlpha = 1 },
 			bars = { mode = "hide", gap = 2, grow = "LEFT", showWhen = "always", alpha = 1, oocAlpha = 1,
-				-- Lecdm's look on them (Hosted.lua) or Blizzard's ("blizzard")
-				look = "lecdm", barTexture = "blizzard", barColor = "blue", barBg = 0.6, barIcon = true,
+				-- Lecdm's look on them (Hosted.lua) or Blizzard's ("blizzard"); its height and
+				-- width (0: Edit Mode's)
+				look = "lecdm", height = 0, width = 0, barTexture = "blizzard", barColor = "blue", barBg = 0.6, barIcon = true,
 				barSpark = true, barGradient = "none", fontFace = "default", fontOutline = "OUTLINE" },
 		},
 	},

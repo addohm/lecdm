@@ -8,6 +8,9 @@ All notable changes to lecdm. The format follows
 
 ### Added
 
+- Blizzard's timer bars in Lecdm's look: Bar height and Bar width of their own (Edit Mode's
+  until one is picked; the owner, 2026-11-28: "too tall and too wide"). Blizzard's invisible
+  bar, which gives the tooltip, sits at the top left of each.
 - Blizzard's timer bars taken in wear Lecdm's look: Lecdm's own bar over each of Blizzard's,
   copying its time, name, icon and stacks as Blizzard updates it, with a texture, colour,
   background, icon, spark, gradient and font (or Blizzard's own look, from Edit Mode).
@@ -122,6 +125,8 @@ All notable changes to lecdm. The format follows
 
 ### Fixed
 
+- Lecdm's look on Blizzard's timer bars: the icon was too big for the bar when Edit Mode's
+  Icon Size wasn't 100%.
 - Blizzard's timer bars taken in ran sideways: they stack in one column now (from the top or
   the bottom).
 - "Hide them" didn't stick at login: Edit Mode set Blizzard's viewers' opacity back after Lecdm

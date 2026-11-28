@@ -199,6 +199,8 @@ dragging. No trips to Blizzard's settings window or Edit Mode.
 - Not doing (the owner, 2026-11-22): Blizzard's icons' size from Lecdm (it means setting their
   scale, past the two exceptions to "Blizzard's Cooldown Manager is read-only"); Edit Mode's
   size stays.
+- [x] Blizzard's timer bars in Lecdm's look: a height and width of their own (Lecdm's bars;
+      Blizzard's keep Edit Mode's size, invisible under them) (2026-11-28)
 
 Not on the list, not in Classic: Skyriding and housing visibility, Bloodlust-style presets,
 hero talents, rotation assist (see "Can't be done").

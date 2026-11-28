@@ -726,20 +726,21 @@ check(not ns.Bars.IsUnlocked() and not cooldowns.mouse, "move didn't lock")
 -- viewer invisible; "leave" lets Blizzard keep them.
 local iconViewer, barViewer = M.viewers.BuffIconCooldownViewer, M.viewers.BuffBarCooldownViewer
 local function PlaceOf(item) return item.points[1] and item.points[1][2] end
+-- In Lecdm's look, Blizzard's timer bar sits at the top left of Lecdm's own, in Lecdm's place.
+local function BarPlaceOf(item) local o = PlaceOf(item) return o and o.parent end
 ns.db.buffs.blizzard.icons.mode, ns.db.buffs.blizzard.bars.mode = "take", "take"
 local sunderBar = M.AddItem("BuffBarCooldownViewer", 16)
 local second = M.AddItem("BuffIconCooldownViewer", 14)
 second.layoutIndex, shout.layoutIndex = 2, 1
 ns.Refresh()
 check(PlaceOf(shout) and PlaceOf(shout).kindKey == "icons", "Blizzard's icon not in Lecdm's place")
-check(PlaceOf(sunderBar) and PlaceOf(sunderBar).kindKey == "bars", "Blizzard's timer bar not in Lecdm's place")
+check(BarPlaceOf(sunderBar) and BarPlaceOf(sunderBar).kindKey == "bars", "Blizzard's timer bar not in Lecdm's place")
 check(iconViewer.alpha == 1 and barViewer.alpha == 0, "a taken-in viewer's alpha wrong (Lecdm's look: Blizzard's bars invisible)")
 -- Lecdm's look on Blizzard's timer bars: Lecdm's own bar over each, copying what Blizzard shows
 -- as it refreshes it (secret in combat, handed on); Blizzard's look: the viewer shows again.
 local function OverlayOf(item)
-	for _, f in ipairs(M.frames) do
-		if f.bar and f.time and f.allPoints == item then return f end
-	end
+	local o = PlaceOf(item)
+	if o and o.bar and o.time then return o end
 end
 M.barShows = { [sunderBar] = { 12, 30, "12", "Sunder Armor" } }
 sunderBar:RefreshCooldownInfo()
@@ -754,7 +755,21 @@ M.combat = false
 local secondBar = M.AddItem("BuffBarCooldownViewer", 17)
 secondBar.layoutIndex, sunderBar.layoutIndex = 2, 1
 barViewer:RefreshLayout()
-check(secondBar.points[1][5] < 0 and secondBar.points[1][4] == 0, "Blizzard's timer bars don't stack in one column")
+local secondOver = OverlayOf(secondBar)
+check(secondOver and secondOver.points[1][5] == -42 and secondOver.points[1][4] == 0, "Blizzard's timer bars don't stack in one column")
+check(over.w == 40 and over.h == 40, "Lecdm's bar not Edit Mode's size by default")
+-- Lecdm's own size: Lecdm's bars that size, Blizzard's at their top left.
+ns.db.buffs.blizzard.bars.height, ns.db.buffs.blizzard.bars.width = 16, 120
+ns.Refresh()
+check(over.w == 120 and over.h == 16 and over.icon.w == 16 and secondOver.points[1][5] == -18,
+	"Lecdm's bars not their own size: " .. tostring(over.w) .. "x" .. tostring(over.h) .. ", " .. tostring(secondOver.points[1][5]))
+local p1 = sunderBar.points[1]
+check(#sunderBar.points == 1 and p1[1] == "TOPLEFT" and p1[2] == over and p1[3] == "TOPLEFT" and p1[4] == nil,
+	"Blizzard's bar not at the top left of Lecdm's")
+check(BarPlaceOf(sunderBar).w == 120 and BarPlaceOf(sunderBar).h == 34, "Lecdm's place not the bars' size")
+ns.db.buffs.blizzard.bars.height, ns.db.buffs.blizzard.bars.width = 0, 0
+ns.Refresh()
+check(over.w == 40 and over.h == 40, "Edit Mode's size not back")
 ns.db.buffs.blizzard.bars.look = "blizzard"
 ns.Refresh()
 check(barViewer.alpha == 1 and not over.shown, "Blizzard's look didn't give Blizzard's bars back")
@@ -789,7 +804,7 @@ barViewer:RefreshLayout()
 check(barViewer.alpha == 1 and PlaceOf(sunderBar) == barViewer, "leave didn't give Blizzard its bars back")
 ns.db.buffs.blizzard.bars.mode = "take"
 ns.Refresh()
-check(PlaceOf(sunderBar).kindKey == "bars", "take didn't take the bars back")
+check(BarPlaceOf(sunderBar).kindKey == "bars", "take didn't take the bars back")
 iconViewer.itemFramePool.active[second] = nil
 ns.Refresh()
 

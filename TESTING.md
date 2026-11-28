@@ -12,6 +12,10 @@ the build and date.
    Tracked Bars: they stack in one column (Grow from: the top or the bottom), in Lecdm's look
    (texture, colour, spark ...) with each one's time left, name and icon, following your
    target, in combat too. "Their look: Blizzard's": Blizzard's bars instead.
+   Bar height 16, Bar width 140 (2026-11-28): Lecdm's bars that size, still in one column; the
+   tooltip shows over each bar's left end (Blizzard's invisible bar sits there, Edit Mode's
+   size); back to "Edit Mode's": Edit Mode's size again. Edit Mode's Icon Size at 50%: the
+   icon on Lecdm's bar still square.
 
 1. After installing: Blizzard's buff icons and timer bars are gone (the Buffs tab's dropdown,
    "Blizzard's icons": What happens to them: Hide them), and stay gone after `/reload`. Lecdm's

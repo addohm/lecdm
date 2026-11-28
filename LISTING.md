@@ -94,7 +94,7 @@ plenty is still to come. Reports of anything wrong or missing are very welcome.
   come back to full colour as the buff runs out, in combat too.
 - **Only what you set up shows:** Blizzard's own icons and timer bars are hidden. If you want
   your debuffs on the target (only Blizzard can time them), Lecdm can take Blizzard's in, into
-  its own places, following each target, and draw them in its own look.
+  its own places, following each target, and draw them in its own look and size.
 - Lecdm's own list of buffs for every class, with every rank (group versions count too: Prayer
   of Fortitude is Fortitude), racials, world buffs, consumables, and weapon enchants (oils,
   sharpening stones, poisons).

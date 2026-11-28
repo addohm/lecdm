@@ -496,13 +496,20 @@ ns.Window.Page({
 		p.blizzGrow = UI.OptionSelect(stack.inner, "Grow from", GROW, bGrowGet, bGrowSet)
 		p.blizzGrowBars = UI.OptionSelect(stack.inner, "Grow from", { { "LEFT", "The top" }, { "RIGHT", "The bottom" } }, bGrowGet, bGrowSet)
 		-- Lecdm's look on Blizzard's timer bars (Hosted.lua): Lecdm's own bars over them.
-		local function BRow(kindOf, label, list, key)
+		local function BRow(kindOf, label, list, key, tip)
 			local get, set = BlizzField(key)
-			if kindOf == "check" then return UI.OptionCheck(stack.inner, label, get, set) end
-			return UI.OptionSelect(stack.inner, label, list, get, set)
+			if kindOf == "check" then return UI.OptionCheck(stack.inner, label, get, set, tip) end
+			return UI.OptionSelect(stack.inner, label, list, get, set, tip and { tooltip = tip } or nil)
 		end
+		local function EditModes(list)
+			table.insert(list, 1, { 0, "Edit Mode's" })
+			return list
+		end
+		local sizeTip = { "Their size", "Edit Mode's: the size set there (Tracked Bars: Icon Size, Bar Width). Another: Lecdm's bars are that size; Blizzard's own, invisible under them, stay Edit Mode's size at their top left, and give the tooltip." }
 		p.blizzLook = BRow("select", "Their look", { { "lecdm", "Lecdm's" }, { "blizzard", "Blizzard's (Edit Mode)" } }, "look")
 		p.blizzLookRows = {
+			BRow("select", "Bar height", EditModes(Numbers(10, 40, 2)), "height", sizeTip),
+			BRow("select", "Bar width", EditModes(Numbers(60, 400, 20)), "width", sizeTip),
 			BRow("select", "Bar texture", ns.Bars.BAR_TEXTURES, "barTexture"),
 			BRow("select", "Bar colour", ns.Bars.BAR_COLORS, "barColor"),
 			BRow("select", "Bar background", Auras.BG, "barBg"),
@@ -524,7 +531,8 @@ ns.Window.Page({
 			local kind = CurrentKind()
 			local section = kind and kind.key == "bars" and "Tracked Bars" or "Tracked Buffs"
 			return "Which buffs and debuffs show here, and their order: Blizzard's Cooldown Manager (/cdm), its Buffs tab, "
-				.. section .. ". Your debuffs on the target (Sunder Armor, Thunder Clap ...) can only be timed by Blizzard, so they're picked there. Their size: Edit Mode."
+				.. section .. ". Your debuffs on the target (Sunder Armor, Thunder Clap ...) can only be timed by Blizzard, so they're picked there. "
+				.. (kind and kind.key == "bars" and ns.Hosted.LecdmLook() and "Their size: Bar height and Bar width above, or Edit Mode's." or "Their size: Edit Mode.")
 		end, 44)
 		p.blizzOpen = UI.OptionButton(stack.inner, "", "Open /cdm", function() ns.Hosted.OpenBlizzard() end)
 		p.auraHead = UI.OptionHeading(stack.inner, "Their alerts, each aura's own")

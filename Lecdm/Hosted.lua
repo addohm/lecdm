@@ -9,13 +9,15 @@
 --            hears it);
 --   "leave": Blizzard's own place and layout.
 -- Which auras, and their order, are picked in Blizzard's /cdm (the owner's choice, 2026-11-21);
--- their size is Edit Mode's. Lecdm re-places the icons after each of Blizzard's layouts
+-- their size is Edit Mode's (timer bars in Lecdm's look: Lecdm's height and width, if set). Lecdm re-places the icons after each of Blizzard's layouts
 -- (RefreshLayout, Layout) and whenever one shows or hides (UpdateShownState): hooks only, never
 -- a call into Blizzard's code (confirmed in game in the open world and a dungeon: the host test).
 -- Timer bars taken in can wear Lecdm's look (bars.look "lecdm", the default): Lecdm's own bar
 -- over each of Blizzard's, in Lecdm's place, copying what Blizzard shows each time it updates it
 -- (hooks on its Refresh methods: the fill, the time, the name, the icon, the stacks; secret in
 -- combat, handed on as they are), and Blizzard's viewer made invisible as in "hide" mode.
+-- Lecdm's bars can have their own height and width (bars.height / .width, 0: Edit Mode's);
+-- Blizzard's invisible bar, which gives the tooltip, then sits at each one's top left.
 local _, ns = ...
 
 local H = {}
@@ -101,12 +103,9 @@ local function Overlay(item, place)
 	return o
 end
 
--- Lecdm's look on an overlay (the place's settings): the icon at the left (or none), the bar,
--- its texture, colour, background, spark, gradient, the text's font.
-local function StyleOverlay(o, s, item)
-	o:ClearAllPoints()
-	o:SetAllPoints(item)
-	local h = Number(item:GetHeight(), 20)
+-- Lecdm's look on an overlay (the place's settings; h: its height): the icon at the left (or
+-- none), the bar, its texture, colour, background, spark, gradient, the text's font.
+local function StyleOverlay(o, s, h)
 	local iconW = s.barIcon ~= false and h or 0
 	o.edge:ClearAllPoints()
 	o.edge:SetPoint("TOPLEFT", -1, 1)
@@ -137,13 +136,21 @@ local function StyleOverlay(o, s, item)
 	ns.Bars.SetFont(o.count, s.fontFace, s.fontOutline, "small", "NumberFontNormalSmall")
 end
 
--- After a layout: an overlay over each of Blizzard's bars shown, none over the rest.
-local function PlaceOverlays(items, place, s)
+-- After a layout: Lecdm's bar at each spot worked out (spots[k]: point, x, y; w by h), with
+-- Blizzard's under it at its top left; none for the rest.
+local function PlaceOverlays(items, place, s, spots, w, h)
 	local want = {}
 	if H.LecdmLook() then
-		for _, item in ipairs(items) do
-			local o = Overlay(item, place)
-			StyleOverlay(o, s, item)
+		for k, item in ipairs(items) do
+			local o, spot = Overlay(item, place), spots[k]
+			o:ClearAllPoints()
+			o:SetPoint(spot[1], place, spot[1], spot[2], spot[3])
+			o:SetSize(w, h)
+			StyleOverlay(o, s, h)
+			pcall(function()
+				item:ClearAllPoints()
+				item:SetPoint("TOPLEFT", o, "TOPLEFT")
+			end)
 			o.on = true
 			o:Show()
 			want[o] = true
@@ -212,7 +219,7 @@ local function Layout(kind)
 	local s = H.Settings(kind.key)
 	local viewer = _G[kind.global]
 	if placing or not viewer or not ns.Enabled() or s.mode ~= "take" then
-		if kind.key == "bars" and not placing then PlaceOverlays({}, nil, s) end
+		if kind.key == "bars" and not placing then PlaceOverlays({}, nil, s, {}, 0, 0) end
 		return
 	end
 	placing = true
@@ -234,6 +241,13 @@ local function Layout(kind)
 		h = math.max(1, Number(item:GetHeight(), 40) * scale)
 		break
 	end
+	-- Timer bars in Lecdm's look: Lecdm's own size, if set.
+	local look = bars and H.LecdmLook()
+	if look then
+		if Number(s.width, 0) > 0 then w = s.width end
+		if Number(s.height, 0) > 0 then h = s.height end
+	end
+	local spots = {}
 	local n = #items
 	local lines = math.ceil(n / per)
 	for k, item in ipairs(items) do
@@ -259,11 +273,14 @@ local function Layout(kind)
 				point, x, y = "TOP", (pos - (count - 1) / 2) * step, -line * (h + s.gap)
 			end
 		end
+		spots[k] = { point, x, y }
 		local scale = Number(item:GetEffectiveScale(), 1) / hostScale
-		pcall(function()
-			item:ClearAllPoints()
-			item:SetPoint(point, frame, point, x / scale, y / scale)
-		end)
+		if not look then
+			pcall(function()
+				item:ClearAllPoints()
+				item:SetPoint(point, frame, point, x / scale, y / scale)
+			end)
+		end
 	end
 	-- The place's size: its whole area, for the shade and the drag while unlocked.
 	local across = math.max(1, math.min(math.max(n, 1), per))
@@ -271,7 +288,7 @@ local function Layout(kind)
 	local height = vertical and (across * (h + s.gap) - s.gap) or (math.max(1, lines) * (h + s.gap) - s.gap)
 	if bars then width, height = w, math.max(1, n) * (h + s.gap) - s.gap end
 	frame:SetSize(math.max(width, 40), math.max(height, 20))
-	if bars then PlaceOverlays(items, frame, s) end
+	if bars then PlaceOverlays(items, frame, s, spots, w, h) end
 	placing = false
 end
 

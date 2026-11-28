@@ -153,7 +153,8 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
     `GetWeaponEnchantInfo`) feeds the alerts with the buffs.
   - `Hosted.lua`: Blizzard's icons and timer bars, hidden by default (the owner: Lecdm shows
     only what the player sets up; profiles from 0.9.0-alpha switch once, `hiddenByDefault`),
-    or taken in (`ns.db.buffs.blizzard.icons` / `.bars`: `mode` "hide" | "take" | "leave", `gap`, `grow`, `vertical`, `perRow`, `pos`).
+    or taken in (`ns.db.buffs.blizzard.icons` / `.bars`: `mode` "hide" | "take" | "leave", `gap`, `grow`, `vertical`, `perRow`, `pos`;
+    the bars' `look` "lecdm" | "blizzard", `height` / `width`, 0: Edit Mode's).
     In "take", each item of the BuffIcon / BuffBar viewer is anchored into Lecdm's place
     (`Layout`, in Blizzard's layoutIndex order, hidden ones skipped, offsets converted by
     effective scale), after each `RefreshLayout` / `Layout` of the viewer and each item's
@@ -245,8 +246,9 @@ taken in, alerts, looks and visibility, profiles, diagnostics. Test build 1 (in 
   hook on `UpdateSystemSettingOpacity`) and loading screens, not fought: `B.ApplyBlizzard`);
   and in "take" mode the buff viewers' icons are anchored into Lecdm's places after each of
   Blizzard's layouts (`Hosted.lua`; the host test proved it in the open world and a
-  dungeon). Lecdm's look on Blizzard's timer bars reads only: Lecdm's own bars (in Lecdm's
-  place, anchored over each item) copy each item's bar, texts and icon after its
+  dungeon). Lecdm's look on Blizzard's timer bars reads only: Lecdm's own bars (laid out in
+  Lecdm's place, Lecdm's height and width or Edit Mode's; each item anchored at its bar's top
+  left) copy each item's bar, texts and icon after its
   `RefreshCooldownInfo` / `RefreshName` / `RefreshApplications` / `RefreshSpellTexture`.
 - **A two-value call only passes both values when it's last** in an argument list: give
   getter/setter pairs their own locals (UI/Pages/Bars.lua).
